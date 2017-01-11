@@ -17,20 +17,20 @@
 		top: 0px;
 		color:black;
 	}
+	p {
+		color: white;
+	}
 	#directions {
 		position: absolute;
 		left: 10px;
 		top: 0px;
-		color: white;
 	}
 	#fps {
 		position: absolute;
 		left: 10px;
 		top: 40px;
-		color: white;
 	}
 	#loading-notification {
-		color: white;
 		position: absolute;
 		left: 50%;
 		top: 50%;
@@ -53,6 +53,7 @@
 <script id="shader-vs" type="x-shader/x-vertex">
 	attribute vec3 aVertexPosition;
     attribute vec3 aVertexNormal;
+	attribute vec3 aVertexColor;
 
     uniform mat4 uMVMatrix;
     uniform mat4 uPMatrix;
@@ -60,6 +61,8 @@
 	
 	uniform mat3 uNormalMatrix;
 
+	uniform bool uLightingEnable;
+	
     uniform vec3 uAmbientColor;
 
     uniform vec3 uLightingDirection;
@@ -74,9 +77,14 @@
         gl_Position = uPMatrix * uSceneMatrix * scene_position;
 		
 		vec3 transformedNormal = uNormalMatrix * aVertexNormal;
-		
-		float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0);
-		vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;
+		if(uLightingEnable){
+			float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0);
+			float lightWeighting = directionalLightWeighting + 0.3;
+			
+			vLightWeighting = aVertexColor * lightWeighting;
+		} else {
+			vLightWeighting = aVertexColor;
+		}
 		//vLightWeighting = transformedNormal.xyz;
     }
 </script>
@@ -85,10 +93,11 @@
 <script type="text/javascript">
 
     var gl;
-
+	var start_time = 0;
+	
     function initGL(canvas) {
         try {
-            gl = canvas.getContext("webgl");
+            gl = canvas.getContext("experimental-webgl");
             gl.viewportWidth = canvas.width;
             gl.viewportHeight = canvas.height;
         } catch (e) {
@@ -156,12 +165,18 @@
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
         shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+		console.log(shaderProgram.vertexNormalAttribute);
         gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+		
+		shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+		console.log(shaderProgram.vertexColorAttribute);
+        gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
         shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
         shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
         shaderProgram.sceneMatrixUniform = gl.getUniformLocation(shaderProgram, "uSceneMatrix");
 		shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNormalMatrix");
+		shaderProgram.lightingEnableUniform = gl.getUniformLocation(shaderProgram, "uLightingEnable");
         shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
         shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
         shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
@@ -198,56 +213,61 @@
 		mat3.transpose(normalMatrix);
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
     }
+	
+	var line_segment;
+	
+	function create_laser(x, y, z) {
+		var vertexPositions = [
+			x, y, z,
+			0, 0, 0
+		];
+		vertexNormals = [0.0,0.0,1.0, 0.0,0.0,1.0];
+		vertexColors = [0.0,0.0,1.0, 0.0,0.0,1.0];
+		vertexCount = 2;
+		vertexIndecis = [0,1];
+		indecisCount = 2;
+		
+		line_segment = createNewSegment(vertexPositions, vertexNormals, vertexColors, vertexCount, vertexIndecis, indecisCount);
+		line_segment.mode = gl.LINES;
+		line_segment.useLighting = false;
+	}
+	
+	function update_laser(x, y, z) {
+		gl.bindBuffer(gl.ARRAY_BUFFER, line_segment.shipVertexPositionBuffer);
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([x, y, z]));
+	}
 
 
     function degToRad(degrees) {
         return degrees * Math.PI / 180;
     }
-	
-	var shipVertexSegments = [];
-	
-	function create_new_segment(vertexPositions, vertexNormals, vertexCount, vertexIndecis, indecisCount) {
-		var segment = {};
-		
-		segment.shipVertexPositionBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, segment.shipVertexPositionBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexPositions), gl.STATIC_DRAW);
-		segment.shipVertexPositionBuffer.itemSize = 3;
-		segment.shipVertexPositionBuffer.numItems = vertexCount;
-		
-		segment.shipVertexNormalBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, segment.shipVertexNormalBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
-		segment.shipVertexNormalBuffer.itemSize = 3;
-		segment.shipVertexNormalBuffer.numItems = vertexCount;
-		
-		segment.shipVertexIndexBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, segment.shipVertexIndexBuffer);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndecis), gl.STATIC_DRAW);
-		segment.shipVertexIndexBuffer.itemSize = 1;
-		segment.shipVertexIndexBuffer.numItems = indecisCount;
-		
-		console.log("vertexCount: " + vertexCount);
-		console.log("indecisCount: " + indecisCount);
-		
-		segment.vertexPositions = vertexPositions;
-		segment.vertexNormals = vertexNormals;
-		segment.vertexIndecis = vertexIndecis;
-		
-		shipVertexSegments.push(segment);
-	}
+
 
 	
 	var currentlyPressedKeys = {};
 		
     function handleKeyDown(event) {
         currentlyPressedKeys[event.keyCode] = true;
+		
+		if(event.keyCode == 32) { // space bar
+			var x = radius * Math.cos(theta - Math.PI/2) * Math.cos(psi - Math.PI/2);
+			var y = radius * Math.sin(theta - Math.PI/2) * Math.cos(psi - Math.PI/2);
+			var z = radius * Math.sin(psi + Math.PI/2);
+			x += Math.random()*20 - 10;
+			y += Math.random()*20 - 10
+			z += Math.random()*20 - 10
+			update_laser(x, y, z);
+		}
     }
     function handleKeyUp(event) {
         currentlyPressedKeys[event.keyCode] = false;
     }
 	function handleMouseWheel(event) {
-		radius -= event.wheelDelta / 100;
+		
+		var faster = currentlyPressedKeys[16];
+		var speed = (faster)?10:1;
+		
+		radius -= (event.wheelDelta / 100) * speed;
 		
 	}
 
@@ -256,38 +276,41 @@
 	
 	var theta = 1;
 	var d_theta = 0;
-	var psi = Math.PI/2 - .25;
+	var psi = Math.PI/2;
 	var d_psi = 0;
-	var radius = 300;
+	var radius = 600;
 	var d_radius = 0;
 
     function handleKeys() {
+		var faster = currentlyPressedKeys[16];
+		var speed = (faster)?10:1;
+		
         if (currentlyPressedKeys[33]) {
             // Page Up
-            d_radius = 0.1;
+            d_radius = 0.1 * speed;
         } else if (currentlyPressedKeys[34]) {
             // Page Down
-            d_radius = -0.1;
+            d_radius = -0.1 * speed;
         } else {
             d_radius = 0;
         }
 
         if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
             // Left cursor key or A
-            d_theta = 0.003;
+            d_theta = 0.0003 * speed;
         } else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
             // Right cursor key or D
-            d_theta = -0.003;
+            d_theta = -0.0003 * speed;
         } else {
             d_theta = 0;
         }
 
         if (currentlyPressedKeys[38] || currentlyPressedKeys[87]) {
             // Up cursor key or W
-            d_psi = 0.003;
+            d_psi = 0.0003 * speed;
         } else if (currentlyPressedKeys[40] || currentlyPressedKeys[83]) {
             // Down cursor key
-            d_psi = -0.003;
+            d_psi = -0.0003 * speed;
         } else {
             d_psi = 0;
         }
@@ -315,18 +338,9 @@
         mat4.identity(mvMatrix);
 		mat4.identity(sceneMatrix);
 
-		/*
-        mat4.translate(mvMatrix, [0, 0, -radius]);
-		mat4.rotate(mvMatrix, (-psi), [1, 0, 0]);
-		mat4.rotate(mvMatrix, (-theta), [0, 0, 1]);
-		*/
-		
 		mat4.translate(sceneMatrix, [0, 0, -radius]);
 		mat4.rotate(sceneMatrix, (-psi), [1, 0, 0]);
 		mat4.rotate(sceneMatrix, (-theta), [0, 0, 1]);
-		
-		
-		
 		
 		var x = 100;
 		var y = 100;
@@ -335,14 +349,16 @@
 		var pitch = 0;
 		var roll = 0;
 		
+		var all_loaded = draw_model("small room", 0, 0, 0, 0, 0, 0);
+		//draw_segment(line_segment);
 		
-		
-		var all_loaded = draw_model("small room", 0, 0, 0, 0, 0, 0);;
-		
-		//all_loaded ||= draw_model("inner hull plate", x-200, y-200, z-200, yaw, pitch, roll);
+		//var all_loaded = draw_model("2x2 wall", 0, 0, 0, yaw, pitch, roll);
 		
 		if(all_loaded) {
 			document.getElementById('loading-notification').innerHTML = "";
+		} else {
+			var t = (new Date()).getTime() - start_time;
+			console.log("Not loaded " + t);
 		}
 		frame_count += 1;
     }
@@ -351,6 +367,7 @@
     var lastTime = 0;
 	
 	var FPS = 60;
+	var l_y = 0;
 
     function animate() {
         var timeNow = new Date().getTime();
@@ -375,7 +392,6 @@
 			FPS = FPS * (1-alpha) + (1000/elapsed) * alpha;
 			document.getElementById("fps").innerHTML = "FPS: " + Math.floor(FPS);
 		}
-		
     }
 
     function tick() {
@@ -388,6 +404,8 @@
 
     function webGLStart() {
         var canvas = document.getElementById("game-canvas");
+		
+		start_time = (new Date()).getTime();
 		
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
@@ -402,6 +420,8 @@
         document.onkeyup = handleKeyUp;
 		document.onmousewheel = handleMouseWheel;
 
+		create_laser(400, 0, 0);
+		
         tick();
     }
 

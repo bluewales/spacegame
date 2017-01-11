@@ -80,7 +80,7 @@ var models = {
 			},
 			{
 				"name": "inner hull plate",
-				"x": -50,
+				"x": -51,
 				"y": 50,
 				"z": 0,
 				"yaw": 0,
@@ -89,15 +89,15 @@ var models = {
 			},{
 				"name": "inner hull plate",
 				"x": 50,
-				"y": -50,
+				"y": -51,
 				"z": 0,
 				"yaw": 0,
 				"pitch": 0,
 				"roll": 0
 			},{
 				"name": "inner hull plate",
-				"x": -50,
-				"y": -50,
+				"x": -51,
+				"y": -51,
 				"z": 0,
 				"yaw": 0,
 				"pitch": 0,
@@ -120,14 +120,14 @@ var models = {
 				"name": "2x2 wall",
 				"x": 0,
 				"y": 0,
-				"z": 110,
+				"z": 111,
 				"yaw": 0,
 				"pitch": 0,
 				"roll": 0
 			},
 			{
 				"name": "2x2 wall",
-				"x": -111,
+				"x": -112,
 				"y": 0,
 				"z": 0,
 				"yaw": 0,
@@ -155,7 +155,7 @@ var models = {
 			{
 				"name": "2x2 wall",
 				"x": 0,
-				"y": -111,
+				"y": -112,
 				"z": 0,
 				"yaw": 0,
 				"pitch": 3 * Math.PI / 2,
@@ -165,7 +165,7 @@ var models = {
 				"name": "inner hull corner",
 				"x": 113,
 				"y": 113,
-				"z": 112,
+				"z": 113,
 				"yaw": Math.PI,
 				"pitch":  - Math.PI / 2,
 				"roll": 0
@@ -173,26 +173,26 @@ var models = {
 			{
 				"name": "inner hull corner",
 				"x": 113,
-				"y": -112,
-				"z": 112,
+				"y": -113,
+				"z": 113,
 				"yaw": Math.PI / 2,
 				"pitch":  - Math.PI / 2,
 				"roll": 0
 			},
 			{
 				"name": "inner hull corner",
-				"x": -112,
-				"y": -112,
-				"z": 112,
+				"x": -113,
+				"y": -113,
+				"z": 113,
 				"yaw": 0,
 				"pitch":  - Math.PI / 2,
 				"roll": 0
 			},
 			{
 				"name": "inner hull corner",
-				"x": -112,
+				"x": -113,
 				"y": 113,
-				"z": 112,
+				"z": 113,
 				"yaw": - Math.PI / 2,
 				"pitch":  - Math.PI / 2,
 				"roll": 0
@@ -209,7 +209,7 @@ var models = {
 			{
 				"name": "inner hull corner",
 				"x": 113,
-				"y": -112,
+				"y": -113,
 				"z": -113,
 				"yaw": Math.PI / 2,
 				"pitch": 0,
@@ -217,8 +217,8 @@ var models = {
 			},
 			{
 				"name": "inner hull corner",
-				"x": -112,
-				"y": -112,
+				"x": -113,
+				"y": -113,
 				"z": -113,
 				"yaw": 0,
 				"pitch": 0,
@@ -226,7 +226,7 @@ var models = {
 			},
 			{
 				"name": "inner hull corner",
-				"x": -112,
+				"x": -113,
 				"y": 113,
 				"z": -113,
 				"yaw": - Math.PI / 2,

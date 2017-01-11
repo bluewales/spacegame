@@ -17,4 +17,4 @@
 			would have to be declared within the wall
 	* Components can split into two components because of damage, including top level components (ships)
 		* so, pieces of your ship can be blown off and go flying to space
-	
+* Collision detection
