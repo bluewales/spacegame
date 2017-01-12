@@ -114,8 +114,6 @@ function handleLoadedModelGrid(model_name, data) {
 			}
 		}
 	}
-	var t = (new Date()).getTime() - start_time;
-	console.log("Parsed " + model_name + " " + t);
 	
 	var vertexPositions = [];
 	var vertexNormals = [];
@@ -125,6 +123,7 @@ function handleLoadedModelGrid(model_name, data) {
 	var indecisCount = 0;
 	
 	var bounding_box = {"min":{"x":0,"y":0,"z":0},"max":{"x":0,"y":0,"z":0}};
+	var first_voxel = true;
 	
 	for(var i = 0; i < planes.length; i++) {
 		for(var j = 0; j < planes[i].length; j++) {
@@ -132,12 +131,22 @@ function handleLoadedModelGrid(model_name, data) {
 				if(planes[i][j][k] == 0) {
 					continue;
 				}
-				
 				var color = {"r":1.0,"g":1.0,"b":1.0};
 				
 				var x = j - x_pivot;
 				var y = k - y_pivot;
 				var z = i - z_pivot;
+				
+				if(first_voxel) {
+					bounding_box.min.x = x;
+					bounding_box.min.y = y;
+					bounding_box.min.z = z;
+					
+					bounding_box.max.x = x;
+					bounding_box.max.y = y;
+					bounding_box.max.z = z;
+					first_voxel = false;
+				}
 				
 				if(bounding_box.min.x > x) bounding_box.min.x = x;
 				if(bounding_box.min.y > y) bounding_box.min.y = y;
@@ -206,15 +215,8 @@ function handleLoadedModelGrid(model_name, data) {
 				vertexIndecis = vertexIndecis.concat(cubeVertexIndices);
 				
 				if(vertexCount + 24 >= 65536) {
-					
-					t = (new Date()).getTime() - start_time;
-					console.log("Create segment " + (models[model_name].segments.length) + " which has " + vertexCount + " vertexes " + model_name + " " + t);
-					
 					var new_segment = createNewSegment(vertexPositions, vertexNormals, vertexColors, vertexCount, vertexIndecis, indecisCount);
 					models[model_name].segments.push(new_segment);
-					
-					t = (new Date()).getTime() - start_time;
-					console.log("Submit segment " + (models[model_name].segments.length) + " " + model_name + " " + t);
 					
 					vertexPositions = [];
 					vertexNormals = [];
@@ -227,15 +229,9 @@ function handleLoadedModelGrid(model_name, data) {
 		}
 	}
 	
-	t = (new Date()).getTime() - start_time;
-	console.log("Create segment " + (models[model_name].segments.length) + " which has " + vertexCount + " vertexes " + model_name + " " + t);
-	
 	var new_segment = createNewSegment(vertexPositions, vertexNormals, vertexColors, vertexCount, vertexIndecis, indecisCount);
 	models[model_name].segments.push(new_segment);
 	models[model_name].bounding_box = bounding_box;
-	
-	t = (new Date()).getTime() - start_time;
-	console.log("Submit segment " + (models[model_name].segments.length) + " " + model_name + " " + t);
 	
 	models[model_name].bounding_box.segment = createBoundingBoxSegment(
 		bounding_box.min.x, bounding_box.min.y, bounding_box.min.z,
@@ -278,11 +274,10 @@ function random_color(model_name) {
 	color_index %= models[model_name].segments[segment_index].vertexColors.length;
 	
 	r = models[model_name].segments[segment_index].vertexColors[color_index+0] + .01;
-	g = 1- r;
+	g = 1 - r;
 	b = 1 - r;
 	
 	if(r > 1) {r = 0;}
-	
 	
 	models[model_name].segments[segment_index].vertexColors[color_index+0] = r;
 		
@@ -290,29 +285,11 @@ function random_color(model_name) {
 	gl.bufferSubData(gl.ARRAY_BUFFER, color_index * 4, new Float32Array([r,g,b,r,g,b,r,g,b,r,g,b]));
 }
 
-function draw_model(model_name, x, y, z, yaw, pitch, roll) {
+var count = 0;
+
+function draw_model(model_name) {
 	
 	var this_model = models[model_name];
-	
-	mvPushMatrix();
-		
-	var messed_up = false;
-	if(messed_up) {
-		var rotations = [
-			"mat4.translate(mvMatrix, [x, y, z]);",
-			"mat4.rotate(mvMatrix, yaw, [0, 0, 1]);",
-			"mat4.rotate(mvMatrix, pitch, [1, 0, 0]);",
-			"mat4.rotate(mvMatrix, roll, [0, 1, 0]);"
-		];
-		rotations = shuffle(rotations);
-		
-		rotations.forEach(function(e) {eval(e);});
-	} else {
-		mat4.translate(mvMatrix, [x, y, z]);
-		mat4.rotate(mvMatrix, yaw, [0, 0, 1]);
-		mat4.rotate(mvMatrix, pitch, [1, 0, 0]);
-		mat4.rotate(mvMatrix, roll, [0, 1, 0]);
-	}
 	
 	if(this_model['basic']) {
 		if(!this_model['loading'] && !this_model['loaded']) {
@@ -322,15 +299,7 @@ function draw_model(model_name, x, y, z, yaw, pitch, roll) {
 			request.open("GET", this_model['file_location']);
 			request.onreadystatechange = function () {
 				if (request.readyState == 4) {
-					
-					var t = (new Date()).getTime() - start_time;
-					console.log("Down Loaded " + model_name + " " + t);
-					
 					handleLoadedModelGrid(model_name, request.responseText);
-					
-					t = (new Date()).getTime() - start_time;
-					console.log("Processed " + model_name + " " + t);
-					
 					models[model_name]['loaded'] = true;
 				}
 			}
@@ -342,20 +311,41 @@ function draw_model(model_name, x, y, z, yaw, pitch, roll) {
 				draw_segment(segment);
 			}
 			var segment = this_model.bounding_box.segment;
-			//draw_segment(segment);
+			draw_segment(segment);
 		}
-		mvPopMatrix();
 		return this_model['loaded'];
 	} else {
 		var all_loaded = true;
 		for(var i = 0; i < this_model['pieces'].length; i++) {
 			var piece = this_model['pieces'][i];
-			var loaded = draw_model(piece['name'], piece['x'], piece['y'], piece['z'], piece['yaw'], piece['pitch'], piece['roll']);
-			if(!loaded) {
-				all_loaded = false;
+			
+			if(!piece.transform) {
+				var transform = mat4.create();
+				mat4.identity(transform);
+				mat4.translate(transform, transform, [piece['x'], piece['y'], piece['z']]);
+				mat4.rotateZ(transform, transform, piece['yaw']);
+				mat4.rotateX(transform, transform, piece['pitch']);
+				mat4.rotateY(transform, transform, piece['roll']);
+				
+				this_model['pieces'][i].transform = transform;
 			}
+			
+			if(count < 10) {
+				console.log(i + " transform " + JSON.stringify(piece.transform));
+				console.log(i + " mvMatrix " + JSON.stringify(mvMatrix));
+				count+=1;
+			}
+			
+			mvPushMatrix();
+			mat4.multiply(mvMatrix, mvMatrix, piece.transform);
+			
+			var loaded = draw_model(piece['name']);
+			all_loaded = all_loaded && loaded;
+			
+			mvPopMatrix();
 		}
-		mvPopMatrix();
+		
+		models[model_name]['loaded'] = all_loaded;
 		return all_loaded;
 	}
 }

@@ -3,9 +3,8 @@
 
 <head>
 <title>Space Ship</title>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
-<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="gl-matrix-min.js"></script>
 <script type="text/javascript" src="webgl-utils.js"></script>
 <script type="text/javascript" src="models.js"></script>
 <script type="text/javascript" src="draw_model.js"></script>
@@ -28,7 +27,7 @@
 	#fps {
 		position: absolute;
 		left: 10px;
-		top: 40px;
+		top: 56px;
 	}
 	#loading-notification {
 		position: absolute;
@@ -82,10 +81,11 @@
 			float lightWeighting = directionalLightWeighting + 0.3;
 			
 			vLightWeighting = aVertexColor * lightWeighting;
+			//vLightWeighting = transformedNormal.xyz;
 		} else {
 			vLightWeighting = aVertexColor;
 		}
-		//vLightWeighting = transformedNormal.xyz;
+		
     }
 </script>
 
@@ -165,11 +165,9 @@
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
         shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
-		console.log(shaderProgram.vertexNormalAttribute);
         gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 		
 		shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
-		console.log(shaderProgram.vertexColorAttribute);
         gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
         shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
@@ -189,8 +187,7 @@
 	var sceneMatrix = mat4.create();
 
     function mvPushMatrix() {
-        var copy = mat4.create();
-        mat4.set(mvMatrix, copy);
+        var copy = mat4.clone(mvMatrix);
         mvMatrixStack.push(copy);
     }
 
@@ -209,8 +206,11 @@
         gl.uniformMatrix4fv(shaderProgram.sceneMatrixUniform, false, sceneMatrix);
 		
 		var normalMatrix = mat3.create();
-		mat4.toInverseMat3(mvMatrix, normalMatrix);
-		mat3.transpose(normalMatrix);
+		//mat3.normalFromMat4(normalMatrix, mvMatrix);
+		mat3.fromMat4(normalMatrix, mvMatrix);
+		mat3.invert(normalMatrix, normalMatrix);
+		mat3.transpose(normalMatrix, normalMatrix);
+		
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
     }
 	
@@ -232,9 +232,9 @@
 		line_segment.useLighting = false;
 	}
 	
-	function update_laser(x, y, z) {
+	function update_laser() {
 		gl.bindBuffer(gl.ARRAY_BUFFER, line_segment.shipVertexPositionBuffer);
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([x, y, z]));
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(vertexPositions));
 	}
 
 
@@ -253,10 +253,8 @@
 			var x = radius * Math.cos(theta - Math.PI/2) * Math.cos(psi - Math.PI/2);
 			var y = radius * Math.sin(theta - Math.PI/2) * Math.cos(psi - Math.PI/2);
 			var z = radius * Math.sin(psi + Math.PI/2);
-			x += Math.random()*20 - 10;
-			y += Math.random()*20 - 10
-			z += Math.random()*20 - 10
-			update_laser(x, y, z);
+			vertexPositions = [x, y, z-10, Math.random()*10-5, Math.random()*10-5, Math.random()*10-5];
+			update_laser();
 		}
     }
     function handleKeyUp(event) {
@@ -329,45 +327,34 @@
 		gl.uniform3f(shaderProgram.directionalColorUniform, 0.7, 0.7, 0.7);
 		
 		var adjustedLD = vec3.create();
-		vec3.normalize(lightingDirection, adjustedLD);
-		vec3.scale(adjustedLD, -1);
+		vec3.normalize(adjustedLD, lightingDirection);
+		vec3.scale(adjustedLD, adjustedLD, -1);
 		gl.uniform3fv(shaderProgram.lightingDirectionUniform, adjustedLD);
 
-        mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 10000.0, pMatrix);
+        mat4.perspective(pMatrix, Math.PI/4, gl.viewportWidth / gl.viewportHeight, 1.0, 10000.0);
 
         mat4.identity(mvMatrix);
 		mat4.identity(sceneMatrix);
 
-		mat4.translate(sceneMatrix, [0, 0, -radius]);
-		mat4.rotate(sceneMatrix, (-psi), [1, 0, 0]);
-		mat4.rotate(sceneMatrix, (-theta), [0, 0, 1]);
+		mat4.translate(sceneMatrix, sceneMatrix, [0, 0, -radius]);
+		mat4.rotateX(sceneMatrix, sceneMatrix, (-psi));
+		mat4.rotateZ(sceneMatrix, sceneMatrix, (-theta));
 		
-		var x = 100;
-		var y = 100;
-		var z = 100;
-		var yaw = 0;
-		var pitch = 0;
-		var roll = 0;
+		var all_loaded = draw_model("small room");
+		draw_segment(line_segment);
 		
-		var all_loaded = draw_model("small room", 0, 0, 0, 0, 0, 0);
-		//draw_segment(line_segment);
-		
-		//var all_loaded = draw_model("2x2 wall", 0, 0, 0, yaw, pitch, roll);
+		//var all_loaded = draw_model("2x2 wall");
+		//var all_loaded = draw_model("inner hull plate");
 		
 		if(all_loaded) {
 			document.getElementById('loading-notification').innerHTML = "";
-		} else {
-			var t = (new Date()).getTime() - start_time;
-			console.log("Not loaded " + t);
 		}
 		frame_count += 1;
     }
 
-
     var lastTime = 0;
 	
-	var FPS = 60;
-	var l_y = 0;
+	var FPS = 0;
 
     function animate() {
         var timeNow = new Date().getTime();
@@ -423,6 +410,19 @@
 		create_laser(400, 0, 0);
 		
         tick();
+		
+		
+		
+		function m4_to_string(matrix) {
+			var out_s = "";
+			for(var i = 0; i < 4; i++) {
+				for(var j = 0; j < 4; j++) {
+					out_s += matrix[i+j*4] + " "
+				}
+				out_s += "\n";
+			}
+			return out_s
+		}
     }
 
 </script>
@@ -433,13 +433,14 @@
 
 <body onload="webGLStart();" id="body-element" >
     <canvas id="game-canvas" style="border: none;" width="1000" height="1000"></canvas>
-	
 	<p id="directions">
-	w,a,s,d to rotate
-	<br/>
-	mouse wheel (or page up/page down) to zoom
-	<br/>
-	<span id="status"><span>
+		w,a,s,d to rotate
+		<br/>
+		mouse wheel (or page up/page down) to zoom
+		<br/>
+		hold shift to go faster
+		<br/>
+		<span id="status"></span>
 	</p>
 	<p id="fps"></p>
 	<p id="loading-notification" >Loading</p>
@@ -447,3 +448,4 @@
 
 
 </html>
+
