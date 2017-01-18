@@ -21,47 +21,15 @@ function parseRawModel(data) {
 	return planes;
 }
 
-
-function parseComponent(state) {
+function buildSegments(state) {
 	
 	var model_name = state.model_name;
-	var data = state.data;
 	
-	var x_pivot = models[model_name].pivot.x;
-	var y_pivot = models[model_name].pivot.y;	
-	var z_pivot = models[model_name].pivot.z;
-
-	
-	if(!state.parsed) {
-		state.planes = parseRawModel(data);
-		state.parsed = true;
-		
-		// setup state for next part
-		state.segments = [];
-		state.i = 0;
-		state.j = 0;
-		state.k = 0;
-		state.vertexPositions = [];
-		state.vertexNormals = [];
-		state.vertexColors = [];
-		state.vertexCount = 0;
-		state.vertexIndecis = [];
-		state.indecisCount = 0;
-		state.bounding_box = {"min":{"x":0,"y":0,"z":0},"max":{"x":0,"y":0,"z":0}};
-		state.first_voxel = true;
-		
-		return false;
-	}
+	var x_pivot = models[model_name].pivot[0];
+	var y_pivot = models[model_name].pivot[1];	
+	var z_pivot = models[model_name].pivot[2];
 	
 	var planes = state.planes;
-	
-	var vertexPositions = state.vertexPositions;
-	var vertexNormals = state.vertexNormals;
-	var vertexColors = state.vertexColors;
-	var vertexCount = state.vertexCount;
-	var vertexIndecis = state.vertexIndecis;
-	var indecisCount = state.indecisCount;
-	
 	var first_voxel = state.first_voxel;
 	
 	for(var i = 0; i < planes.length; i++) {
@@ -76,24 +44,29 @@ function parseComponent(state) {
 				var y = k - y_pivot;
 				var z = i - z_pivot;
 				
+				var x_1 = 1.0+x;
+				var y_1 = 1.0+y;
+				var z_1 = 1.0+z;
+				
 				if(first_voxel) {
-					state.bounding_box.min.x = x;
-					state.bounding_box.min.y = y;
-					state.bounding_box.min.z = z;
+					state.boundingBox.min[0] = x;
+					state.boundingBox.min[1] = y;
+					state.boundingBox.min[2] = z;
 					
-					state.bounding_box.max.x = x;
-					state.bounding_box.max.y = y;
-					state.bounding_box.max.z = z;
+					state.boundingBox.max[0] = x_1;
+					state.boundingBox.max[1] = y_1;
+					state.boundingBox.max[2] = z_1;
 					first_voxel = false;
 				}
 				
-				if(state.bounding_box.min.x > x) state.bounding_box.min.x = x;
-				if(state.bounding_box.min.y > y) state.bounding_box.min.y = y;
-				if(state.bounding_box.min.z > z) state.bounding_box.min.z = z;
 				
-				if(state.bounding_box.max.x < x) state.bounding_box.max.x = x;
-				if(state.bounding_box.max.y < y) state.bounding_box.max.y = y;
-				if(state.bounding_box.max.z < z) state.bounding_box.max.z = z;
+				if(state.boundingBox.min[0] > x) state.boundingBox.min[0] = x;
+				if(state.boundingBox.min[1] > y) state.boundingBox.min[1] = y;
+				if(state.boundingBox.min[2] > z) state.boundingBox.min[2] = z;
+				
+				if(state.boundingBox.max[0] < x_1) state.boundingBox.max[0] = x_1;
+				if(state.boundingBox.max[1] < y_1) state.boundingBox.max[1] = y_1;
+				if(state.boundingBox.max[2] < z_1) state.boundingBox.max[2] = z_1;
 				
 				
 				
@@ -103,18 +76,6 @@ function parseComponent(state) {
 				var bottom_face = !(planes[i][j][k-1] > 0);
 				var right_face = !(planes[i][j+1] && planes[i][j+1][k] > 0);
 				var left_face = !(planes[i][j-1] && planes[i][j-1][k] > 0);
-				/*
-				var front_face = true;
-				var back_face = true;
-				var top_face = true;
-				var bottom_face = true;
-				var right_face = true;
-				var left_face = true;
-				*/
-				
-				var x_1 = 1.0+x;
-				var y_1 = 1.0+y;
-				var z_1 = 1.0+z;
 				
 				if(front_face) {
 					state.vertexPositions.push(x, y, z_1, x_1, y, z_1, x_1, y_1, z_1, x, y_1, z_1);
@@ -190,10 +151,104 @@ function parseComponent(state) {
 	);
 	state.segments.push(new_segment);
 	models[model_name].segments = state.segments;
-	models[model_name].bounding_box = state.bounding_box;
-	models[model_name].bounding_box.segment = createBoundingBoxSegment(state.bounding_box);
+	models[model_name].boundingBox = state.boundingBox;
+	models[model_name].boundingBox.segment = createBoundingBoxSegment(state.boundingBox);
+	
+	return true;
+}
+
+function buildOctree(state) {
+	
+	var model_name = state.model_name;
+	
+	var x_pivot = models[model_name].pivot[0];
+	var y_pivot = models[model_name].pivot[1];	
+	var z_pivot = models[model_name].pivot[2];
+	
+	var planes = state.planes;
+	
+	if(!state.octree) {
+		var size = 1;
+		
+		while(state.boundingBox.max[0] >= size) size *= 2;
+		while(state.boundingBox.max[1] >= size) size *= 2;
+		while(state.boundingBox.max[2] >= size) size *= 2;
+		
+		while(state.boundingBox.min[0] < -size) size *= 2;
+		while(state.boundingBox.min[1] < -size) size *= 2;
+		while(state.boundingBox.min[2] < -size) size *= 2;
+		
+		state.octree = new Octree(size,[0,0,0]);
+	}
+	
+	for(var i = 0; i < planes.length; i++) {
+		for(var j = 0; j < planes[i].length; j++) {
+			for(var k = 0; k < planes[i][j].length; k++) {
+				if(planes[i][j][k] == 0) {
+					continue;
+				}
+				var x = j - x_pivot;
+				var y = k - y_pivot;
+				var z = i - z_pivot;
+				
+				state.octree.addVoxel([x,y,z], planes[i][j][k]);
+			}
+		}
+	}
+	
+	console.log(model_name + " octree " + size + ", " + state.octree.numVoxels + " voxels");
+	
+	models[model_name].octree = state.octree;
+	
+	return true;
+}
+
+
+function parseComponent(state) {
+	
+	var model_name = state.model_name;
+	var data = state.data;
+	
+	if(!state.initialized) {
+		
+		state.initialized = true;
+		
+		state.segments = [];
+		state.i = 0;
+		state.j = 0;
+		state.k = 0;
+		state.vertexPositions = [];
+		state.vertexNormals = [];
+		state.vertexColors = [];
+		state.vertexCount = 0;
+		state.vertexIndecis = [];
+		state.indecisCount = 0;
+		state.boundingBox = {"min":[0, 0, 0],"max":[0, 0, 0]};
+		state.first_voxel = true;
+		
+		return false;
+	}
+
+	
+	if(!state.parsed) {
+		state.planes = parseRawModel(data);
+		state.parsed = true;
+		return false;
+	}
+	
+	if(!state.segmentsBuilt) {
+		state.segmentsBuilt = buildSegments(state);
+		return false;
+	}
+	
+	if(!state.octreeBuilt) {
+		state.octreeBuilt = buildOctree(state);
+		return false;
+	}
+	
 	models[model_name]['loaded'] = true;
 	register_coroutine(load_models);
+	
 	return true;
 }
 
@@ -239,10 +294,63 @@ function loadComponent(model_name) {
 				mat4.rotateY(transform, transform, piece['roll']);
 				
 				piece.transform = transform;
+				
+				piece.reverseTransform = mat4.create();
+				mat4.invert(piece.reverseTransform, piece.transform);
+				//mat4.transpose(piece.reverseTransform, piece.reverseTransform);
 			}
+			
+			
 			
 			var piece_loaded = loadComponent(piece['name']);
 			all_loaded = all_loaded && piece_loaded;
+			
+			if(piece_loaded) {
+				var piece_model = models[piece['name']];
+				var piece_box = {"min":vec3.clone(piece_model.boundingBox.min),"max":vec3.clone(piece_model.boundingBox.max)};
+				
+				vec3.transformMat4(piece_box.min, piece_box.min, piece.transform);
+				vec3.transformMat4(piece_box.max, piece_box.max, piece.transform);
+				
+				if(piece_box.min[0] > piece_box.max[0]) {
+					var temp = piece_box.max[0];
+					piece_box.max[0] = piece_box.min[0];
+					piece_box.min[0] = temp;
+				}
+				if(piece_box.min[1] > piece_box.max[1]) {
+					var temp = piece_box.max[1];
+					piece_box.max[1] = piece_box.min[1];
+					piece_box.min[1] = temp;
+				}
+				if(piece_box.min[2] > piece_box.max[2]) {
+					var temp = piece_box.max[2];
+					piece_box.max[2] = piece_box.min[2];
+					piece_box.min[2] = temp;
+				}
+				
+				if(!this_model.boundingBox) {
+					this_model.boundingBox = {"min":vec3.clone(piece_box.min),"max":vec3.clone(piece_box.max)};
+				}
+				if(this_model.boundingBox.min[0] > piece_box.min[0]) {
+					this_model.boundingBox.min[0] = piece_box.min[0];
+				}
+				if(this_model.boundingBox.min[1] > piece_box.min[1]) {
+					this_model.boundingBox.min[1] = piece_box.min[1];
+				}
+				if(this_model.boundingBox.min[2] > piece_box.min[2]) {
+					this_model.boundingBox.min[2] = piece_box.min[2];
+				}
+				if(this_model.boundingBox.max[0] < piece_box.max[0]) {
+					this_model.boundingBox.max[0] = piece_box.max[0];
+				}
+				if(this_model.boundingBox.max[1] < piece_box.max[1]) {
+					this_model.boundingBox.max[1] = piece_box.max[1];
+				}
+				if(this_model.boundingBox.max[2] < piece_box.max[2]) {
+					this_model.boundingBox.max[2] = piece_box.max[2];
+				}
+				models[model_name].boundingBox.segment = createBoundingBoxSegment(this_model.boundingBox)
+			}
 		}
 		this_model['loaded'] = all_loaded;
 	}
@@ -250,8 +358,8 @@ function loadComponent(model_name) {
 }
 
 function load_models() {
-	var all_loaded = loadComponent("small room");
-	console.log("Loading");
+	var all_loaded = loadComponent(top_level_model);
+	
 	if(all_loaded) {
 		if(all_loaded) {
 			document.getElementById('loading-notification').innerHTML = "";

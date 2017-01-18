@@ -1,29 +1,17 @@
 var models = {
 	"inner hull plate": {
 		"basic":true,
-		"pivot":{
-			"x":50,
-			"y":50,
-			"z":1
-		},
+		"pivot":[50, 50, 1],
 		"file_location": "inner_hull_panel.txt"
 	},
 	"inner hull edge": {
 		"basic":true,
-		"pivot":{
-			"x":0,
-			"y":50,
-			"z":0
-		},
+		"pivot":[0, 50, 0],
 		"file_location": "inner_hull_edge.txt"
 	},
 	"inner hull vertex": {
 		"basic":true,
-		"pivot":{
-			"x":0,
-			"y":0,
-			"z":0
-		},
+		"pivot":[0, 0, 0],
 		"file_location": "inner_hull_vertex.txt"
 	},
 	"inner hull corner": {

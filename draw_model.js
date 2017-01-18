@@ -59,10 +59,14 @@ function createNewSegment(vertexPositions, vertexNormals, vertexColors, vertexCo
 	return segment;
 }
 
-function createBoundingBoxSegment(min_x, min_y, min_z, max_x, max_y, max_z) {
-	max_x += 1;
-	max_y += 1;
-	max_z += 1;
+function createBoundingBoxSegment(box) {
+	var min_x = box.min[0];
+	var min_y = box.min[1];
+	var min_z = box.min[2];
+	
+	var max_x = box.max[0];
+	var max_y = box.max[1];
+	var max_z = box.max[2];
 	
 	vertexPositions = [
 		min_x, min_y, min_z,
@@ -85,158 +89,6 @@ function createBoundingBoxSegment(min_x, min_y, min_z, max_x, max_y, max_z) {
 	segment.useLighting = false;
 	
 	return segment;
-}
-
-
-function handleLoadedModelGrid(model_name, data) {
-
-	var x_pivot = models[model_name].pivot.x;
-	var y_pivot = models[model_name].pivot.y;	
-	var z_pivot = models[model_name].pivot.z;
-	
-	models[model_name].segments = [];
-	
-	function decodify(c) {
-		if(c == undefined) return 0;
-		if(c == '1' || c == '2') {
-			return c.charCodeAt(0);
-		}
-		return 0;
-	}
-	
-	var planes = data.split("\r\n\r\n");
-	for(var i = 0; i < planes.length; i++) {
-		planes[i] = planes[i].split("\r\n");
-		for(var j = 0; j < planes[i].length; j++) {
-			planes[i][j] = planes[i][j].split("");
-			for(var k = 0; k < planes[i][j].length; k++) {
-				planes[i][j][k] = decodify(planes[i][j][k]);
-			}
-		}
-	}
-	
-	var vertexPositions = [];
-	var vertexNormals = [];
-	var vertexColors = [];
-	var vertexCount = 0;
-	var vertexIndecis = [];
-	var indecisCount = 0;
-	
-	var bounding_box = {"min":{"x":0,"y":0,"z":0},"max":{"x":0,"y":0,"z":0}};
-	var first_voxel = true;
-	
-	for(var i = 0; i < planes.length; i++) {
-		for(var j = 0; j < planes[i].length; j++) {
-			for(var k = 0; k < planes[i][j].length; k++) {
-				if(planes[i][j][k] == 0) {
-					continue;
-				}
-				var color = {"r":1.0,"g":1.0,"b":1.0};
-				
-				var x = j - x_pivot;
-				var y = k - y_pivot;
-				var z = i - z_pivot;
-				
-				if(first_voxel) {
-					bounding_box.min.x = x;
-					bounding_box.min.y = y;
-					bounding_box.min.z = z;
-					
-					bounding_box.max.x = x;
-					bounding_box.max.y = y;
-					bounding_box.max.z = z;
-					first_voxel = false;
-				}
-				
-				if(bounding_box.min.x > x) bounding_box.min.x = x;
-				if(bounding_box.min.y > y) bounding_box.min.y = y;
-				if(bounding_box.min.z > z) bounding_box.min.z = z;
-				
-				if(bounding_box.max.x < x) bounding_box.max.x = x;
-				if(bounding_box.max.y < y) bounding_box.max.y = y;
-				if(bounding_box.max.z < z) bounding_box.max.z = z;
-				
-				
-				
-				var front_face = !(planes[i+1] && planes[i+1][j] && planes[i+1][j][k] > 0);
-				var back_face = !(planes[i-1] && planes[i-1][j] && planes[i-1][j][k] > 0);
-				var top_face = !(planes[i][j][k+1] > 0);
-				var bottom_face = !(planes[i][j][k-1] > 0);
-				var right_face = !(planes[i][j+1] && planes[i][j+1][k] > 0);
-				var left_face = !(planes[i][j-1] && planes[i][j-1][k] > 0);
-				/*
-				var front_face = true;
-				var back_face = true;
-				var top_face = true;
-				var bottom_face = true;
-				var right_face = true;
-				var left_face = true;
-				*/
-				
-				var x_1 = 1.0+x;
-				var y_1 = 1.0+y;
-				var z_1 = 1.0+z;
-				
-				if(front_face) {
-					vertexPositions.push(x, y, z_1, x_1, y, z_1, x_1, y_1, z_1, x, y_1, z_1);
-					vertexNormals.push(0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0);
-				}
-				if(back_face) {
-					vertexPositions.push(x, y, z, x, y_1, z, x_1, y_1, z, x_1, y, z);
-					vertexNormals.push(0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0);
-				}
-				if(top_face) {
-					vertexPositions.push(x, y_1, z, x, y_1, z_1, x_1, y_1, z_1, x_1, y_1, z);
-					vertexNormals.push(0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0);
-				}
-				if(bottom_face) {
-					vertexPositions.push(x, y, z, x_1, y, z, x_1, y, z_1, x, y, z_1);
-					vertexNormals.push(0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0);
-				}
-				if(right_face) {
-					vertexPositions.push(x_1, y, z, x_1, y_1, z, x_1, y_1, z_1, x_1, y, z_1);
-					vertexNormals.push(1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0);
-				}
-				if(left_face) {
-					vertexPositions.push(x, y, z, x, y, z_1, x, y_1, z_1, x, y_1, z);
-					vertexNormals.push(-1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0);
-				}
-				
-				var cubeVertexIndices = [];
-				var faces = [front_face, back_face, top_face, bottom_face, right_face, left_face];
-				for(var index in faces) {
-					if(faces[index]) {
-						cubeVertexIndices.push(0 + vertexCount, 1 + vertexCount, 2 + vertexCount, 0 + vertexCount, 2 + vertexCount, 3 + vertexCount);
-						vertexColors.push(color.r,color.g,color.b,color.r,color.g,color.b,color.r,color.g,color.b,color.r,color.g,color.b);
-						vertexCount += 4;
-						indecisCount += 6;
-					}
-				}
-				vertexIndecis = vertexIndecis.concat(cubeVertexIndices);
-				
-				if(vertexCount + 24 >= 65536) {
-					var new_segment = createNewSegment(vertexPositions, vertexNormals, vertexColors, vertexCount, vertexIndecis, indecisCount);
-					models[model_name].segments.push(new_segment);
-					
-					vertexPositions = [];
-					vertexNormals = [];
-					vertexColors = [];
-					vertexCount = 0;
-					vertexIndecis = [];
-					indecisCount = 0;
-				}
-			}
-		}
-	}
-	
-	var new_segment = createNewSegment(vertexPositions, vertexNormals, vertexColors, vertexCount, vertexIndecis, indecisCount);
-	models[model_name].segments.push(new_segment);
-	models[model_name].bounding_box = bounding_box;
-	
-	models[model_name].bounding_box.segment = createBoundingBoxSegment(
-		bounding_box.min.x, bounding_box.min.y, bounding_box.min.z,
-		bounding_box.max.x, bounding_box.max.y, bounding_box.max.z
-	);
 }
 
 
@@ -292,60 +144,30 @@ function draw_model(model_name) {
 	var this_model = models[model_name];
 	
 	if(this_model['basic']) {
-		if(!this_model['loading'] && !this_model['loaded']) {
-			models[model_name]['loading'] = true;
-			
-			var request = new XMLHttpRequest();
-			request.open("GET", this_model['file_location']);
-			request.onreadystatechange = function () {
-				if (request.readyState == 4) {
-					handleLoadedModelGrid(model_name, request.responseText);
-					models[model_name]['loaded'] = true;
-				}
-			}
-			request.send();
-		}
 		if(this_model['loaded']) {
 			for(var i = 0; i < this_model.segments.length; i++) {
 				var segment = this_model.segments[i];
 				draw_segment(segment);
 			}
-			var segment = this_model.bounding_box.segment;
-			draw_segment(segment);
+			var segment = this_model.boundingBox.segment;
+			//draw_segment(segment);
 		}
-		return this_model['loaded'];
 	} else {
-		var all_loaded = true;
 		for(var i = 0; i < this_model['pieces'].length; i++) {
 			var piece = this_model['pieces'][i];
 			
-			if(!piece.transform) {
-				var transform = mat4.create();
-				mat4.identity(transform);
-				mat4.translate(transform, transform, [piece['x'], piece['y'], piece['z']]);
-				mat4.rotateZ(transform, transform, piece['yaw']);
-				mat4.rotateX(transform, transform, piece['pitch']);
-				mat4.rotateY(transform, transform, piece['roll']);
-				
-				this_model['pieces'][i].transform = transform;
-			}
-			
-			if(count < 10) {
-				console.log(i + " transform " + JSON.stringify(piece.transform));
-				console.log(i + " mvMatrix " + JSON.stringify(mvMatrix));
-				count+=1;
-			}
-			
 			mvPushMatrix();
-			mat4.multiply(mvMatrix, mvMatrix, piece.transform);
 			
-			var loaded = draw_model(piece['name']);
-			all_loaded = all_loaded && loaded;
+			if(piece.transform) mat4.multiply(mvMatrix, mvMatrix, piece.transform);
+			draw_model(piece['name']);
 			
 			mvPopMatrix();
+			
+			if(this_model.boundingBox && this_model.boundingBox.segment) {
+				var segment = this_model.boundingBox.segment;
+				//draw_segment(segment);	
+			}
 		}
 		
-		models[model_name]['loaded'] = all_loaded;
-		return all_loaded;
 	}
 }
