@@ -137,3 +137,64 @@ string = simplify(string)
 f = open("inner_hull_vertex.txt",'w')
 f.write(string)
 f.close()
+
+
+
+
+
+
+mold = [
+	[4,2],
+	[2,1000],
+	[1,2],
+	[0,3],
+	[0,3],
+	[1,2],
+	[1,2],
+	[0,3],
+	[0,3],
+	[1,2],
+	[2,1000],
+	[4,2]
+]
+
+r = 40
+door = [None]*(l)
+for i in range(0,(l)) :
+	door[i] = [None]*(l*2)
+	for j in range(0,(l*2)) :
+		door[i][j] = ["."]*(len(mold))
+
+min = l * 3
+max = 0		
+
+for i in range(0,(l)) :
+	for j in range(0,(l*2)) :
+		for k in range(0,(len(mold))) :
+			if j < l / 2:
+				di = (l/2) - i
+				dj = (l / 2) - j
+				dist = math.sqrt(di*di + dj*dj)
+			elif j > 3 * l / 2:
+				di = (l/2) - i
+				dj = (3 * l / 2) - j
+				dist = math.sqrt(di*di + dj*dj)
+			else:
+				dist = abs(i - l/2)
+			if (dist > r + mold[k][0] and dist <= r + mold[k][0] + mold[k][1]):
+				door[i][j][k] = 1
+				
+
+string = ""
+for i in range(0,(l)) :
+	for j in range(0,(l*2)) :
+		for k in range(0,(len(mold))) :
+			string += str(door[i][j][k])
+		string += "\r\n"
+	string += "\r\n"
+	
+string = simplify(string)
+
+f = open("inner_hull_door.txt",'w')
+f.write(string)
+f.close()

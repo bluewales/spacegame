@@ -14,6 +14,11 @@ var models = {
 		"pivot":[0, 0, 0],
 		"file_location": "inner_hull_vertex.txt"
 	},
+	"inner hull door": {
+		"basic":true,
+		"pivot":[101, 6, 50],
+		"file_location": "inner_hull_door.txt"
+	},
 	"inner hull corner": {
 		"basic":false,
 		"pieces":[
@@ -93,6 +98,36 @@ var models = {
 			}
 		]
 	},
+	"2x2 wall with door": {
+		"basic":false,
+		"pieces" : [
+			{
+				"name": "inner hull door",
+				"x": 0,
+				"y": 51,
+				"z": 5,
+				"yaw": 0,
+				"pitch": Math.PI/2,
+				"roll": 0
+			},{
+				"name": "inner hull plate",
+				"x": 50,
+				"y": -51,
+				"z": 0,
+				"yaw": 0,
+				"pitch": 0,
+				"roll": 0
+			},{
+				"name": "inner hull plate",
+				"x": -51,
+				"y": -51,
+				"z": 0,
+				"yaw": 0,
+				"pitch": 0,
+				"roll": 0
+			}
+		]
+	},
 	"small room": {
 		"basic":false,
 		"pieces" : [
@@ -123,7 +158,7 @@ var models = {
 				"roll": Math.PI / 2
 			},
 			{
-				"name": "2x2 wall",
+				"name": "2x2 wall with door",
 				"x": 111,
 				"y": 0,
 				"z": 0,

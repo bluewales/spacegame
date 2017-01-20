@@ -8,6 +8,13 @@
 <script type="text/javascript" src="webgl-utils.js"></script>
 <script type="text/javascript" src="models.js"></script>
 <script type="text/javascript" src="draw_model.js"></script>
+<script type="text/javascript" src="coroutines.js"></script>
+<script type="text/javascript" src="parse_model.js"></script>
+<script type="text/javascript" src="intersections.js"></script>
+<script type="text/javascript" src="octree.js"></script>
+
+<link rel="import" href="shader.vert">
+<link rel="import" href="shader.frag">
 
 <style>
 	canvas {
@@ -62,25 +69,31 @@
 
 	uniform bool uLightingEnable;
 	
-    uniform vec3 uAmbientColor;
-
-    uniform vec3 uLightingDirection;
-    uniform vec3 uDirectionalColor;
+    uniform vec3 uKeyLightingDirection;
+	uniform vec3 uFillLightingDirection;
+	uniform vec3 uBackLightingDirection;
+	
+    uniform vec3 uKeyLightingColor;
+	uniform vec3 uFillLightingColor;
+	uniform vec3 uBackLightingColor;
 
     varying vec3 vLightWeighting;
 
     void main(void) {
 		
-		vec4 scene_position = uMVMatrix * vec4(aVertexPosition, 1.0);
+		vec4 cameraPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
 		
-        gl_Position = uPMatrix * uSceneMatrix * scene_position;
+        gl_Position = uPMatrix * uSceneMatrix * cameraPosition;
 		
 		vec3 transformedNormal = uNormalMatrix * aVertexNormal;
 		if(uLightingEnable){
-			float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0);
-			float lightWeighting = directionalLightWeighting + 0.3;
+			float keyLightWeighting  = max(dot(transformedNormal.xyz, uKeyLightingDirection), 0.0);
+			float fillLightWeighting = max(dot(transformedNormal.xyz, uFillLightingDirection), 0.0);
+			float backLightWeighting = max(dot(transformedNormal.xyz, uBackLightingDirection), 0.0);
 			
-			vLightWeighting = aVertexColor * lightWeighting;
+			vec3 overallLighting = uKeyLightingColor*keyLightWeighting + uFillLightingColor*fillLightWeighting + uBackLightingColor*backLightWeighting;
+			
+			vLightWeighting = overallLighting * aVertexColor;
 			//vLightWeighting = transformedNormal.xyz;
 		} else {
 			vLightWeighting = aVertexColor;
@@ -172,19 +185,24 @@
 
         shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
         shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-        shaderProgram.sceneMatrixUniform = gl.getUniformLocation(shaderProgram, "uSceneMatrix");
+        shaderProgram.cameraMatrixUniform = gl.getUniformLocation(shaderProgram, "uSceneMatrix");
 		shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNormalMatrix");
 		shaderProgram.lightingEnableUniform = gl.getUniformLocation(shaderProgram, "uLightingEnable");
-        shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
-        shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
-        shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+        shaderProgram.keyLightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uKeyLightingDirection");
+		shaderProgram.fillLightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uFillLightingDirection");
+		shaderProgram.backLightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uBackLightingDirection");
+        shaderProgram.keyColorUniform = gl.getUniformLocation(shaderProgram, "uKeyLightingColor");
+		shaderProgram.fillColorUniform = gl.getUniformLocation(shaderProgram, "uFillLightingColor");
+		shaderProgram.backColorUniform = gl.getUniformLocation(shaderProgram, "uBackLightingColor");
     }
 
 
     var mvMatrix = mat4.create();
     var mvMatrixStack = [];
     var pMatrix = mat4.create();
-	var sceneMatrix = mat4.create();
+	var cameraMatrix = mat4.create();
+	mat4.identity(cameraMatrix);
+	mat4.rotateX(cameraMatrix, cameraMatrix, Math.PI/2);
 
     function mvPushMatrix() {
         var copy = mat4.clone(mvMatrix);
@@ -203,38 +221,77 @@
         gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
         gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 
-        gl.uniformMatrix4fv(shaderProgram.sceneMatrixUniform, false, sceneMatrix);
+        gl.uniformMatrix4fv(shaderProgram.cameraMatrixUniform, false, cameraMatrix);
 		
 		var normalMatrix = mat3.create();
-		//mat3.normalFromMat4(normalMatrix, mvMatrix);
-		mat3.fromMat4(normalMatrix, mvMatrix);
-		mat3.invert(normalMatrix, normalMatrix);
-		mat3.transpose(normalMatrix, normalMatrix);
+		mat3.normalFromMat4(normalMatrix, mvMatrix);
 		
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
     }
 	
-	var line_segment;
+	var laser;
 	
 	function create_laser(x, y, z) {
-		var vertexPositions = [
-			x, y, z,
-			0, 0, 0
-		];
+		
+		laser = {};
+		laser.origin = [x, y, z];
+		laser.dir = [-x, -y, -z];
+		laser.length = Math.sqrt(x*x + y*y + z*z);
+		
+		vec3.normalize(laser.dir, laser.dir);
+		
+		
+		
+		var vertexPositions = [x, y, z, 0, 0, 0];
 		vertexNormals = [0.0,0.0,1.0, 0.0,0.0,1.0];
 		vertexColors = [0.0,0.0,1.0, 0.0,0.0,1.0];
 		vertexCount = 2;
 		vertexIndecis = [0,1];
 		indecisCount = 2;
 		
-		line_segment = createNewSegment(vertexPositions, vertexNormals, vertexColors, vertexCount, vertexIndecis, indecisCount);
-		line_segment.mode = gl.LINES;
-		line_segment.useLighting = false;
+		laser.segment = createNewSegment(vertexPositions, vertexNormals, vertexColors, vertexCount, vertexIndecis, indecisCount);
+		laser.segment.mode = gl.LINES;
+		laser.segment.useLighting = false;
 	}
 	
 	function update_laser() {
-		gl.bindBuffer(gl.ARRAY_BUFFER, line_segment.shipVertexPositionBuffer);
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(vertexPositions));
+		
+		var x = Math.random() * 300 - 150;
+		var y = Math.random() * 300 - 150
+		var z = Math.random() * 300 - 150;
+		
+		x = 300;
+		y = 200;
+		z = 1;
+		
+		console.log(x + " " + y + " " + z);
+		
+		laser.origin = [x, y, z];
+		laser.end = [0, 0, 0];
+		vec3.sub(laser.dir, laser.end, laser.origin);
+		vec3.normalize(laser.dir, laser.dir);
+		
+		laser.length = Math.sqrt(vec3.sqrDist(laser.origin, laser.end));
+		laser.dirfrac = undefined;
+		
+		laser.segment.vertexPositions = [laser.origin[0], laser.origin[1], laser.origin[2], laser.end[0], laser.end[1], laser.end[2]];
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, laser.segment.shipVertexPositionBuffer);
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(laser.segment.vertexPositions));
+		
+		var transform = mat4.create();
+		mat4.identity(transform);
+		
+		collision_checks = 0;
+		var start = Date.now();
+		
+		laser_vs_component(laser, top_level_model, transform);
+		
+		var end = Date.now();
+		
+		console.log("Time " + (end - start));
+		
+		console.log(collision_checks);
 	}
 
 
@@ -250,10 +307,7 @@
         currentlyPressedKeys[event.keyCode] = true;
 		
 		if(event.keyCode == 32) { // space bar
-			var x = radius * Math.cos(theta - Math.PI/2) * Math.cos(psi - Math.PI/2);
-			var y = radius * Math.sin(theta - Math.PI/2) * Math.cos(psi - Math.PI/2);
-			var z = radius * Math.sin(psi + Math.PI/2);
-			vertexPositions = [x, y, z-10, Math.random()*10-5, Math.random()*10-5, Math.random()*10-5];
+			
 			update_laser();
 		}
     }
@@ -265,19 +319,10 @@
 		var faster = currentlyPressedKeys[16];
 		var speed = (faster)?10:1;
 		
-		radius -= (event.wheelDelta / 100) * speed;
-		
 	}
-
-
-    
 	
-	var theta = 1;
-	var d_theta = 0;
-	var psi = Math.PI/2;
-	var d_psi = 0;
-	var radius = 600;
-	var d_radius = 0;
+	
+	var navigationMatrix = mat4.create();
 
     function handleKeys() {
 		var faster = currentlyPressedKeys[16];
@@ -285,70 +330,101 @@
 		
         if (currentlyPressedKeys[33]) {
             // Page Up
-            d_radius = 0.1 * speed;
+            
         } else if (currentlyPressedKeys[34]) {
             // Page Down
-            d_radius = -0.1 * speed;
-        } else {
-            d_radius = 0;
+            
         }
 
         if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
             // Left cursor key or A
-            d_theta = 0.0003 * speed;
+			mat4.identity(navigationMatrix);
+            mat4.rotateY(navigationMatrix, navigationMatrix, -0.07);
+			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
+			
         } else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
             // Right cursor key or D
-            d_theta = -0.0003 * speed;
-        } else {
-            d_theta = 0;
+			mat4.identity(navigationMatrix);
+            mat4.rotateY(navigationMatrix, navigationMatrix, 0.07);
+			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
         }
 
         if (currentlyPressedKeys[38] || currentlyPressedKeys[87]) {
             // Up cursor key or W
-            d_psi = 0.0003 * speed;
+			mat4.identity(navigationMatrix);
+			mat4.translate(navigationMatrix, navigationMatrix, [0, 0, 0.7 * speed]);
+			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
+			
         } else if (currentlyPressedKeys[40] || currentlyPressedKeys[83]) {
-            // Down cursor key
-            d_psi = -0.0003 * speed;
-        } else {
-            d_psi = 0;
+            // Down cursor key or S
+			mat4.identity(navigationMatrix);
+            mat4.translate(navigationMatrix, navigationMatrix, [0, 0, -0.7 * speed]);
+			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
+        }
+		
+		if (currentlyPressedKeys[81]) {
+            // Q
+			mat4.identity(navigationMatrix);
+            mat4.rotateX(navigationMatrix, navigationMatrix, 0.07);
+			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
+			
+        } else if (currentlyPressedKeys[69]) {
+            // E
+			mat4.identity(navigationMatrix);
+            mat4.rotateX(navigationMatrix, navigationMatrix, -0.07);
+			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
         }
     }
 	
-	var lightingDirection = [Math.random()*2-1, Math.random()*2-1, -1];
-
+	var keyLightingDirection = [-1.0, -2.0, -0.5];
+	var fillLightingDirection = [-2.0, 1.0, -1.5];
+	var backLightingDirection = [2.0, 1.0, 3.0];
+	vec3.normalize(keyLightingDirection, keyLightingDirection);
+	vec3.normalize(fillLightingDirection, fillLightingDirection);
+	vec3.normalize(backLightingDirection, backLightingDirection);
+	
+	var keyLightingColor = [1.0, 1.0, 1.0];
+	var fillLightingColor = [1.0, 1.0, 0.75];
+	var backLightingColor = [0.75, 1.0, 1.0];
+	vec3.scale(keyLightingColor, keyLightingColor, 0.8);
+	vec3.scale(fillLightingColor, fillLightingColor, 0.4);
+	vec3.scale(backLightingColor, backLightingColor, 0.4);
+	
 	var frame_count = 0;
+	
+	var testBoundingBox = {"min":vec3.fromValues(-150, -150, -150),"max":vec3.fromValues(150, 150, 150)};
+	
+	var top_level_model = "small room";
+	//var top_level_model = "2x2 wall";
+	//var top_level_model = "inner hull corner";
+	//var top_level_model = "2x2 wall with door";
 	
     function drawScene() {
 		
         gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
-		gl.uniform3f(shaderProgram.ambientColorUniform, 0.3, 0.3, 0.3);
-		gl.uniform3f(shaderProgram.directionalColorUniform, 0.7, 0.7, 0.7);
+		gl.uniform3fv(shaderProgram.keyLightingDirectionUniform, keyLightingDirection);
+		gl.uniform3fv(shaderProgram.fillLightingDirectionUniform, fillLightingDirection);
+		gl.uniform3fv(shaderProgram.backLightingDirectionUniform, backLightingDirection);
 		
-		var adjustedLD = vec3.create();
-		vec3.normalize(adjustedLD, lightingDirection);
-		vec3.scale(adjustedLD, adjustedLD, -1);
-		gl.uniform3fv(shaderProgram.lightingDirectionUniform, adjustedLD);
+		gl.uniform3fv(shaderProgram.keyColorUniform, keyLightingColor);
+		gl.uniform3fv(shaderProgram.fillColorUniform, fillLightingColor);
+		gl.uniform3fv(shaderProgram.backColorUniform, backLightingColor);
 
         mat4.perspective(pMatrix, Math.PI/4, gl.viewportWidth / gl.viewportHeight, 1.0, 10000.0);
 
         mat4.identity(mvMatrix);
-		mat4.identity(sceneMatrix);
-
-		mat4.translate(sceneMatrix, sceneMatrix, [0, 0, -radius]);
-		mat4.rotateX(sceneMatrix, sceneMatrix, (-psi));
-		mat4.rotateZ(sceneMatrix, sceneMatrix, (-theta));
 		
-		var all_loaded = draw_model("small room");
-		draw_segment(line_segment);
+		//world elements
+		draw_segment(testBoundingBox.segment);
+		draw_segment(laser.segment);
 		
-		//var all_loaded = draw_model("2x2 wall");
-		//var all_loaded = draw_model("inner hull plate");
+		//apply tranform for ship space
+		//mat4.rotateZ(mvMatrix, mvMatrix, frame_count/400);
 		
-		if(all_loaded) {
-			document.getElementById('loading-notification').innerHTML = "";
-		}
+		draw_model(top_level_model);
+		
 		frame_count += 1;
     }
 
@@ -358,18 +434,9 @@
 
     function animate() {
         var timeNow = new Date().getTime();
+		var elapsed = 0;
         if (lastTime != 0) {
-            var elapsed = timeNow - lastTime; 
-
-			theta += d_theta * elapsed;
-            psi += d_psi * elapsed;
-			if(psi > Math.PI) {
-				psi = Math.PI;
-			}
-			if(psi < 0) {
-				psi = 0;
-			}
-			radius += d_radius * elapsed;
+            elapsed = timeNow - lastTime;
         }
         lastTime = timeNow;
 		
@@ -382,10 +449,13 @@
     }
 
     function tick() {
+		
         requestAnimFrame(tick);
         drawScene();
         animate();
 		handleKeys();
+		
+		continue_coroutines(5);
     }
 
 
@@ -399,6 +469,7 @@
 		
         initGL(canvas);
         initShaders();
+		register_coroutine(load_models);
 
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
@@ -407,45 +478,27 @@
         document.onkeyup = handleKeyUp;
 		document.onmousewheel = handleMouseWheel;
 
-		create_laser(400, 0, 0);
+		create_laser(0, 0, 0);
+		testBoundingBox.segment = createBoundingBoxSegment(testBoundingBox);
 		
         tick();
-		
-		
-		
-		function m4_to_string(matrix) {
-			var out_s = "";
-			for(var i = 0; i < 4; i++) {
-				for(var j = 0; j < 4; j++) {
-					out_s += matrix[i+j*4] + " "
-				}
-				out_s += "\n";
-			}
-			return out_s
-		}
     }
 
 </script>
-
-
 </head>
-
-
-<body onload="webGLStart();" id="body-element" >
-    <canvas id="game-canvas" style="border: none;" width="1000" height="1000"></canvas>
-	<p id="directions">
-		w,a,s,d to rotate
-		<br/>
-		mouse wheel (or page up/page down) to zoom
-		<br/>
-		hold shift to go faster
-		<br/>
-		<span id="status"></span>
-	</p>
-	<p id="fps"></p>
-	<p id="loading-notification" >Loading</p>
-</body>
-
-
+	<body onload="webGLStart();" id="body-element">
+		<canvas id="game-canvas" style="border: none;" width="1000" height="1000"></canvas>
+		<p id="directions">
+			w,a,s,d to move
+			<br/>
+			hold shift to go faster
+			<br/>
+			
+			<br/>
+			<span id="status"></span>
+		</p>
+		<p id="fps"></p>
+		<p id="loading-notification">Loading</p>
+	</body>
 </html>
 

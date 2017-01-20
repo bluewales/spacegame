@@ -49,7 +49,6 @@ function laser_vs_octree(laser, octree) {
 	
 	
 	if(collides) {
-		
 		if(octree.size == 0) {
 			console.log(JSON.stringify(octree.midpoint) + " " + laser.collission_dis);
 			return {"coord":[octree.midpoint[0],octree.midpoint[1],octree.midpoint[2]], "distance": laser.collission_dis};

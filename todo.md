@@ -1,6 +1,10 @@
 + Don't display voxel faces that are hidden within model
 * Combine voxel faces into larger rectangles
-+ Make more models, vertex, edges, and doors for my room
+* Make more models, vertex, edges, and doors for my room
+	+ Vertex
+	+ Edge
+	+ Walls
+	* Doors
 * Components are organized in a hierarchy.  
 	* Ship is the highest level component. 
 	* Coponents come in 2 types, basic and composit
@@ -18,3 +22,15 @@
 	* Components can split into two components because of damage, including top level components (ships)
 		* so, pieces of your ship can be blown off and go flying to space
 * Collision detection
+	* I need bounding boxes for all components
+		* Bounding Boxes are easy for basic components
+		* For composit components, I need to transform the bounding box of the child into the part space of the parent
+			* Definitely for setting the box on the parent, maybe for checking the child before descending the tree
+		* For collision detection, I need to transform the foriegn object into part space
+* Seperate model processing into coroutines
+	* Build source data structure for voxel map (such as octtree)
+	* Build vertex buffers for rendering
+	* When models are altered, it will fall to the co-routine to rebuild the vertex buffers.  
+		* The source data structure must be much faster to modify so it wont require subroutines
+	+ Loading is now it's own coroutine and is handled asynchronously (compared to the drawing)
+* Put shaders in own file
