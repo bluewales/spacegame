@@ -203,6 +203,8 @@
 	var cameraMatrix = mat4.create();
 	mat4.identity(cameraMatrix);
 	mat4.rotateX(cameraMatrix, cameraMatrix, Math.PI/2);
+	mat4.rotateZ(cameraMatrix, cameraMatrix, Math.PI/2);
+	mat4.translate(cameraMatrix, cameraMatrix, [-400,0,0]);
 
     function mvPushMatrix() {
         var copy = mat4.clone(mvMatrix);
@@ -339,13 +341,13 @@
         if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
             // Left cursor key or A
 			mat4.identity(navigationMatrix);
-            mat4.rotateY(navigationMatrix, navigationMatrix, -0.07);
+            mat4.rotateY(navigationMatrix, navigationMatrix, -0.03);
 			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
 			
         } else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
             // Right cursor key or D
 			mat4.identity(navigationMatrix);
-            mat4.rotateY(navigationMatrix, navigationMatrix, 0.07);
+            mat4.rotateY(navigationMatrix, navigationMatrix, 0.03);
 			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
         }
 
@@ -365,13 +367,13 @@
 		if (currentlyPressedKeys[81]) {
             // Q
 			mat4.identity(navigationMatrix);
-            mat4.rotateX(navigationMatrix, navigationMatrix, 0.07);
+            mat4.rotateX(navigationMatrix, navigationMatrix, 0.03);
 			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
 			
         } else if (currentlyPressedKeys[69]) {
             // E
 			mat4.identity(navigationMatrix);
-            mat4.rotateX(navigationMatrix, navigationMatrix, -0.07);
+            mat4.rotateX(navigationMatrix, navigationMatrix, -0.03);
 			mat4.mul(cameraMatrix,navigationMatrix,cameraMatrix);
         }
     }
@@ -386,7 +388,7 @@
 	var keyLightingColor = [1.0, 1.0, 1.0];
 	var fillLightingColor = [1.0, 1.0, 0.75];
 	var backLightingColor = [0.75, 1.0, 1.0];
-	vec3.scale(keyLightingColor, keyLightingColor, 0.8);
+	vec3.scale(keyLightingColor, keyLightingColor, 1.0);
 	vec3.scale(fillLightingColor, fillLightingColor, 0.4);
 	vec3.scale(backLightingColor, backLightingColor, 0.4);
 	
