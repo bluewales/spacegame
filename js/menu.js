@@ -10,14 +10,9 @@ var menus = {
 
         menu.ul = parent
             .append("ul")
-            .style("position", "absolute")
             .style("left", x + "px")
-            .style("top", y + "px")
+            .style("top", y + "px");
 
-        console.log(x + "px")
-        console.log(y + "px")
-
-        console.log(items)
 
         menu.ul.selectAll("li")
             .data(items)
@@ -25,6 +20,21 @@ var menus = {
             .text(function(d,i) {
                 return d.name;
             })
+            .on("click", function(d, i) {
+                var sub_menu = d3.select(this).select("ul");
+                if(sub_menu.empty()) {
+                    if(d.list) {
+                        var w = d3.select(this).node().getBoundingClientRect().width;
+                        var h = d3.select(this).node().getBoundingClientRect().height;
+
+                        menus.create(d.list, d3.select(this), w, i * h);
+                    }
+                } else {
+                    sub_menu.remove();
+                }
+            })
+            .append("span")
+            .classed("triangle", function(d){return d.list});
 
         return menu;
     },

@@ -1,0 +1,90 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto+Slab:700|Exo+2:300,600);
+
+/* Eric Meyer's Reset CSS v2.0 - http://cssreset.com */
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
+
+
+canvas {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    color:black;
+}
+p {
+    color: white;
+}
+#directions {
+    position: absolute;
+    left: 10px;
+    top: 50px;
+}
+#fps {
+    position: absolute;
+    left: 10px;
+    top: 106px;
+}
+#loading-notification {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    font-size: 4em;
+    margin-left: -150px;
+    margin-top: -60px;
+}
+h1, p, body {
+    margin: 0;
+}
+h1 {
+    position: absolute;
+    left:10px;
+    top:0px;
+    color: white;
+    z-index:100;
+}
+
+html, body { margin:0; padding:0; overflow:hidden; }
+svg { position:fixed; top:0; bottom:0; left:0; right:0; height:100%; width:100%; }
+
+#menus {
+
+}
+
+#menus ul{
+    position: absolute;
+    padding: 3px;
+
+}
+
+#menus ul li {
+    color: white;
+    background-color: #9b4733;
+    padding: 3px 10px;
+    width: 100%;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#menus ul li:hover {
+    background-color: #af4750;
+    cursor: pointer;
+
+}
+
+.triangle {
+    height:0px;
+    width:0px;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+
+    border-left: 10px solid #57120f;
+    float:right;
+}
+
+.menu-header {
+
+}
+
+.menu tr {
+    padding: 50px;
+
+}

@@ -108,7 +108,13 @@ function handle_click(item) {
         {
             "name": "First",
             "list":[
-                {"name":"Sub First"},
+                {
+                    "name":"Sub First",
+                    "list":[
+                        {"name":"Three levels deep"},
+                        {"name":"From the first one"}
+                    ]
+                },
                 {"name":"Sub First 2"}
             ]
         },
@@ -118,6 +124,8 @@ function handle_click(item) {
                 {"name":"Sub Second"},
                 {"name":"Sub Second again"}
             ]
+        },{
+            "name": "Third"
         },
     ];
 
