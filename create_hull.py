@@ -172,12 +172,12 @@ for i in range(0,(l)) :
 	for j in range(0,(l*2)) :
 		for k in range(0,(len(mold))) :
 			if j < l / 2:
-				di = (l/2) - i
-				dj = (l / 2) - j
+				di = (l/2.0) - i
+				dj = (l / 2.0) - j
 				dist = math.sqrt(di*di + dj*dj)
-			elif j > 3 * l / 2:
-				di = (l/2) - i
-				dj = (3 * l / 2) - j
+			elif j > 3.0 * l / 2.0:
+				di = (l/2.0) - i
+				dj = (3.0 * l / 2.0) - j
 				dist = math.sqrt(di*di + dj*dj)
 			else:
 				dist = abs(i - l/2)

@@ -1,4 +1,9 @@
 var models = {
+	"voxel": {
+		"basic":true,
+		"pivot":[0, 0, 0],
+		"file_location": "voxel.txt"
+	},
 	"inner hull plate": {
 		"basic":true,
 		"pivot":[50, 50, 1],

@@ -196,8 +196,6 @@ function buildOctree(state) {
 		}
 	}
 	
-	console.log(model_name + " octree " + size + ", " + state.octree.numVoxels + " voxels");
-	
 	models[model_name].octree = state.octree;
 	
 	return true;
@@ -248,6 +246,8 @@ function parseComponent(state) {
 	
 	models[model_name]['loaded'] = true;
 	register_coroutine(load_models);
+	
+	console.log(model_name + " octree " + state.octree.size + ", " + state.octree.numVoxels + " voxels, " + (state.indecisCount/6) + " faces, ratio: " + (state.indecisCount/6)/state.octree.numVoxels);
 	
 	return true;
 }
