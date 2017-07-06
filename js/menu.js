@@ -21,18 +21,23 @@ var menus = {
                 return d.name;
             })
             .on("click", function(d, i) {
-                var sub_menu = d3.select(this).select("ul");
-                if(sub_menu.empty()) {
-                    if(d.list) {
-                        var w = d3.select(this).node().getBoundingClientRect().width;
-                        var h = d3.select(this).node().getBoundingClientRect().height;
 
-                        menus.create(d.list, d3.select(this), w, i * h);
-                    }
+                parent.selectAll("ul").selectAll("li").selectAll("ul").remove();
+
+                if(d.list) {
+                    var w = d3.select(this).node().getBoundingClientRect().width;
+                    var h = d3.select(this).node().getBoundingClientRect().height;
+
+                    menus.create(d.list, d3.select(this), w, i * h);
+                    d3.event.stopPropagation();
                 } else {
-                    sub_menu.remove();
+                    if(d.handle) {
+                        d.handle(x, y);
+                    }
+                    clear_highlight()
                 }
             })
+            .classed("info", function(d) { return !(d.handle || d.list); })
             .append("span")
             .classed("triangle", function(d){return d.list});
 

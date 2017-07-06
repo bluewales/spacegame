@@ -19,8 +19,7 @@ var ship = {
         {x:1,y:1},{x:3,y:1},{x:5,y:1},{x:7,y:1},
         {x:1,y:3},{x:3,y:3},{x:5,y:3},{x:7,y:3},
         {x:3,y:5},{x:5,y:5},{x:7,y:5},
-        {x:3,y:7},{x:5,y:7},{x:7,y:7},
-        {x:11,y:11}
+        {x:3,y:7},{x:5,y:7},{x:7,y:7}
     ],
     walls:[
         {x:4,y:3},{x:3,y:4},
@@ -32,10 +31,7 @@ var ship = {
         {x:5,y:4},{x:7,y:4},
         {x:2,y:5},{x:2,y:7},
         {x:3,y:8},{x:5,y:8},{x:7,y:8},
-        {x:8,y:5},{x:8,y:7},
-        {x:10,y:11},{x:11,y:10},
-        {x:11,y:12},{x:12,y:11}
-
+        {x:8,y:5},{x:8,y:7}
     ]
 };
 
@@ -111,22 +107,25 @@ function handle_click(item) {
                 {
                     "name":"Sub First",
                     "list":[
-                        {"name":"Three levels deep"},
-                        {"name":"From the first one"}
+                        {"name":"Three levels deep","handle": function(){}},
+                        {"name":"From the first one","handle": function(){}}
                     ]
                 },
-                {"name":"Sub First 2"}
+                {"name":"Sub First 2","handle": function(){}},
+                {"name": "info"}
             ]
         },
         {
             "name": "Second",
             "list":[
-                {"name":"Sub Second"},
-                {"name":"Sub Second again"}
+                {"name":"Sub Second","handle": function(){}},
+                {"name":"Sub Second again","handle": function(){}}
             ]
         },{
-            "name": "Third"
+            "name": "Third",
+            "handle": function(){}
         },
+        {"name": "info"}
     ];
 
     highlighted_menu = menus.create(menu_stucture, d3.select("#menus"),d3.event.pageX,d3.event.pageY)
