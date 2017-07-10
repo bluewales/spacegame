@@ -107,6 +107,9 @@ function handleKeyDown(event) {
 function handleKeyUp(event) {
     currentlyPressedKeys[event.keyCode] = false;
 }
+function handleMouseWheel(event) {
+    zoom *= 1+(event.deltaY / 1000);
+}
 
 
 
@@ -167,10 +170,10 @@ function tick() {
         x += 5;
     }
     if(currentlyPressedKeys[81]) {
-        zoom *= 1.01;
+
     }
     if(currentlyPressedKeys[69]) {
-        zoom /= 1.01;
+        
     }
 
     ship_g.attr("transform", "translate(" + x + "," + y + ") scale(" + (zoom) + ")");
@@ -185,6 +188,7 @@ function start_game() {
 
     document.onkeydown = handleKeyDown;
     document.onkeyup = handleKeyUp;
+    document.onmousewheel = handleMouseWheel;
 
     init_scene();
     tick();
