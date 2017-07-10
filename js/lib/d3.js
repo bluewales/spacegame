@@ -4850,7 +4850,7 @@ Path.prototype = path.prototype = {
       this._ += "L" + (this._x1 = x1) + "," + (this._y1 = y1);
     }
 
-    // Otherwise, draw an arc!
+    // Otherwise, init_scene an arc!
     else {
       var x20 = x2 - x0,
           y20 = y2 - y0,
@@ -13359,7 +13359,7 @@ var arc = function() {
         // Have the corners merged?
         if (rc1 < rc) context.arc(t0.cx, t0.cy, rc1, atan2$1(t0.y01, t0.x01), atan2$1(t1.y01, t1.x01), !cw);
 
-        // Otherwise, draw the two corners and the ring.
+        // Otherwise, init_scene the two corners and the ring.
         else {
           context.arc(t0.cx, t0.cy, rc1, atan2$1(t0.y01, t0.x01), atan2$1(t0.y11, t0.x11), !cw);
           context.arc(0, 0, r1, atan2$1(t0.cy + t0.y11, t0.cx + t0.x11), atan2$1(t1.cy + t1.y11, t1.cx + t1.x11), !cw);
@@ -13384,7 +13384,7 @@ var arc = function() {
         // Have the corners merged?
         if (rc0 < rc) context.arc(t0.cx, t0.cy, rc0, atan2$1(t0.y01, t0.x01), atan2$1(t1.y01, t1.x01), !cw);
 
-        // Otherwise, draw the two corners and the ring.
+        // Otherwise, init_scene the two corners and the ring.
         else {
           context.arc(t0.cx, t0.cy, rc0, atan2$1(t0.y01, t0.x01), atan2$1(t0.y11, t0.x11), !cw);
           context.arc(0, 0, r0, atan2$1(t0.cy + t0.y11, t0.cx + t0.x11), atan2$1(t1.cy + t1.y11, t1.cx + t1.x11), cw);

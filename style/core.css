@@ -34,6 +34,9 @@ p {
 h1, p, body {
     margin: 0;
 }
+body {
+    background-image: url("/img/mars.jpg");
+}
 h1 {
     position: absolute;
     left:10px;
