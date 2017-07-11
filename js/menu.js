@@ -14,7 +14,7 @@ var menus = {
             .style("top", y + "px");
 
 
-        menu.ul.selectAll("li")
+        menu.lines = menu.ul.selectAll("li")
             .data(items)
             .enter().append("li")
             .text(function(d,i) {
@@ -38,7 +38,8 @@ var menus = {
                 }
             })
             .classed("info", function(d) { return !(d.handle || d.list); })
-            .append("span")
+
+        menu.lines.append("span")
             .classed("triangle", function(d){return d.list});
 
         return menu;

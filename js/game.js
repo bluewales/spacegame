@@ -16,9 +16,11 @@ function initGL(canvas) {
 
 
 var ship_g = null;
+var z_menu = null;
+
 
 var x = 0, y = 0, zoom = 1;
-var z = 1;
+var z = 2;
 
 
 function clear_highlight() {
@@ -35,8 +37,6 @@ var highlighted_menu = null;
 function highlight_square(square) {
     clear_highlight();
 
-
-
     ship_g
         .append("g")
         .attr("id", "highlight")
@@ -51,9 +51,8 @@ function highlight_square(square) {
         .style("stroke", "white")
         .style("stroke-width", wall_width)
         .style("opacity", 0.5)
-        .on("click", function(d){
+        .on("click", function(d) {
             clear_highlight();
-            console.log("clear")
         });
 }
 
@@ -96,13 +95,27 @@ function handle_click(item) {
         {"name": "info"}
     ];
 
-    highlighted_menu = menus.create(menu_structure, d3.select("#menus"),d3.event.pageX,d3.event.pageY)
+    highlighted_menu = menus.create(menu_structure, d3.select("#menus"),d3.event.pageX,d3.event.pageY);
+}
+
+function change_z(new_z) {
+    z_menu.lines.text("z-level: " + new_z);
+    redraw_ship(ship_g, new_z);
+
+    z = new_z;
 }
 
 var currentlyPressedKeys = {};
 
 function handleKeyDown(event) {
     currentlyPressedKeys[event.keyCode] = true;
+
+    if(event.keyCode == 69) {
+        change_z(z + 1)
+    }
+    if(event.keyCode == 81) {
+        change_z(z - 1)
+    }
 }
 function handleKeyUp(event) {
     currentlyPressedKeys[event.keyCode] = false;
@@ -137,7 +150,8 @@ function init_scene() {
         .attr("id", "ship")
         .attr("transform", "translate(" + x + "," + y + ") scale(0.75)");
 
-    draw_ship(ship_g, z);
+    init_ship(ship_g, z);
+
 
 
     var window_width = d3.select("svg").node().getBoundingClientRect().width;
@@ -150,6 +164,9 @@ function init_scene() {
 
     x = window_width / 2 - ship_width / 2;
     y = window_height / 2 - ship_height / 2;
+
+
+    z_menu = menus.create([{"name":"z-level: " + z}], d3.select("#menus"), window_width - 100, window_height - 25);
 
 
 
