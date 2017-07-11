@@ -59,17 +59,37 @@ svg { position:fixed; top:0; bottom:0; left:0; right:0; height:100%; width:100%;
 }
 
 #menus ul li {
-    color: white;
-    background-color: #9b4733;
+    color: #F0EEEC;
+    background-color: #B86B47;
     padding: 3px 10px;
     width: 100%;
     cursor: pointer;
     white-space: nowrap;
 }
 
-#menus ul li:hover {
-    background-color: #af4750;
+#menus {
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
 
+    /* Rules below not implemented in browsers yet */
+    -o-user-select: none;
+    user-select: none;
+}
+
+#menus ul li:hover {
+    background-color: #512D4C;
+
+}
+
+#menus ul li.header {
+    border: 1px solid #F0EEEC;
+    background-color: #B86B47;
+    font-weight: bold;
+}
+#menus ul li.header:hover {
+    background-color: #B86B47;
+    cursor: move;
 }
 
 #menus ul li.info {
@@ -86,7 +106,7 @@ svg { position:fixed; top:0; bottom:0; left:0; right:0; height:100%; width:100%;
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
 
-    border-left: 10px solid #57120f;
+    border-left: 10px solid #C2A39B;
     float:right;
 }
 

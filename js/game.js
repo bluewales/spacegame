@@ -20,7 +20,7 @@ var z_menu = null;
 
 
 var x = 0, y = 0, zoom = 1;
-var z = 2;
+var z = 1;
 
 
 function clear_highlight() {
@@ -71,6 +71,9 @@ function handle_click(item) {
 
     var menu_structure = [
         {
+            "name": "Menu",
+            "header": true
+        },{
             "name": "First",
             "list": [
                 {
@@ -81,7 +84,7 @@ function handle_click(item) {
                     ]
                 },
                 {"name": "Sub First 2", "handle": function(){}},
-                {"name": "info"}
+                {"name": "info", "info": true}
             ]
         },
         {
@@ -92,10 +95,10 @@ function handle_click(item) {
             ]
         },
         {"name": "Third", "handle": function(){}},
-        {"name": "info"}
+        {"name": "info", "info": true}
     ];
 
-    highlighted_menu = menus.create(menu_structure, d3.select("#menus"),d3.event.pageX,d3.event.pageY);
+    highlighted_menu = menus.create(menu_structure, d3.select("#menus"), d3.event.pageX, d3.event.pageY);
 }
 
 function change_z(new_z) {
@@ -166,7 +169,7 @@ function init_scene() {
     y = window_height / 2 - ship_height / 2;
 
 
-    z_menu = menus.create([{"name":"z-level: " + z}], d3.select("#menus"), window_width - 100, window_height - 25);
+    z_menu = menus.create([{"name":"z-level: " + z,"info":true}], d3.select("#menus"), window_width - 100, window_height - 25);
 
 
 
@@ -198,8 +201,7 @@ function tick() {
     window.requestAnimationFrame(tick);
 }
 
-var floor_width = 50;
-var wall_width = floor_width / 10;
+
 
 function start_game() {
 
