@@ -201,25 +201,25 @@ function init_ship(ship_g, z, done) {
             if(ship.min_z == undefined || z_level < ship.min_z) {
                 ship.min_z = z_level;
             }
+/*
+            function check_cell(x, y, z) {
+                console.log(x + " " + y + " " + z);
+                if(!ship.data.cells[z]) {
+                    console.log("creating cell at z = " + z);
+                    ship.data.cells[z] = {};
+                }
+                if(!ship.data.cells[z][x]) {
+                    console.log("creating cell at x = " + x);
+                    ship.data.cells[z][x] = {};
+                }
+                if(!ship.data.cells[z][x][y]) {
+                    console.log("creating cell at y = " + y);
+                    ship.data.cells[z][x][y] = {};
+                }
+            }
 
-             function check_cell(x, y, z) {
-                 console.log(x + " " + y + " " + z);
-                 if(!ship.data.cells[z]) {
-                     console.log("creating cell at z = " + z);
-                     ship.data.cells[z] = {};
-                 }
-                 if(!ship.data.cells[z][x]) {
-                     console.log("creating cell at x = " + x);
-                     ship.data.cells[z][x] = {};
-                 }
-                 if(!ship.data.cells[z][x][y]) {
-                     console.log("creating cell at y = " + y);
-                     ship.data.cells[z][x][y] = {};
-                 }
-             }
 
 
-            /*
              for(var i = 0; i < ship.data.structure[z_level].walls.length; i += 1) {
                  var x = ship.data.structure[z_level].walls[i].x;
                  var y = ship.data.structure[z_level].walls[i].y;
