@@ -16,9 +16,19 @@ function color_from_palettes(palette, color, wash) {
     return d3.rgb(color_palets[palette][color]).darker(wash*2);
 }
 
-function get_context_dependant_menu(x, y, z) {
+function can_build_ns_wall(x, y, z) {
+    ship.data.cells[z][x][y]
+}
 
-    //console.log("creating cell at " + x + " " + y + " " + z);
+function can_build_ew_wall(x, y, z) {
+
+}
+
+function can_build_floor(x, y, z) {
+
+}
+
+function get_context_dependant_menu(x, y, z) {
 
     var menu_structure = [
         {
@@ -55,13 +65,13 @@ function get_context_dependant_menu(x, y, z) {
     } else {
         var cell = {};
     }
-    if(cell.has_ceiling && cell.has_floor) {
+    if(cell.enclosed) {
         menu_structure.push({"name": "Enclosed area", "header": true});
     } else {
-        menu_structure.push({"name": "Empty space", "header": true});
+        menu_structure.push({"name": "Outer space", "header": true});
     }
 
-    list = []
+    var list = [];
 
     if(!cell.has_east_wall) {
         list.push({"name": "Build East Wall", "handle": function(){}})
@@ -83,7 +93,13 @@ function get_context_dependant_menu(x, y, z) {
     }
 
 
-    menu_structure.push({"name": "Structure", "list": list})
+    if(list.length > 0) {
+        menu_structure.push({"name": "Structure", "list": list})
+    }
+
+    if(cell.enclosed) {
+        menu_structure.push({"name": "Pressurized to " + cell.pressure + " atm.", "info": true})
+    }
 
 
     return menu_structure;
@@ -185,59 +201,65 @@ function init_ship(ship_g, z, done) {
             if(ship.min_z == undefined || z_level < ship.min_z) {
                 ship.min_z = z_level;
             }
-            /*
+
              function check_cell(x, y, z) {
-             console.log(x + " " + y + " " + z);
-             if(!ship.data.cells[z]) {
-             console.log("creating cell at z = " + z);
-             ship.data.cells[z] = {};
-             }
-             if(!ship.data.cells[z][x]) {
-             console.log("creating cell at x = " + x);
-             ship.data.cells[z][x] = {};
-             }
-             if(!ship.data.cells[z][x][y]) {
-             console.log("creating cell at y = " + y);
-             ship.data.cells[z][x][y] = {};
-             }
+                 console.log(x + " " + y + " " + z);
+                 if(!ship.data.cells[z]) {
+                     console.log("creating cell at z = " + z);
+                     ship.data.cells[z] = {};
+                 }
+                 if(!ship.data.cells[z][x]) {
+                     console.log("creating cell at x = " + x);
+                     ship.data.cells[z][x] = {};
+                 }
+                 if(!ship.data.cells[z][x][y]) {
+                     console.log("creating cell at y = " + y);
+                     ship.data.cells[z][x][y] = {};
+                 }
              }
 
 
-
+            /*
              for(var i = 0; i < ship.data.structure[z_level].walls.length; i += 1) {
-             var x = ship.data.structure[z_level].walls[i].x;
-             var y = ship.data.structure[z_level].walls[i].y;
+                 var x = ship.data.structure[z_level].walls[i].x;
+                 var y = ship.data.structure[z_level].walls[i].y;
 
-             if(x%2 == 0) {
-             check_cell(x+1, y, z_level);
-             check_cell(x-1, y, z_level);
-             ship.data.cells[z_level][x+1][y].has_west_wall = true;
-             ship.data.cells[z_level][x-1][y].has_east_wall = true;
-             }
-             if(y%2 == 0) {
-             check_cell(x, y+1, z_level);
-             check_cell(x, y-1, z_level);
+                 if(x%2 == 0) {
+                 check_cell(x+1, y, z_level);
+                 check_cell(x-1, y, z_level);
+                 ship.data.cells[z_level][x+1][y].has_west_wall = true;
+                 ship.data.cells[z_level][x-1][y].has_east_wall = true;
+                 }
+                 if(y%2 == 0) {
+                     check_cell(x, y+1, z_level);
+                     check_cell(x, y-1, z_level);
 
-             console.log("out " + x + " " + y + " " + z_level);
+                     console.log("out " + x + " " + y + " " + z_level);
 
-
-             ship.data.cells[z_level][x][y+1].has_north_wall = true;
-             ship.data.cells[z_level][x][y-1].has_south_wall = true;
-             }
+                     ship.data.cells[z_level][x][y+1].has_north_wall = true;
+                     ship.data.cells[z_level][x][y-1].has_south_wall = true;
+                 }
              }
 
              for(var i = 0; i < ship.data.structure[z_level].floors.length; i += 1) {
-             var x = ship.data.structure[z_level].floors[i].x;
-             var y = ship.data.structure[z_level].floors[i].y;
+                 var x = ship.data.structure[z_level].floors[i].x;
+                 var y = ship.data.structure[z_level].floors[i].y;
 
-             check_cell(x, y, z_level);
-             check_cell(x, y, z_level-1);
-             ship.data.cells[z_level][x][y].has_floor = true;
-             ship.data.cells[z_level-1][x][y].has_ceiling = true;
+                 check_cell(x, y, z_level);
+                 check_cell(x, y, z_level-1);
+                 ship.data.cells[z_level][x][y].has_floor = true;
+                 ship.data.cells[z_level-1][x][y].has_ceiling = true;
+
+                 if(ship.data.cells[z_level-1][x][y].has_ceiling && ship.data.cells[z_level-1][x][y].has_floor) {
+                     ship.data.cells[z_level-1][x][y].pressure = 1;
+                     ship.data.cells[z_level-1][x][y].enclosed = true;
+                 }
+                 if(ship.data.cells[z_level][x][y].has_ceiling && ship.data.cells[z_level][x][y].has_floor) {
+                     ship.data.cells[z_level][x][y].presure = 1;
+                     ship.data.cells[z_level][x][y].enclosed = true;
+                 }
              }
              */
-
-
         }
         draw_ship(ship_g, z);
 

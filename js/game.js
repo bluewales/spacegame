@@ -117,7 +117,7 @@ function init_scene() {
         .on("click", function(d) {
             handle_click();
 
-        })
+        });
 
     ship_g = d3.select("svg")
         .append("g")
