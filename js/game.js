@@ -62,48 +62,19 @@ function handle_click(item) {
     var square_x = Math.floor(((d3.event.pageX - x) / zoom) / (floor_width + wall_width)) * 2+1;
     var square_y = Math.floor(((d3.event.pageY - y) / zoom) / (floor_width + wall_width)) * 2+1;
 
-    console.log(square_x + "," + square_y);
-
     highlight_square({x:square_x,y:square_y});
 
-    var menu_options = [{"name":"Empty Space"},{"name":"Buid"}];
 
+    var menu_structure = get_context_dependant_menu(square_x, square_y, z);
 
-    var menu_structure = [
-        {
-            "name": "Menu",
-            "header": true
-        },{
-            "name": "First",
-            "list": [
-                {
-                    "name":"Sub First",
-                    "list":[
-                        {"name": "Three levels deep", "handle": function(){}},
-                        {"name": "From the first one", "handle": function(){}}
-                    ]
-                },
-                {"name": "Sub First 2", "handle": function(){}},
-                {"name": "info", "info": true}
-            ]
-        },
-        {
-            "name": "Second",
-            "list": [
-                {"name": "Sub Second", "handle": function(){}},
-                {"name": "Sub Second again", "handle": function(){}}
-            ]
-        },
-        {"name": "Third", "handle": function(){}},
-        {"name": "info", "info": true}
-    ];
-
-    highlighted_menu = menus.create(menu_structure, d3.select("#menus"), d3.event.pageX, d3.event.pageY);
+    highlighted_menu = menus.create(menu_structure, d3.select("#menus"), d3.event.pageX+15, d3.event.pageY-10);
 }
 
 function change_z(new_z) {
     z_menu.lines.text("z-level: " + new_z);
     redraw_ship(ship_g, new_z);
+
+    clear_highlight();
 
     z = new_z;
 }
@@ -145,7 +116,7 @@ function init_scene() {
         .style("fill","transparent")
         .on("click", function(d) {
             handle_click();
-            console.log("click svg");
+
         })
 
     ship_g = d3.select("svg")
@@ -153,26 +124,21 @@ function init_scene() {
         .attr("id", "ship")
         .attr("transform", "translate(" + x + "," + y + ") scale(0.75)");
 
-    init_ship(ship_g, z);
+    init_ship(ship_g, z, function(ship) {
+        var window_width = d3.select("svg").node().getBoundingClientRect().width;
+        var window_height = d3.select("svg").node().getBoundingClientRect().height;
+        var ship_width = ship_g.node().getBBox().width;
+        var ship_height = ship_g.node().getBBox().height;
+
+        console.log(window_width + " " + window_height);
+        console.log(ship_width + " " + ship_height);
+
+        x = window_width / 2 - ship_width / 2;
+        y = window_height / 2 - ship_height / 2;
 
 
-
-    var window_width = d3.select("svg").node().getBoundingClientRect().width;
-    var window_height = d3.select("svg").node().getBoundingClientRect().height;
-    var ship_width = ship_g.node().getBBox().width;
-    var ship_height = ship_g.node().getBBox().height;
-
-    console.log(window_width + " " + window_height);
-    console.log(ship_width + " " + ship_height);
-
-    x = window_width / 2 - ship_width / 2;
-    y = window_height / 2 - ship_height / 2;
-
-
-    z_menu = menus.create([{"name":"z-level: " + z,"info":true}], d3.select("#menus"), window_width - 100, window_height - 25);
-
-
-
+        z_menu = menus.create([{"name":"z-level: " + z,"info":true}], d3.select("#menus"), window_width - 100, window_height - 25);
+    });
 }
 
 function tick() {
@@ -193,7 +159,7 @@ function tick() {
 
     }
     if(currentlyPressedKeys[69]) {
-        
+
     }
 
     ship_g.attr("transform", "translate(" + x + "," + y + ") scale(" + (zoom) + ")");
@@ -212,4 +178,3 @@ function start_game() {
     init_scene();
     tick();
 }
-

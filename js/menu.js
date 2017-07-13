@@ -64,31 +64,31 @@ var menus = {
                         .style("top", new_top + "px");
                 })
                 .on("end", function(d) {}));
-            /*
-            .on("mousedown", function() {
+        /*
+         .on("mousedown", function() {
 
-                console.log("mousedown");
+         console.log("mousedown");
 
-                menu.drag_start = {x:d3.event.pageX, y:d3.event.pageY};
-            })
-            .on(".drag", function() {
+         menu.drag_start = {x:d3.event.pageX, y:d3.event.pageY};
+         })
+         .on(".drag", function() {
 
-                console.log("mousemove");
+         console.log("mousemove");
 
-                if(!menu.drag_start) return;
+         if(!menu.drag_start) return;
 
-                menu.position.x += d3.event.pageX - menu.drag_start.x;
-                menu.position.y += d3.event.pageY - menu.drag_start.y;
+         menu.position.x += d3.event.pageX - menu.drag_start.x;
+         menu.position.y += d3.event.pageY - menu.drag_start.y;
 
-                menu.ul
-                    .style("left", menu.position.x + "px")
-                    .style("top", menu.position.y + "px");
-            })
-            .on("mouseup", function() {
-                console.log("mouseup");
-                menu.drag_start = null;
-            })
-            */
+         menu.ul
+         .style("left", menu.position.x + "px")
+         .style("top", menu.position.y + "px");
+         })
+         .on("mouseup", function() {
+         console.log("mouseup");
+         menu.drag_start = null;
+         })
+         */
         menu.ul.selectAll(".expandable")
             .append("span")
             .classed("triangle", function(d){return d.list});
