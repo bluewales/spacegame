@@ -52,7 +52,7 @@ function handle_click(item) {
     highlight_square({x:square_x,y:square_y});
 
 
-    var menu_structure = get_context_dependant_menu(square_x, square_y, z);
+    var menu_structure = get_context_dependant_menu_for_cell(square_x, square_y, z);
 
     highlighted_menu = menus.create(menu_structure, d3.select("#menus"), d3.event.pageX+15, d3.event.pageY-10);
 }
