@@ -1,23 +1,10 @@
 /**
  * Created by Ox The Automaton on 7/1/2017.
  */
-var gl;
-function initGL(canvas) {
-    try {
-        gl = canvas.getContext("experimental-webgl");
-        gl.viewportWidth = canvas.width;
-        gl.viewportHeight = canvas.height;
-    } catch (e) {
-    }
-    if (!gl) {
-        alert("Could not initialise WebGL, sorry :-(");
-    }
-}
 
 
 var ship_g = null;
 var z_menu = null;
-
 
 var x = 0, y = 0, zoom = 1;
 var z = 1;
@@ -45,8 +32,8 @@ function highlight_square(square) {
         .enter().append("rect")
         .attr("x", function(d,i) { return Math.floor(d.x/2) * (floor_width + wall_width); })
         .attr("y", function(d,i) { return Math.floor(d.y/2) * (floor_width + wall_width); })
-        .attr("width", floor_width + wall_width)
-        .attr("height", floor_width + wall_width)
+        .attr("width", floor_width)
+        .attr("height", floor_width)
         .style("fill", "orange")
         .style("stroke", "white")
         .style("stroke-width", wall_width)
@@ -85,10 +72,10 @@ function handleKeyDown(event) {
     currentlyPressedKeys[event.keyCode] = true;
 
     if(event.keyCode == 69) {
-        change_z(z + 1)
+        change_z(z + 2)
     }
     if(event.keyCode == 81) {
-        change_z(z - 1)
+        change_z(z - 2)
     }
 }
 function handleKeyUp(event) {

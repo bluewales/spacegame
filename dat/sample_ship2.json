@@ -1,0 +1,56 @@
+{
+  "cells":{
+    "1": {
+      "1": {
+        "1": {
+          "enclosed": true,
+          "oxygen": 0.22,
+          "nitrogen": 0.78,
+          "pressure": 1
+        }
+      }
+    }
+  },
+  "hulls": {
+    "1": {
+      "1": {
+        "0": {
+          "material": "steel",
+          "built": 100
+        },
+        "2": {
+          "material": "steel",
+          "built": 100
+        }
+      },
+      "0": {
+        "1": {
+          "material": "steel",
+          "built": 100
+        }
+      },
+      "2": {
+        "1": {
+          "material": "steel",
+          "built": 100
+        }
+      }
+    },
+    "0": {
+      "1": {
+        "1": {
+          "material": "steel",
+          "built": 100
+        }
+      }
+    },
+    "2": {
+      "1": {
+        "1": {
+          "material": "steel",
+          "built": 100
+        }
+      }
+    }
+  }
+}
