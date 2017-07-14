@@ -59,7 +59,8 @@ function handle_click(item) {
 
 function change_z(new_z) {
     z_menu.lines.text("z-level: " + new_z);
-    redraw_ship(ship_g, new_z);
+    ship.current_z = new_z;
+    ship.redraw();
 
     clear_highlight();
 
