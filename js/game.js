@@ -49,8 +49,7 @@ function handle_click(item) {
     var square_x = Math.floor(((d3.event.pageX - x) / zoom) / (floor_width + wall_width)) * 2+1;
     var square_y = Math.floor(((d3.event.pageY - y) / zoom) / (floor_width + wall_width)) * 2+1;
 
-    highlight_square({x:square_x,y:square_y});
-
+    highlight_square({x:square_x, y:square_y});
 
     var menu_structure = get_context_dependant_menu_for_cell(square_x, square_y, z);
 
@@ -83,7 +82,7 @@ function handleKeyUp(event) {
     currentlyPressedKeys[event.keyCode] = false;
 }
 function handleMouseWheel(event) {
-    zoom *= 1+(event.deltaY / 1000);
+    zoom *= 1+(event.deltaY / 1024);
 }
 
 
@@ -104,7 +103,6 @@ function init_scene() {
         .style("fill","transparent")
         .on("click", function(d) {
             handle_click();
-
         });
 
     ship_g = d3.select("svg")
@@ -123,6 +121,8 @@ function init_scene() {
 
         x = window_width / 2 - ship_width / 2;
         y = window_height / 2 - ship_height / 2;
+
+        ship_g.attr("transform", "translate(" + x + "," + y + ") scale(" + (zoom) + ")");
 
 
         z_menu = menus.create([{"name":"z-level: " + z,"info":true}], d3.select("#menus"), window_width - 100, window_height - 25);
