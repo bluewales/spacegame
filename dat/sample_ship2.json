@@ -276,5 +276,17 @@
         }
       }
     }
-  }
+  },
+  "crew": [
+    {
+      "first_name": "Agnieske",
+      "last_name": "Verdebrechtijnck",
+      "location": {"x":1,"y":1,"z":1}
+    },
+    {
+      "first_name": "Walter",
+      "last_name": "ter Slight",
+      "location": {"x":2,"y":-1,"z":1}
+    }
+  ]
 }

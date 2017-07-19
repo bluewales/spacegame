@@ -123,6 +123,20 @@ function draw_walls(ship_g, walls_data, class_prefix, color_wash) {
                 .style("fill", color_from_palettes(ship_palette, 2, color_wash));
 }
 
+function draw_crew(ship_g, crew_data) {
+    ship_g.append("g")
+        .classed("crew", true)
+        .selectAll("circle")
+        .data(crew_data)
+        .enter().append("circle")
+        .attr("cx", function(d) {return Math.floor(d.location.x / 2) * (floor_width + wall_width) + floor_width/2;})
+        .attr("cy", function(d) {return Math.floor(d.location.y / 2) * (floor_width + wall_width) + floor_width/2;})
+        .attr("r", floor_width/3)
+        .style("fill", function(d, i) {return "hsl(" + Math.random() * 360 + ",100%,50%)"});
+
+
+}
+
 
 function draw_ship(ship_g, z){
 
@@ -133,6 +147,7 @@ function draw_ship(ship_g, z){
 
     draw_floors(ship_g, ship.data.hulls[z-1], "", 0);
     draw_walls(ship_g, ship.data.hulls[z], "", 0);
+    draw_crew(ship_g, ship.data.crew.filter(function(d) {return d.location.z == z}));
 }
 
 function redraw_ship(ship_g, z) {
