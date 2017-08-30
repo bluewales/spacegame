@@ -1,21 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Space Game</title>
-    <link rel="stylesheet" type="text/css" href="style/core.css">
+	<meta charset="utf-8" />
+	<title>Space Game with EaselJS</title>
+	<link rel="stylesheet" type="text/css" href="style/core.css">
+	<script src="js/lib/d3.js"></script>
+	<script src="js/lib/easel.js" type="text/javascript"></script>
+	<script src="js/lib/preloadjs-0.6.2.min.js" type="text/javascript"></script>
+	<script src="js/script.js" type="text/javascript"></script>
 
-    <script src="js/lib/d3.js"></script>
 
-    <script src="js/game.js"></script>
-    <script src="js/menu.js"></script>
-    <script src="js/ship.js"></script>
-    <script src="js/palettes.js"></script>
-    <script src="js/construction.js"></script>
-    <script src="js/crew.js"></script>
 </head>
-<body onload="start_game();" id="body-element">
-    <svg id="game-svg" ></svg>
-    <div id="menus"></div>
+<body onload="init();">
+	<canvas id="easel" ></canvas>
 </body>
 </html>

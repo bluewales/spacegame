@@ -24,7 +24,10 @@ Octree.prototype.addVoxel = function(coord, type) {
 		if(this.boundingBox.max[2] < coord[2]+1) this.boundingBox.max[2] = coord[2]+1;
 		
 	} else {
-		this.boundingBox = {"min":[coord[0], coord[1], coord[2]],"max":[coord[0]+1, coord[1]+1, coord[2]+1]};
+		this.boundingBox = {
+			"min":[coord[0], coord[1], coord[2]],
+			"max":[coord[0]+1, coord[1]+1, coord[2]+1]
+		};
 	}
 	
 	if(this.size == 0) {

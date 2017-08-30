@@ -168,6 +168,5 @@ function draw_model(model_name) {
 				//draw_segment(segment);	
 			}
 		}
-		
 	}
 }
