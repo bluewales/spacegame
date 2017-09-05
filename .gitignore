@@ -1,3 +1,4 @@
 .idea
 .idea/*
 sftp-config.json
+.remote-sync.json

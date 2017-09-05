@@ -5,7 +5,148 @@
 
 var ship = {};
 
+class Wall extends createjs.Sprite {
+	constructor(sheet, sprite_key, x, y) {
+		super(sheet, sprite_key);
 
+		this.x_pos = x;
+		this.y_pos = y;
+
+		this.x = this.x_pos * 24;
+		this.y = this.y_pos * 24;
+
+		// handle click/tap
+		this.on('click', this.handle_click.bind(this));
+	}
+	handle_click() {
+		handle_click();
+	}
+}
+
+class Floor extends createjs.Sprite {
+	constructor(sheet, sprite_key, x, y) {
+		super(sheet, sprite_key);
+
+		this.x = x * 24;
+		this.y = y * 24;
+
+		// handle click/tap
+		this.on('click', this.handle_click.bind(this));
+	}
+	handle_click() {
+		handle_click();
+	}
+}
+
+class Crew extends createjs.Sprite {
+	constructor(sheet, sprite_key, x, y) {
+		super(sheet, sprite_key);
+
+		this.x_pos = x;
+		this.y_pos = y;
+
+		this.x = this.x_pos * 24;
+		this.y = this.y_pos * 24;
+
+		// handle click/tap
+		this.on('click', this.handle_click.bind(this));
+	}
+	handle_click() {
+		handle_click();
+	}
+}
+
+class Level extends createjs.Container {
+  constructor() {
+    super();
+
+    this.floors = new createjs.Container();
+    this.walls = new createjs.Container();
+    this.crew = new createjs.Container();
+
+    this.layers = {
+
+		};
+  }
+
+	add(item, layer) {
+		if(this.layers[layer] === undefined) {
+			this.layers[layer] = new createjs.Container();
+		}
+		this.addChild(this.layers[layer]);
+		this.layers[layer].addChild(item);
+		//this.setChildIndex(this.layers[layer], layer);
+	}
+}
+
+class Ship extends createjs.Container {
+	constructor(structure_sheet, creature_sheet, raw_ship) {
+		super();
+
+    this.structure_sheet = structure_sheet;
+    this.creature_sheet = creature_sheet;
+
+		this.floor_layer = 0;
+		this.wall_layer = 1;
+		this.crew_layer = 2;
+
+		this.floors = {};
+		this.walls = {};
+		this.crew = {};
+
+    this.levels = {};
+	}
+
+  add_floor_at(x, y, z, floor_key) {
+		if(floor_key == ".") return;
+		var floor = new Floor(this.structure_sheet, floor_key, x, y);
+
+		if(this.levels[z] === undefined) this.levels[z] = new Level();
+		if(this.floors[z] == undefined) this.floors[z] = {};
+		if(this.floors[z][y] === undefined) this.floors[z][y] = {};
+		this.floors[z][y][x] = floor;
+		this.levels[z].add(floor, this.floor_layer);
+  }
+  add_wall_at(x, y, z, wall_key) {
+		if(wall_key == ".") return;
+    var wall = new Wall(this.structure_sheet, wall_key, x, y);
+
+    if(this.levels[z] === undefined) this.levels[z] = new Level();
+		if(this.walls[z] == undefined) this.walls[z] = {};
+		if(this.walls[z][y] === undefined) this.walls[z][y] = {};
+		this.walls[z][y][x] = wall;
+    this.levels[z].add(wall, this.wall_layer);
+  }
+  add_crew_member(crew_raw) {
+
+		var z = crew_raw.location.z;
+		var y = crew_raw.location.y;
+		var x = crew_raw.location.x;
+
+		var crew = new Crew(this.creature_sheet, crew_raw.sprite, x, y);
+
+		if(this.levels[z] === undefined) this.levels[z] = new Level();
+		if(this.crew[z] == undefined) this.crew[z] = {};
+		if(this.crew[z][y] === undefined) this.crew[z][y] = {};
+		this.crew[z][y][x] = crew;
+		this.levels[z].add(crew, this.crew_layer);
+  }
+
+	set_display_level(z_level) {
+		this.removeAllChildren();
+		for(var z = d3.min(d3.keys(this.levels), function(d) {return d*1;}); z <= z_level; z++) {
+			if(!(this.levels[z] === undefined)){
+
+				var matrix = new createjs.ColorMatrix().adjustHue(180).adjustSaturation(100);
+
+				var darken = Math.pow(.5, z_level-z);
+				this.levels[z].alpha = Math.floor(darken);
+
+				this.addChild(this.levels[z]);
+			}
+		}
+	}
+}
 
 
 var ship_palette = 0;
