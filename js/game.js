@@ -1,168 +1,225 @@
 /**
  * Created by Ox The Automaton on 7/1/2017.
  */
+ /*jshint esversion: 6 */
 
 
-var ship_g = null;
-var z_menu = null;
+class Game {
+  constructor() {
+    var width = d3.select("canvas").node().getBoundingClientRect().width;
+    var height = d3.select("canvas").node().getBoundingClientRect().height;
 
-var x = 0, y = 0, zoom = 1;
-var z = 1;
+    this.pan_x = 0;
+    this.pan_y = 0;
+    this.z_level = 1;
+    this.zoom = 0;
 
+    d3.select("canvas")
+        .attr("width", width)
+        .attr("height", height);
 
-function clear_highlight() {
-    d3.select("svg #highlight")
-        .remove();
+    this.manifest = [
+      {src: "img/oryx_16bit_scifi_world_trans.png", id: "world"},
+      {src: "img/oryx_16bit_scifi_creatures_trans.png", id: "creatures"},
+      {src: "dat/sample_ship3.json", id: "ship"}
+    ];
+    this.loader = new createjs.LoadQueue(false);
+    this.loader.addEventListener("complete", this.on_asset_load.bind(this));
+    this.loader.loadManifest(this.manifest, true, "");
 
-    if(highlighted_menu) {
-        menus.destroy(highlighted_menu);
-    }
-}
+    document.onkeydown = this.handleKeyDown.bind(this);
+    document.onkeyup = this.handleKeyUp.bind(this);
+    document.onmousewheel = this.handleMouseWheel.bind(this);
 
-var highlighted_menu = null;
+    this.currentlyPressedKeys = {};
+  }
 
-function highlight_square(square) {
-    clear_highlight();
+  on_asset_load(event) {
+  	console.log("handleComplete");
 
-    ship_g
-        .append("g")
-        .attr("id", "highlight")
-        .selectAll("rect")
-        .data([square])
-        .enter().append("rect")
-        .attr("x", function(d,i) { return Math.floor(d.x/2) * (floor_width + wall_width); })
-        .attr("y", function(d,i) { return Math.floor(d.y/2) * (floor_width + wall_width); })
-        .attr("width", floor_width)
-        .attr("height", floor_width)
-        .style("fill", "orange")
-        .style("stroke", "white")
-        .style("stroke-width", wall_width)
-        .style("opacity", 0.5)
-        .on("click", function(d) {
-            clear_highlight();
-        });
-}
+  	this.canvas = document.getElementById("easel");
 
-
-
-function handle_click(item) {
-    var square_x = Math.floor(((d3.event.pageX - x) / zoom) / (floor_width + wall_width)) * 2+1;
-    var square_y = Math.floor(((d3.event.pageY - y) / zoom) / (floor_width + wall_width)) * 2+1;
-
-    highlight_square({x:square_x, y:square_y});
-
-    var menu_structure = get_context_dependant_menu_for_cell(square_x, square_y, z);
-
-    highlighted_menu = menus.create(menu_structure, d3.select("#menus"), d3.event.pageX+15, d3.event.pageY-10);
-}
-
-function change_z(new_z) {
-    z_menu.lines.text("z-level: " + new_z);
-    ship.current_z = new_z;
-    ship.redraw();
-
-    clear_highlight();
-
-    z = new_z;
-}
-
-var currentlyPressedKeys = {};
-
-function handleKeyDown(event) {
-    currentlyPressedKeys[event.keyCode] = true;
-
-    if(event.keyCode == 69) {
-        change_z(z + 2)
-    }
-    if(event.keyCode == 81) {
-        change_z(z - 2)
-    }
-}
-function handleKeyUp(event) {
-    currentlyPressedKeys[event.keyCode] = false;
-}
-function handleMouseWheel(event) {
-    zoom *= 1+(event.deltaY / 1024);
-}
+  	var creatures = new createjs.SpriteSheet({
+  		framerate: 2,
+  		animations:{
+  			"hat": [0,1],
+  			"blue": [32,33],
+  			"green": [64,65],
+  			"blonde": [96,97],
+  			"pony": [664,665],
+  			"constructor": [1248,1249],
+  		},
+  		images: [event.target.getResult("creatures")],
+  		frames: {
+  			regX: 12,
+  			regY: 12,
+  			height: 24,
+  			width: 24
+  		}
+  	});
 
 
+  	var structure = new createjs.SpriteSheet({
+  		animations:{
+  			"X": [0],
+  			"o": [6],
+  			"c": [7],
+  			"═": [8],
+  			"ↄ": [9],
+  			"n": [10],
+  			"║": [11],
+  			"u": [12],
+  			"╔": [13],
+  			"╗": [14],
+  			"╚": [15],
+  			"╝": [16],
+  			"╬": [17],
+  			"╦": [18],
+  			"╣": [19],
+  			"╠": [20],
+  			"╩": [21],
+  			".": [34],
+  			" ": [34]
 
-function init_scene() {
-    d3.select("svg").selectAll("g").remove();
-
-    x = d3.select("svg").node().getBoundingClientRect().width / 2;
-    y = d3.select("svg").node().getBoundingClientRect().height / 2;
-
-    d3.select("svg")
-        .append("g")
-        .attr("id", "space-background")
-        .append("rect")
-        .attr("x", 0).attr("y", 0)
-        .style("width", "100%")
-        .style("height","100%")
-        .style("fill","transparent")
-        .on("click", function(d) {
-            handle_click();
-        });
-
-    ship_g = d3.select("svg")
-        .append("g")
-        .attr("id", "ship")
-        .attr("transform", "translate(" + x + "," + y + ") scale(0.75)");
-
-    init_ship(ship_g, z, function(ship) {
-        var window_width = d3.select("svg").node().getBoundingClientRect().width;
-        var window_height = d3.select("svg").node().getBoundingClientRect().height;
-        var ship_width = ship_g.node().getBBox().width;
-        var ship_height = ship_g.node().getBBox().height;
-
-        console.log(window_width + " " + window_height);
-        console.log(ship_width + " " + ship_height);
-
-        x = window_width / 2 - ship_width / 2;
-        y = window_height / 2 - ship_height / 2;
-
-        ship_g.attr("transform", "translate(" + x + "," + y + ") scale(" + (zoom) + ")");
+  		},
+  		images: [event.target.getResult("world")],
+  		frames: {
+  			regX: 12,
+  			regY: 12,
+  			height: 24,
+  			width: 24
+  		}
+  	});
 
 
-        z_menu = menus.create([{"name":"z-level: " + z,"info":true}], d3.select("#menus"), window_width - 100, window_height - 25);
-    });
-}
+  	var raw_ship = event.target.getResult("ship");
+  	this.ship = new Ship(structure, creatures, raw_ship);
 
-function tick() {
+  	var min_level = d3.min(d3.keys(raw_ship.structure.walls).concat(d3.keys(raw_ship.structure.floors)), function(d) {return d*1;});
+  	var max_level = d3.max(d3.keys(raw_ship.structure.walls).concat(d3.keys(raw_ship.structure.floors)), function(d) {return d*1;});
 
-    if(currentlyPressedKeys[87]) {
-        y -= 5;
-    }
-    if(currentlyPressedKeys[83]) {
-        y += 5;
-    }
-    if(currentlyPressedKeys[65]) {
-        x -= 5;
-    }
-    if(currentlyPressedKeys[68]) {
-        x += 5;
-    }
-    if(currentlyPressedKeys[81]) {
+  	var floors = raw_ship.structure.floors;
+    for(var z = min_level; z <= max_level; z++) {
+      var x, y;
+    	if(z in floors) {
+    		for(y = 0; y < floors[z].length; y++) {
+    			for(x = 0; x < floors[z][y].length; x++) {
+    				var floor_key = floors[z][y][x];
+    				this.ship.add_floor_at({"x":x, "y":y, "z":z}, floor_key);
+    			}
+    		}
+    	}
 
-    }
-    if(currentlyPressedKeys[69]) {
-
+    	var walls = raw_ship.structure.walls;
+    	if(z in walls) {
+    		for(y = 0; y < walls[z].length; y++) {
+    			for(x = 0; x < walls[z][y].length; x++) {
+    				var wall_key = walls[z][y][x];
+    				this.ship.add_wall_at({"x":x, "y":y, "z":z}, wall_key);
+    			}
+    		}
+    	}
     }
 
-    ship_g.attr("transform", "translate(" + x + "," + y + ") scale(" + (zoom) + ")");
+  	var crew = raw_ship.crew;
+  	for(var i = 0; i < crew.length; i++) {
+  		this.ship.add_crew_member(crew[i]);
+  	}
 
-    window.requestAnimationFrame(tick);
-}
+  	this.ship.set_display_level(this.z_level);
+
+  	this.stage = new createjs.Stage(this.canvas);
+  	this.stage.addChild(this.ship);
+
+    this.jobs = new Jobs();
+
+    this.jobs.create_job(new Patrol([
+      {"x":1,"y":1,"z":1},
+      {"x":2,"y":2,"z":1}
+    ]));
+    this.jobs.create_job(new Patrol([
+      {"x":1,"y":1,"z":0},
+      {"x":5,"y":5,"z":0}
+    ]));
+
+  	console.log(this.stage);
+
+  	this.ship.scaleX = 1;
+  	this.ship.scaleY = 1;
+
+  	createjs.Ticker.setFPS(32);
+  	createjs.Ticker.on("tick", this.tick.bind(this));
+  }
+
+  tick(event) {
+    var width = this.canvas.getBoundingClientRect().width;
+    var height = this.canvas.getBoundingClientRect().height;
+
+    d3.select("canvas")
+        .attr("width", width)
+        .attr("height", height);
+
+    var centerX = this.canvas.width/2;
+  	var centerY = this.canvas.height/2;
+
+    this.stage.x = centerX + this.pan_x;
+    this.stage.y = centerY + this.pan_y;
+
+    var real_zoom_multiplier = Math.pow(seventh_root_of_two, this.zoom);
+    this.stage.scaleX = real_zoom_multiplier;
+    this.stage.scaleY = real_zoom_multiplier;
+
+    this.stage.update(event);
+
+    if(this.currentlyPressedKeys[65]) {
+        this.pan(-5, 0);
+    }
+    if(this.currentlyPressedKeys[68]) {
+        this.pan(5, 0);
+    }
+    if(this.currentlyPressedKeys[83]) {
+        this.pan(0, 5);
+    }
+    if(this.currentlyPressedKeys[87]) {
+        this.pan(0, -5);
+    }
+
+    var iter = iterate_3d(this.ship.crew);
+    while(true) {
+      var crew_member = iter.next();
+      if(crew_member.done) break;
+      crew_member.value.tick(event, this);
+    }
+  }
 
 
+  change_z(dz) {
+  	this.z_level += dz;
+  	this.ship.set_display_level(this.z_level);
+  	console.log("z_level " + this.z_level);
+  }
 
-function start_game() {
+  change_zoom(delta_zoom) {
+  	this.zoom += delta_zoom;
+  }
 
-    document.onkeydown = handleKeyDown;
-    document.onkeyup = handleKeyUp;
-    document.onmousewheel = handleMouseWheel;
+  pan(dx, dy) {
+  	this.pan_x += dx;
+  	this.pan_y += dy;
+  }
+  handleKeyDown(event) {
+      this.currentlyPressedKeys[event.keyCode] = true;
 
-    init_scene();
-    tick();
+      if(event.keyCode == 69) this.change_z(1);
+      if(event.keyCode == 81) this.change_z(-1);
+  }
+  handleKeyUp(event) {
+      this.currentlyPressedKeys[event.keyCode] = false;
+  }
+  handleMouseWheel(event) {
+      this.change_zoom(event.deltaY / 100);
+  }
+  handle_click(event, object) {
+  	console.log("clicked");
+  }
 }
