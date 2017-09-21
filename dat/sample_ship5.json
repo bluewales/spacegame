@@ -1,0 +1,71 @@
+{
+	"structure": {
+		"walls": {
+			"0": [
+				"╔═══╗",
+				"║...║",
+				"║...║",
+				"║...║",
+				"╚═══╝"
+			],
+			"1": [
+        "╔═══╗",
+				"║...║",
+				"║...║",
+				"║...║",
+				"╚═══╝"
+			]
+		},
+		"floors": {
+      "0": [
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX"
+			],
+			"1": [
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XhXXX",
+				"XXXXX"
+			],
+			"2": [
+        "XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX"
+			]
+		}
+	},
+	"crew" : [
+		{
+			"sprite": "constructor",
+			"location": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		}
+	],
+	"furniture" : [
+		{
+			"sprite": "storage",
+			"location": {
+				"x": 2,
+				"y": 1,
+				"z": 1
+			}
+		},
+		{
+			"sprite": "storage",
+			"location": {
+				"x": 2,
+				"y": 3,
+				"z": 1
+			}
+		}
+	]
+}

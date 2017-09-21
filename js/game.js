@@ -9,10 +9,10 @@ class Game {
     var width = d3.select("canvas").node().getBoundingClientRect().width;
     var height = d3.select("canvas").node().getBoundingClientRect().height;
 
-    this.pan_x = 0;
-    this.pan_y = 0;
+    this.pan_x = -130;
+    this.pan_y = -130;
     this.z_level = 1;
-    this.zoom = 0;
+    this.zoom = 7;
 
     d3.select("canvas")
         .attr("width", width)
@@ -21,10 +21,15 @@ class Game {
     this.manifest = [
       {src: "img/oryx_16bit_scifi_world_trans.png", id: "world"},
       {src: "img/oryx_16bit_scifi_creatures_trans.png", id: "creatures"},
-      {src: "dat/sample_ship3.json", id: "ship"}
+      {src: "dat/sample_ship5.json", id: "ship"}
     ];
     this.loader = new createjs.LoadQueue(false);
-    this.loader.addEventListener("complete", this.on_asset_load.bind(this));
+    this.loader.on("complete", this.on_asset_load.bind(this));
+
+    this.loader.on("progress", function(event) {
+      console.log(Math.round(event.progress*100) + " % loaded");
+    });
+
     this.loader.loadManifest(this.manifest, true, "");
 
     document.onkeydown = this.handleKeyDown.bind(this);
@@ -32,6 +37,7 @@ class Game {
     document.onmousewheel = this.handleMouseWheel.bind(this);
 
     this.currentlyPressedKeys = {};
+
   }
 
   on_asset_load(event) {
@@ -61,7 +67,7 @@ class Game {
 
   	var structure = new createjs.SpriteSheet({
   		animations:{
-  			"X": [0],
+  			"X": [0], // floor
   			"o": [6],
   			"c": [7],
   			"═": [8],
@@ -78,8 +84,12 @@ class Game {
   			"╣": [19],
   			"╠": [20],
   			"╩": [21],
-  			".": [34],
-  			" ": [34]
+  			".": [34], // nothing
+  			" ": [34], // doesn't work I don't know why a space can't be a key
+        "h": [111], // floor hatch
+
+        /* furniture */
+        "storage": [735]
 
   		},
   		images: [event.target.getResult("world")],
@@ -126,6 +136,11 @@ class Game {
   		this.ship.add_crew_member(crew[i]);
   	}
 
+    var furniture = raw_ship.furniture;
+  	for(var i = 0; i < furniture.length; i++) {
+  		this.ship.add_furniture(furniture[i]);
+  	}
+
   	this.ship.set_display_level(this.z_level);
 
   	this.stage = new createjs.Stage(this.canvas);
@@ -139,7 +154,7 @@ class Game {
     ]));
     this.jobs.create_job(new Patrol([
       {"x":1,"y":1,"z":0},
-      {"x":5,"y":5,"z":0}
+      {"x":3,"y":3,"z":1}
     ]));
 
   	console.log(this.stage);
@@ -149,6 +164,7 @@ class Game {
 
   	createjs.Ticker.setFPS(32);
   	createjs.Ticker.on("tick", this.tick.bind(this));
+
   }
 
   tick(event) {

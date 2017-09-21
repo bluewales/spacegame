@@ -13,6 +13,18 @@ function* iterate_3d(place) {
 	}
 }
 
+function get_3d(place, p) {
+	if(place[p.z] && place[p.z][p.y] && place[p.z][p.y][p.x]) {
+		return place[p.z][p.y][p.x];
+	} else {
+		return undefined;
+	}
+}
+function set_3d(place, p, thing) {
+	if(place[p.z] == undefined) place[p.z] = {};
+	if(place[p.z][p.y] === undefined) place[p.z][p.y] = {};
+	place[p.z][p.y][p.x] = thing;
+}
 
 function init() {
 
