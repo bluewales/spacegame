@@ -1,15 +1,81 @@
 {
 	"structure": {
 		"walls": {
-			"0": [
-				"o"
+			"1": [
+				"+-----+",
+				"¦.¦...¦",
+				"¦.¦.n.¦",
+				"¦.¦.¦.¦",
+				"¦.u.¦.¦",
+				"¦...¦.¦",
+				"+-----+"
+			],
+			"2": [
+				"+-----+",
+				"¦..¦..¦",
+				"¦..¦..¦",
+				"+-----¦",
+				"..¦...¦",
+				"..¦...¦",
+				"..+---+"
+			],
+			"3": [
+				"..n....",
+				"..¦---+",
+				"..¦...¦",
+				"..¦.o.u",
+				"..¦....",
+				".c+---?",
+				"..++..."
 			]
 		},
 		"floors": {
-
+			"1": [
+				"XXXXXXX",
+				"XXXXXXX",
+				"XpXXXXX",
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX"
+			],
+			"2": [
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX"
+			],
+			"3": [
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX",
+				"..XXXXX",
+				".XXXXXX",
+				"..XXXXX"
+			],
+			"4": [
+				".......",
+				"..XXXXX",
+				"..XXXXX",
+				"..XXXXX",
+				"..XXXXX",
+				".XXXXXX",
+				"..XX..."
+			]
 		}
 	},
 	"crew" : [
-
+		{
+			"sprite": "constructor",
+			"location": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		}
 	]
 }

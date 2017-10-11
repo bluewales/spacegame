@@ -2,23 +2,20 @@
  * Created by Ox The Automaton on 7/3/2017.
  */
 
+class Menu {
+    constructor(items, parent, x, y) {
 
-var menu_palette = 18;
+        this.items = items;
+        this.parent = parent;
+        this.position = {"x":x, "y":y};
 
-var menus = {
-    create : function(items, parent, x, y) {
-        menu = {};
-        menu.items = items;
-        menu.parent = parent;
-        menu.position = {"x":x, "y":y};
-
-        menu.ul = parent
+        this.ul = parent
             .append("ul")
-            .style("left", menu.position.x + "px")
-            .style("top", menu.position.y + "px");
+            .style("left", this.position.x + "px")
+            .style("top", this.position.y + "px");
 
 
-        menu.lines = menu.ul.selectAll("li")
+        this.lines = this.ul.selectAll("li")
             .data(items)
             .enter().append("li")
             .text(function(d,i) {
@@ -32,7 +29,7 @@ var menus = {
                     var w = d3.select(this).node().getBoundingClientRect().width;
                     var h = d3.select(this).node().getBoundingClientRect().height;
 
-                    menus.create(d.list, d3.select(this), w, i * h);
+                    this.clild_menu = new Menu(d.list, d3.select(this), w, i * h);
                     d3.event.stopPropagation();
                 } else {
                     if(d.handle) {
@@ -45,7 +42,7 @@ var menus = {
             .classed("header", function(d) {return d.header;})
             .classed("expandable", function(d) {return d.list;});
 
-        menu.ul.selectAll(".header")
+        this.ul.selectAll(".header")
             .call(d3.drag()
                 .on("start", function(d) {
                     console.log(d3.event.x + " " + d3.event.y);
@@ -64,38 +61,11 @@ var menus = {
                         .style("top", new_top + "px");
                 })
                 .on("end", function(d) {}));
-            /*
-            .on("mousedown", function() {
-
-                console.log("mousedown");
-
-                menu.drag_start = {x:d3.event.pageX, y:d3.event.pageY};
-            })
-            .on(".drag", function() {
-
-                console.log("mousemove");
-
-                if(!menu.drag_start) return;
-
-                menu.position.x += d3.event.pageX - menu.drag_start.x;
-                menu.position.y += d3.event.pageY - menu.drag_start.y;
-
-                menu.ul
-                    .style("left", menu.position.x + "px")
-                    .style("top", menu.position.y + "px");
-            })
-            .on("mouseup", function() {
-                console.log("mouseup");
-                menu.drag_start = null;
-            })
-            */
-        menu.ul.selectAll(".expandable")
+        this.ul.selectAll(".expandable")
             .append("span")
             .classed("triangle", function(d){return d.list});
-
-        return menu;
-    },
-    destroy: function(menu) {
-        menu.ul.remove();
+    }
+    destroy() {
+        this.ul.remove();
     }
 }

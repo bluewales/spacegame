@@ -44,9 +44,9 @@
 				"XXXXXXX",
 				"XXXXXXX",
 				"XXXXXXX",
-				"..XXXXX",
-				"..XXXXX",
-				"..XXXXX"
+				"XXXXXXX",
+				"XXXXXXX",
+				"XXXXXXX"
 			],
 			"2": [
 				"XXXXXXX",
@@ -54,7 +54,7 @@
 				"XXXXXXX",
 				"XXXXXXX",
 				"..XXXXX",
-				"..XXXXX",
+				".XXXXXX",
 				"..XXXXX"
 			],
 			"3": [
@@ -63,8 +63,8 @@
 				"..XXXXX",
 				"..XXXXX",
 				"..XXXXX",
-				"..XXXXX",
-				"......."
+				".XXXXXX",
+				"..XX..."
 			]
 		}
 	},

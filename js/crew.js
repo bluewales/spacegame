@@ -22,6 +22,8 @@ class Crew extends createjs.Sprite {
     this.cooldown = 0;
     this.speed = 1;
 
+    this.name = raw.name;
+
 		// handle click
 		this.on('click', this.handle_click.bind(this));
 	}
@@ -80,6 +82,7 @@ class Crew extends createjs.Sprite {
     this.path_progress = 0;
   }
 	handle_click(event) {
+    console.log("crew clicked");
 		window.game.handle_click(event, this);
 	}
 }
