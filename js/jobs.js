@@ -17,7 +17,7 @@ class Jobs {
     }
   }
 
-  complete_job(job) {;
+  complete_job(job) {
     for(var i = this.queue.length-1; i >= 0; i--) {
       if(this.queue[i] === job) {
         array.splice(i, 1);
@@ -51,11 +51,12 @@ class Patrol extends Job {
   work(crew) {
     var p = crew.pos;
     var tp = this.points[this.current_point];
-    if(this.count++ < 32) return false;
-    this.count = 0;
+
     if(p.x==tp.x && p.y==tp.y && p.z==tp.z) {
-      console.log("here I am")
-      this.current_point = (this.current_point + 1) % this.points.length;
+      if(this.count++ >= 30) {
+        this.count = 0;
+        this.current_point = (this.current_point + 1) % this.points.length;
+      }
     } else {
       crew.move_towards(tp);
     }
