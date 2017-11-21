@@ -60,23 +60,6 @@ class Game {
       /* floors */
       "X": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_01.png"]},
       "h": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_106.png"]},
-      /* walls */
-      "o": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_07.png"]},
-      "c": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_08.png"]},
-      "═": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_09.png"]},
-      "ↄ": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_10.png"]},
-      "n": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_11.png"]},
-      "║": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_12.png"]},
-      "u": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_13.png"]},
-      "╔": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_14.png"]},
-      "╗": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_15.png"]},
-      "╚": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_16.png"]},
-      "╝": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_17.png"]},
-      "╬": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_18.png"]},
-      "╦": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_19.png"]},
-      "╣": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_20.png"]},
-      "╠": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_21.png"]},
-      "╩": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_22.png"]},
 
       /* Furniture */
       "crate": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_679.png"]},
@@ -84,28 +67,48 @@ class Game {
 
       /* Background" */
       "background": {"sources": ["img/mars.jpg"]},
-
-      /* javascript */
-      "menu": {"sources": ["js/menu.js"]},
-      "d3": {"sources": ["js/lib/d3.js"]},
-    	"easel": {"sources": ["js/lib/easel.js"]},
-    	"astar": {"sources": ["js/lib/astar.js"]},
-    	"pathfinding": {"sources": ["js/pathfinding.js"]},
-    	"jobs": {"sources": ["js/jobs.js"]},
-    	"crew": {"sources": ["js/crew.js"]},
-    	"ship": {"sources": ["js/ship.js"]},
-    	"graph": {"sources": ["js/graph.js"]},
     };
 
-    this.manifest = [
-      {src: "dat/sample_ship5.json", id: "ship"}
-    ];
+    this.sources = {
+      /* javascript */
+      "menu": {"source": "js/menu.js"},
+      "d3": {"source": "js/lib/d3.js"},
+    	"easel": {"source": "js/lib/easeljs-0.8.2.min.js"},
+    	"astar": {"source": "js/lib/astar.js"},
+    	"pathfinding": {"source": "js/pathfinding.js"},
+    	"jobs": {"source": "js/jobs.js"},
+    	"crew": {"source": "js/crew.js"},
+      "wall": {"source": "js/wall.js"},
+      "floor": {"source": "js/floor.js"},
+      "furniture": {"source": "js/furniture.js"},
+    	"ship": {"source": "js/ship.js"},
+    	"graph": {"source": "js/graph.js"},
+    };
+
+    this.data = {
+      "ship": {"source": "dat/sample_ship6.json"},
+      "things": {"source": "dat/things.json"}
+    };
+
+    this.manifest = [];
 
     for(var name in this.sprites) {
       var source = this.sprites[name];
       for(var j = 0; j < source.sources.length; j++) {
-        this.manifest.push({src: source.sources[j], id: name + (source.sources.length>0?j:"")});
+        this.manifest.push(
+          {src: source.sources[j], id: name + (source.sources.length>0?j:"")}
+        );
       }
+    }
+
+    for(var name in this.sources) {
+      var source = this.sources[name];
+      this.manifest.push({src: source.source, id: name});
+    }
+
+    for(var name in this.data) {
+      var source = this.data[name];
+      this.manifest.push({src: source.source, id: name});
     }
 
     this.loader = new createjs.LoadQueue(false);
@@ -143,12 +146,11 @@ class Game {
           .attr("id", "loading_bar")
           .style("background-color", "black")
           .style("width", "0px")
-          .style("height", "25px")
+          .style("height", "25px");
 
     this.loader.on("progress", function(event) {
       console.log(Math.round(event.progress*100) + " % loaded");
-      d3.select("#loading_bar")
-        .style("width", (event.progress*100) + "%")
+      d3.select("#loading_bar").style("width", (event.progress*100) + "%");
     });
 
     this.loader.loadManifest(this.manifest, true, "");
@@ -165,10 +167,8 @@ class Game {
 
   	this.canvas = document.getElementById("easel");
 
-    d3.select("body")
-      .style("background-image", "url('img/mars.jpg')");
-    d3.select("#loading")
-      .remove();
+    d3.select("body").style("background-image", "url('img/mars.jpg')");
+    d3.select("#loading").remove();
 
     for(var name in this.sprites) {
       var source = this.sprites[name];
@@ -188,42 +188,49 @@ class Game {
       source.sprite = new createjs.SpriteSheet(sprite_obj);
     }
 
-
+    this.things = event.target.getResult("things");
 
   	var raw_ship = event.target.getResult("ship");
   	this.ship = new Ship(this.sprites, raw_ship);
 
-
-
   	this.ship.set_display_level(this.z_level);
+
+
+    var ctx = this.canvas.getContext('2d');
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+
 
   	this.stage = new createjs.Stage(this.canvas);
   	this.stage.addChild(this.ship);
 
+    d3.select("#easel").on("click",function(){window.game.handle_click(this);});
+
     this.jobs = new Jobs();
 
     this.jobs.create_job(new Patrol([
-      {"x":1,"y":1,"z":1},
-      {"x":2,"y":2,"z":1}
+      {"x":0,"y":0,"z":1},
+      {"x":0,"y":0,"z":1}
     ]));
     this.jobs.create_job(new Patrol([
-      {"x":1,"y":1,"z":0},
-      {"x":3,"y":3,"z":1}
+      {"x":0,"y":0,"z":0},
+      {"x":2,"y":0,"z":1}
     ]));
-
-  	console.log(this.stage);
-
-  	this.ship.scaleX = 1;
-  	this.ship.scaleY = 1;
 
   	createjs.Ticker.setFPS(32);
   	createjs.Ticker.on("tick", this.tick.bind(this));
 
-    this.z_menu = new Menu([{"name":"z-level: " + this.z_level,"info":true}], d3.select("#menus"), this.width - 100, this.height - 25);
+    this.z_menu = new Menu(
+      [{"name":"z-level: " + this.z_level,"info":true}],
+      d3.select("#menus"),
+      this.width - 100,
+      this.height - 25
+    );
   }
 
   tick(event) {
-
     var new_width = this.canvas.getBoundingClientRect().width;
     var new_height = this.canvas.getBoundingClientRect().height;
     if(new_width != this.width || new_height != this.height) {
@@ -236,7 +243,7 @@ class Game {
 
       this.z_menu.ul
         .style("left", this.width - 100 + "px")
-        .style("top", this.height - 25 + "px")
+        .style("top", this.height - 25 + "px");
     }
 
     var centerX = this.canvas.width/2;
@@ -251,18 +258,10 @@ class Game {
 
     this.stage.update(event);
 
-    if(this.currentlyPressedKeys[65]) {
-        this.pan(-5, 0);
-    }
-    if(this.currentlyPressedKeys[68]) {
-        this.pan(5, 0);
-    }
-    if(this.currentlyPressedKeys[83]) {
-        this.pan(0, 5);
-    }
-    if(this.currentlyPressedKeys[87]) {
-        this.pan(0, -5);
-    }
+    if(this.currentlyPressedKeys[65]) this.pan(-5, 0);
+    if(this.currentlyPressedKeys[68]) this.pan(5, 0);
+    if(this.currentlyPressedKeys[83]) this.pan(0, 5);
+    if(this.currentlyPressedKeys[87]) this.pan(0, -5);
 
     var iter = iterate_3d(this.ship.crew);
     while(true) {
@@ -296,58 +295,58 @@ class Game {
   clear_highlight() {
     this.highlighted_square = null;
     this.ship.clear_highlight();
-  }
-  handleKeyDown(event) {
-      this.currentlyPressedKeys[event.keyCode] = true;
-
-      if(event.keyCode == 69) this.change_z(1);
-      if(event.keyCode == 81) this.change_z(-1);
-  }
-  handleKeyUp(event) {
-      this.currentlyPressedKeys[event.keyCode] = false;
-  }
-  handleMouseWheel(event) {
-      this.change_zoom(event.deltaY / 100);
-  }
-  handle_click(event, object) {
-    console.log(object.pos.x + " " + object.pos.y + " " + object.pos.z);
     if(this.active_menu) this.active_menu.destroy();
     this.active_menu = false;
+  }
+  handleKeyDown(event) {
+    this.currentlyPressedKeys[event.keyCode] = true;
+
+    if(event.keyCode == 69) this.change_z(1);
+    if(event.keyCode == 81) this.change_z(-1);
+  }
+  handleKeyUp(event) {
+    this.currentlyPressedKeys[event.keyCode] = false;
+  }
+  handleMouseWheel(event) {
+    this.change_zoom(event.deltaY / 100);
+  }
+  handle_click(event) {
+    var raw = d3.mouse(event);
+    console.log(raw);
+    var centerX = this.canvas.width/2;
+    var centerY = this.canvas.height/2;
+    var real_zoom_multiplier = Math.pow(seventh_root_of_two, this.zoom);
+    var grid = this.ship.grid_width + (this.ship.padding*2);
+    var pos = {
+      "x":Math.floor((raw[0] - centerX - this.pan_x)/(grid*real_zoom_multiplier)),
+      "y":Math.floor((raw[1] - centerY - this.pan_y)/(grid*real_zoom_multiplier)),
+      "z":this.z_level
+    }
+    console.log(pos.x + " " + pos.y + " " + pos.z);
     if(this.highlighted_square) {
       this.clear_highlight();
-    } else if(this.z_level == object.pos.z) {
-      this.highlight_square(object.pos);
-      var menu_tree = [
-        {"name":object.name, "info":true}
-      ];
-      var structure = {
-        "name":"structure",
-        "list":[
+    } else {
+      this.highlight_square(pos);
 
-        ]
-      };
+      var menu_tree = [];
 
-      var build = {
-        "name":"build",
-        "list":[
+      var construction_menu = {"name":"construction", "list":[]};
 
-        ]
-      };
-
-      structure.list.push(build);
-
-      var floor = get_3d(this.ship.floors, object.pos);
-      console.log(floor);
-      if(floor) {
-
+      var things = this.ship.get_things(pos);
+      for(var i = 0; i < things.length; i++) {
+        menu_tree.push({
+          "name": things[i].name,
+          "list":[{"name": "deconstruct"}]
+        });
       }
-
-      menu_tree.push(structure);
-
+      var buildables = this.ship.get_buildables(pos);
+      for(var i = 0; i < buildables.length; i++) {
+        construction_menu.list.push({"name": buildables[i]});
+      }
+      menu_tree.push(construction_menu);
 
       this.active_menu = new Menu(menu_tree,
-        d3.select("#menus"),
-        event.rawX+1, event.rawY+1);
+        d3.select("#menus"),raw[0]+1, raw[1]+1);
       console.log(event);
     }
   }

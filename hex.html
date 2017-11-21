@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Hex</title>
+</head>
+<body>
+	<h1>Hex</h1>
+	<canvas id="myCanvas"></canvas>
+</body>
+<script>
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+
+	var width = 1400;
+	var height = 800;
+	c.width = width;
+	c.height = height;
+
+  var r = 7;
+
+  var grid_width = 125;
+  var grid_height = 65;
+
+  var sum = 0;
+
+  var min = 0;
+  var max = 0;
+
+  var grid = [];
+  for(var i = 0; i < grid_width; i++) {
+    grid.push([]);
+    for(var j = 0; j < grid_height; j++) {
+      var n = 0;//Math.round(i+j);
+      grid[i].push(n);
+      sum += n;
+      if(grid[i][j] > max) max = grid[i][j];
+    }
+  }
+
+
+
+  var adder = [Math.floor(grid_width/2), Math.floor(grid_height/2)];
+	var subtracter = [Math.floor(grid_width/2), Math.floor(grid_height/2)];
+
+	var iters = grid_width * grid_height;
+
+	function tick() {
+
+		ctx.clearRect(0, 0, c.width, c.height);
+
+		function draw_hex(x, y, color) {
+      var ctx = c.getContext('2d');
+
+      var rx = x*r*1.5 + r;
+      var ry = y*Math.sqrt(3)*r + (x%2)*Math.sqrt(3)*r*0.5;
+
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(rx+0, ry+0);
+      ctx.lineTo(rx+r, ry+0);
+      ctx.lineTo(rx+r*1.5, ry+Math.sqrt(3)*r*0.5);
+      ctx.lineTo(rx+r, ry+Math.sqrt(3)*r);
+      ctx.lineTo(rx+0, ry+Math.sqrt(3)*r);
+      ctx.lineTo(rx-r*0.5, ry+Math.sqrt(3)*r*0.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+
+
+		function get_directions(pos) {
+			var directions = [];
+			directions.push([1, -(pos[0]+1)%2]);
+			directions.push([-1, (pos[0])%2]);
+			directions.push([0, 1]);
+			directions.push([0, -1]);
+			directions.push([1, (pos[0])%2]);
+			directions.push([-1, -(pos[0]+1)%2]);
+			for(var i = directions.length-1; i>=0; i--) {
+				if(directions[i][0]+pos[0] < 0
+					|| directions[i][1]+pos[1] < 0
+					|| directions[i][0]+pos[0] >= grid_width
+					|| directions[i][1]+pos[1] >= grid_height) {
+						directions.splice(i,1);
+					}
+			}
+			return directions;
+		}
+
+		if(iters > 1) iters -= 1;
+
+		for(var count = 0; count< iters; count++) {
+			var directions = get_directions(adder);
+			var direction = Math.floor(Math.random()*directions.length);
+			direction %= directions.length;
+			adder[0] += directions[direction][0];
+			adder[1] += directions[direction][1];
+
+	    grid[adder[0]][adder[1]] += 1;
+	    sum += 1;
+
+			if(grid[adder[0]][adder[1]] > max) max = grid[adder[0]][adder[1]];
+
+
+			var directions = get_directions(subtracter);
+			var direction = Math.floor(Math.random()*directions.length);
+			direction %= directions.length;
+			subtracter[0] += directions[direction][0];
+			subtracter[1] += directions[direction][1];
+
+			grid[subtracter[0]][subtracter[1]] -= 1;
+			sum -= 1;
+
+			if(grid[subtracter[0]][subtracter[1]] < min) min = grid[subtracter[0]][subtracter[1]];
+		}
+
+    //var c_level = (max-min)/3+min;
+    var c_level = sum / (grid_width * grid_height);
+    //console.log(max + " " + min + " " + c_level);
+
+    for(var i = 0; i < grid_width; i++) {
+      for(var j = 0; j < grid_height; j++) {
+        if(grid[i][j] > c_level) {
+					var red = 255*(grid[i][j]-c_level) / (max-c_level);
+          var green = 255-255*(grid[i][j]-c_level) / (max-c_level);
+					var blue = 255*(grid[i][j]-c_level) / (max-c_level);
+          draw_hex(i, j, "rgb(" + Math.floor(red) + ", " + Math.floor(green) + ", " + Math.floor(blue) + ")");
+        } else {
+          var green = 0;//grid[i][j]>0?128:0;
+          var blue = 255-128*(c_level-grid[i][j]) / (c_level-min);
+          draw_hex(i, j, "rgb(0, " + Math.floor(green) + ", " + Math.floor(blue) + ")");
+        }
+      }
+    }
+		ctx.strokeStyle="black";
+
+		window.requestAnimationFrame(tick);
+	}
+	tick();
+
+</script>
+</html>

@@ -9,7 +9,7 @@
 				"╚═══╝"
 			],
 			"1": [
-        "╔═══╗",
+				"╔═══╗",
 				"║...║",
 				"║...║",
 				"║...║",
@@ -17,7 +17,7 @@
 			]
 		},
 		"floors": {
-      "0": [
+			"0": [
 				"XXXXX",
 				"XXXXX",
 				"XXXXX",
@@ -32,7 +32,7 @@
 				"XXXXX"
 			],
 			"2": [
-        "XXXXX",
+				"XXXXX",
 				"XXXXX",
 				"XXXXX",
 				"XXXXX",
@@ -40,19 +40,16 @@
 			]
 		}
 	},
-	"crew" : [
-		{
-			"sprite": "builder_crew",
-			"name": "constructor bot",
-			"location": {
-				"x": 1,
-				"y": 1,
-				"z": 1
-			}
+	"crew": [{
+		"sprite": "builder_crew",
+		"name": "constructor bot",
+		"location": {
+			"x": 1,
+			"y": 1,
+			"z": 1
 		}
-	],
-	"furniture" : [
-		{
+	}],
+	"furniture": [{
 			"sprite": "crate",
 			"location": {
 				"x": 2,

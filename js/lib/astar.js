@@ -76,16 +76,18 @@ var astar = {
       var neighbors = graph.neighbors(currentNode);
 
       for (var i = 0, il = neighbors.length; i < il; ++i) {
-        var neighbor = neighbors[i];
+        var neighbor_link = neighbors[i];
+        var neighbor = neighbor_link.node;
+        var weight = neighbor_link.weight;
 
-        if (neighbor.closed || neighbor.weight === 0) {
+        if (neighbor.closed || weight === 0) {
           // Not a valid node to process, skip to next neighbor.
           continue;
         }
 
         // The g score is the shortest distance from start to current node.
         // We need to check if the path we have arrived at this neighbor is the shortest one we have seen yet.
-        var gScore = currentNode.g + neighbor.weight;
+        var gScore = currentNode.g + weight;
         var beenVisited = neighbor.visited;
 
         if (!beenVisited || gScore < neighbor.g) {

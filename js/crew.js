@@ -7,15 +7,15 @@ function p_to_s(p) {
 }
 
 class Crew extends createjs.Sprite {
-	constructor(sheet, raw, ship) {
-		super(sheet, raw.sprite);
+	constructor(ship, raw) {
+		super(ship.sprites[raw.sprite].sprite);
 
-		this.pos = raw.location;
-    this.raw = raw;
     this.ship = ship;
+    this.raw = raw;
+    this.pos = raw.location;
 
-		this.x = this.pos.x * 24;
-		this.y = this.pos.y * 24;
+    this.x = this.ship.position_transform(this.pos.x);
+		this.y = this.ship.position_transform(this.pos.y);
 
     this.path_progress = 0;
     this.path = false;
@@ -63,17 +63,17 @@ class Crew extends createjs.Sprite {
       this.current_job = game.jobs.get_job(this);
     }
 
-    var dx = this.pos.x * 24 - this.x;
-    var dy = this.pos.y * 24 - this.y;
+    var dx = this.ship.position_transform(this.pos.x) - this.x;
+    var dy = this.ship.position_transform(this.pos.y) - this.y;
     if(Math.abs(dx) > this.speed) {
       this.x += this.speed * dx / Math.abs(dx);
     } else {
-      this.x = this.pos.x * 24;
+      this.x = this.ship.position_transform(this.pos.x);
     }
     if(Math.abs(dy) > this.speed) {
       this.y += this.speed * dy / Math.abs(dy);
     } else {
-      this.y = this.pos.y * 24;
+  		this.y = this.ship.position_transform(this.pos.y);
     }
 
   }
@@ -83,6 +83,6 @@ class Crew extends createjs.Sprite {
   }
 	handle_click(event) {
     console.log("crew clicked");
-		window.game.handle_click(event, this);
+		//window.game.handle_click(event, this);
 	}
 }

@@ -14,7 +14,7 @@ function* iterate_3d(place) {
 }
 
 function get_3d(place, p) {
-	if(place[p.z] && place[p.z][p.y] && place[p.z][p.y][p.x]) {
+	if(place && place[p.z] && place[p.z][p.y] && place[p.z][p.y][p.x]) {
 		return place[p.z][p.y][p.x];
 	} else {
 		return undefined;
@@ -27,6 +27,5 @@ function set_3d(place, p, thing) {
 }
 
 function init() {
-
 	window.game = new Game();
 }

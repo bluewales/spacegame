@@ -1,0 +1,37 @@
+[
+  {
+    "name": "floor",
+    "layer": "floor",
+    "sprite": "X",
+    "passable": 0,
+    "permiable": false
+  },
+  {
+    "name": "hatch",
+    "layer": "floor",
+    "sprite": "h",
+    "passable": 2,
+    "permiable": false
+  },
+  {
+    "name": "wall",
+    "layer": "walls",
+    "passable": 0,
+    "permiable": false
+  },
+  {
+    "name": "crate",
+    "layer": "furniture",
+    "passable": 3
+  },
+  {
+    "name": "barrel",
+    "layer": "furniture",
+    "passable": 3
+  },
+  {
+    "name": "constructor bot",
+    "layer": "crew",
+    "passable": 2
+  }
+]
