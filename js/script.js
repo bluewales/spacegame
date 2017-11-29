@@ -20,6 +20,7 @@ function get_3d(place, p) {
 		return undefined;
 	}
 }
+
 function set_3d(place, p, thing) {
 	if(place[p.z] == undefined) place[p.z] = {};
 	if(place[p.z][p.y] === undefined) place[p.z][p.y] = {};
@@ -28,4 +29,14 @@ function set_3d(place, p, thing) {
 
 function init() {
 	window.game = new Game();
+}
+
+function shuffle_array(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
 }

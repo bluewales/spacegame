@@ -2,12 +2,6 @@
  * Created by Luke on 7/9/2017.
  */
 
-
-
-
-
-
-
 class Level extends createjs.Container {
   constructor() {
     super();
@@ -99,29 +93,49 @@ class Ship extends createjs.Container {
 		return x*(this.grid_width+this.padding*2)+this.padding;
 	}
 
-	get_things(pos) {
-		var things = [];
-		for(var i = 0; i < this.places.length; i++) {
-			var thing = get_3d(this.places[i], pos);
-			if(thing) {
-				things.push(thing);
-			}
-		}
-		return things;
-	}
+  get_menu_tree_at(pos) {
+    var menu_tree = [];
+
+		var floor = get_3d(this.floors, pos);
+		if(floor) menu_tree.push(floor.get_menu_item());
+
+    var furniture = get_3d(this.furniture, pos);
+		if(furniture) menu_tree.push(furniture.get_menu_item());
+
+    var walls = [];
+    var dirs = ["north","south","east","west"];
+    for(var i = 0; i < dirs.length; i++) {
+      var wall = this.get_wall(pos, dirs[i]);
+      if(wall) walls.push({"dir":dirs[i],"wall":wall});
+    }
+    if(walls.length > 0) {
+      var wall_menu_list = [];
+      for(var i = 0; i < walls.length; i++) {
+        wall_menu_list.push({"name":walls[i].dir, "list":[{"name":"deconstruct","handle":walls[i].wall.deconstruct.bind(walls[i].wall)}]});
+      }
+      menu_tree.push({"name": "walls", "list":wall_menu_list});
+    }
+		return menu_tree;
+  }
 
   add_thing(pos, place, thing, layer) {
     if(this.levels[pos.z] === undefined) this.levels[pos.z] = new Level();
+    this.levels[pos.z].remove(thing, layer);
 		if(place !== undefined) set_3d(place, pos, thing);
 		this.levels[pos.z].add(thing, layer);
   }
 
   add_floor_at(pos, floor_key) {
-		if(floor_key == ".") return;
 		var floor = new Floor(this, this.sprites[floor_key].sprite, floor_key, pos);
 
     this.add_thing(pos, this.floors, floor, this.floor_layer);
 		this.graph.update_node( pos);
+  }
+  remove_floor(pos) {
+    var floor = get_3d(this.floors, pos);
+    this.levels[pos.z].remove(floor, this.floor_layer);
+    set_3d(this.floors, pos, undefined);
+    this.graph.update_node(pos);
   }
   add_wall(wall_raw) {
     var wall = new Wall(this, wall_raw);
@@ -136,20 +150,32 @@ class Ship extends createjs.Container {
 			both_walls = get_3d(this.walls, wall_raw.location);
 		}
 		if(both_walls[wall.raw.direction]) {
-			this.remove_wall(wall.pos, wall.raw.direction);
+			this.remove_wall(wall.pos, wall.raw.orientation);
 		}
-		both_walls[wall.raw.direction] = wall;
+		both_walls[wall.raw.orientation] = wall;
 		this.graph.update_node(wall.pos);
   }
-	remove_wall(pos, dir) {
-		var both_walls = get_3d(this.walls, wall_raw.location);
+	remove_wall(pos, wall_dir) {
+		var both_walls = get_3d(this.walls, pos);
 		if(!both_walls) return;
-		var wall = both_walls[dir];
+		var wall = both_walls[wall_dir];
 		if(!wall) return;
 		this.levels[pos.z].remove(wall, this.wall_layer);
-		both_walls[dir] = undefined;
+		both_walls[wall_dir] = undefined;
 		this.graph.update_node(pos);
 	}
+  get_wall(pos, dir) {
+    var wall_pos = pos;
+    if(dir == "north" || dir == "west") {
+      var delta = this.graph.neighbor_deltas[dir];
+      wall_pos = {"x":pos.x+delta.x,"y":pos.y+delta.y,"z":pos.z+delta.z};
+    }
+
+    var both_walls = get_3d(this.walls, wall_pos);
+		if(!both_walls) return undefined;
+    var wall_ori = this.graph.orientations[dir];
+		return both_walls[wall_ori];
+  }
   add_crew_member(crew_raw) {
 		var crew_member = new Crew(this, crew_raw);
     this.add_thing(crew_raw.location, this.crew, crew_member, this.crew_layer);
@@ -170,6 +196,12 @@ class Ship extends createjs.Container {
 		var furniture = new Furniture(this, this.sprites[furniture_raw.sprite].sprite, furniture_raw);
     this.add_thing(furniture_raw.location, this.furniture, furniture, this.furniture_layer);
 		this.graph.update_node(furniture_raw.location);
+  }
+  remove_furniture(pos) {
+    var furniture = get_3d(this.furniture, pos);
+    this.levels[pos.z].remove(furniture, this.furniture_layer);
+    set_3d(this.furniture, pos, undefined);
+    this.graph.update_node(pos);
   }
 
 	draw_highlight(pos) {
@@ -198,16 +230,35 @@ class Ship extends createjs.Container {
 		}
 	}
 
-	get_buildables(pos) {
-		var buildables = [];
-		var floor = get_3d(this.floors, pos);
-		var wall = get_3d(this.walls, pos);
-		if(!floor || floor.name != "floor") {
-			buildables.push("floor");
-		}
-		if(!floor || floor.name != "hatch") {
-			buildables.push("hatch");
-		}
-		return buildables;
-	}
+	get_construction_menu_list(pos) {
+    var construction_menu_list = [];
+    var wall_menu_list = [];
+    var floor_menu_list = [];
+    var dirs = ["north","south","east","west"];
+
+    if(!get_3d(this.floors, pos)) {
+      for(var i = 0; i < dirs.length; i++) {
+        var dir = dirs[i];
+        var d = this.graph.neighbor_deltas;
+        var floor_pos = {"x":pos.x+d[dir].x,"y":pos.y+d[dir].y,"z":pos.z+d[dir].z};
+        if(get_3d(this.floors, floor_pos)) {
+          construction_menu_list.push({
+            "name": "build floor",
+            "handle": create_floor.bind(pos)
+          });
+          break;
+        }
+      }
+    }
+    wall_menu_list = [
+      {"name":"build north wall","handle":create_wall.bind({"direction":"-","location":{"x":pos.x,"y":pos.y-1,"z":pos.z}})},
+      {"name":"build south wall","handle":create_wall.bind({"direction":"-","location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
+      {"name":"build east wall","handle":create_wall.bind({"direction":"|","location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
+      {"name":"build west wall","handle":create_wall.bind({"direction":"|","location":{"x":pos.x-1,"y":pos.y,"z":pos.z}})}
+    ]
+    if(wall_menu_list.length > 0) {
+      construction_menu_list.push({"name": "walls", "list":wall_menu_list});
+    }
+    return construction_menu_list;
+  }
 }

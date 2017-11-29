@@ -18,7 +18,7 @@ class Graph {
       "up":"down",
       "down":"up"
     };
-    this.wall_dirs = {
+    this.orientations = {
       "north":"-",
       "south":"-",
       "east":"|",
@@ -112,12 +112,12 @@ class Graph {
       if(dir == "north" || dir == "west") {
         wall_pos = to_pos;
       }
-      var wall_dir = this.wall_dirs[dir];
+      var orientation = this.orientations[dir];
       var both_walls = get_3d(this.ship.walls, wall_pos);
       if(!both_walls) {
         weight = 1;
       } else {
-        var wall = both_walls[wall_dir];
+        var wall = both_walls[orientation];
         if(!wall)
           weight = 1;
         else
@@ -125,7 +125,6 @@ class Graph {
       }
     }
     return weight * this.cell_weight(to_pos);
-
   }
 
   update_bounding(p) {
@@ -171,6 +170,7 @@ class Graph {
     this.dirtyNodes.push(node);
   }
   neighbors(node) {
+    shuffle_array(node.neighbors);
     return node.neighbors;
   }
 }

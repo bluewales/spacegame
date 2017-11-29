@@ -35,7 +35,7 @@ class Menu {
           } else {
             if(d.handle) {
               d.handle(x, y);
-              clear_highlight();
+              window.game.clear_highlight();
             }
           }
         })

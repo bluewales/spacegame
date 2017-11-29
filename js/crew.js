@@ -37,24 +37,20 @@ class Crew extends createjs.Sprite {
     } else if(this.path) {
       var c = this.pos;
       var t = this.path[this.path_progress];
-      var distance = Math.abs((c.x-t.x) + (c.y-t.y) + (c.z-t.z));
+      var distance = Math.abs(c.x-t.x) + Math.abs(c.y-t.y) + Math.abs(c.z-t.z);
       if(distance == 0) {
         this.path_progress += 1;
         if(this.path_progress == this.path.length) {
-          //console.log("Path complete");
           this.clear_path();
         }
-      } else if(distance == 1) {
-
-        this.ship.change_position_crew(this, t);
-        this.pos = t;
-        this.cooldown = 30 * t.weight;
-        this.speed = 1/t.weight;
+      } else if(distance == 1 && passable(c, t)) {
+          this.ship.change_position_crew(this, t);
+          this.pos = t;
+          this.cooldown = 30 * t.weight;
+          this.speed = 1 / t.weight;
       } else {
-        console.log("Abort Path " + this.path_progress + " " + distance);
         this.clear_path();
       }
-
     } else if(this.current_job) {
       if(this.current_job.work(this)) {
         this.current_job = false;
@@ -75,7 +71,6 @@ class Crew extends createjs.Sprite {
     } else {
   		this.y = this.ship.position_transform(this.pos.y);
     }
-
   }
   clear_path() {
     this.path = false;
@@ -83,6 +78,5 @@ class Crew extends createjs.Sprite {
   }
 	handle_click(event) {
     console.log("crew clicked");
-		//window.game.handle_click(event, this);
 	}
 }

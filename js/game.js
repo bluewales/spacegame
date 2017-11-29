@@ -9,10 +9,10 @@ class Game {
     this.width = d3.select("canvas").node().getBoundingClientRect().width;
     this.height = d3.select("canvas").node().getBoundingClientRect().height;
 
-    this.pan_x = -130;
-    this.pan_y = -130;
+    this.pan_x = 0;
+    this.pan_y = 0;
     this.z_level = 1;
-    this.zoom = 7;
+    this.zoom = 15;
 
     d3.select("canvas")
         .attr("width", this.width)
@@ -83,6 +83,7 @@ class Game {
       "furniture": {"source": "js/furniture.js"},
     	"ship": {"source": "js/ship.js"},
     	"graph": {"source": "js/graph.js"},
+      "construction": {"source": "js/construction.js"},
     };
 
     this.data = {
@@ -228,6 +229,8 @@ class Game {
       this.width - 100,
       this.height - 25
     );
+
+    this.re_center();
   }
 
   tick(event) {
@@ -249,12 +252,13 @@ class Game {
     var centerX = this.canvas.width/2;
     var centerY = this.canvas.height/2;
 
-    this.stage.x = centerX + this.pan_x;
-    this.stage.y = centerY + this.pan_y;
-
     var real_zoom_multiplier = Math.pow(seventh_root_of_two, this.zoom);
     this.stage.scaleX = real_zoom_multiplier;
     this.stage.scaleY = real_zoom_multiplier;
+
+    this.stage.x = centerX + this.pan_x * real_zoom_multiplier;
+    this.stage.y = centerY + this.pan_y * real_zoom_multiplier;
+
 
     this.stage.update(event);
 
@@ -271,6 +275,19 @@ class Game {
     }
   }
 
+  re_center() {
+    this.change_z(-this.z_level);
+    this.change_zoom(-this.zoom + 7);
+
+    var mid_x = (this.ship.graph.max_bound.x + this.ship.graph.min_bound.x) / 2 + 1;
+    var mid_y = (this.ship.graph.max_bound.y + this.ship.graph.min_bound.y) / 2 + 1;
+
+    this.pan_x = -(this.ship.grid_width + this.ship.padding) * mid_x;
+    this.pan_y = -(this.ship.grid_width + this.ship.padding) * mid_y;
+
+    console.log(mid_x + " " + mid_y);
+  }
+
 
   change_z(dz) {
   	this.z_level += dz;
@@ -284,8 +301,9 @@ class Game {
   }
 
   pan(dx, dy) {
-  	this.pan_x += dx;
-  	this.pan_y += dy;
+    var pan_ratio = Math.sqrt(Math.pow(seventh_root_of_two, this.zoom));
+  	this.pan_x += dx/pan_ratio;
+  	this.pan_y += dy/pan_ratio;
   }
   highlight_square(pos) {
     if(this.highlighted_square) this.clear_highlight();
@@ -301,8 +319,9 @@ class Game {
   handleKeyDown(event) {
     this.currentlyPressedKeys[event.keyCode] = true;
 
-    if(event.keyCode == 69) this.change_z(1);
-    if(event.keyCode == 81) this.change_z(-1);
+    if(event.keyCode == 69) this.change_z(1); // e key
+    if(event.keyCode == 81) this.change_z(-1); // q key
+    if(event.keyCode == 32) this.re_center(); // space bar
   }
   handleKeyUp(event) {
     this.currentlyPressedKeys[event.keyCode] = false;
@@ -312,42 +331,38 @@ class Game {
   }
   handle_click(event) {
     var raw = d3.mouse(event);
-    console.log(raw);
     var centerX = this.canvas.width/2;
     var centerY = this.canvas.height/2;
     var real_zoom_multiplier = Math.pow(seventh_root_of_two, this.zoom);
     var grid = this.ship.grid_width + (this.ship.padding*2);
     var pos = {
-      "x":Math.floor((raw[0] - centerX - this.pan_x)/(grid*real_zoom_multiplier)),
-      "y":Math.floor((raw[1] - centerY - this.pan_y)/(grid*real_zoom_multiplier)),
+      "x":Math.floor((raw[0]-centerX-this.pan_x*real_zoom_multiplier)/(grid*real_zoom_multiplier)),
+      "y":Math.floor((raw[1]-centerY-this.pan_y*real_zoom_multiplier)/(grid*real_zoom_multiplier)),
       "z":this.z_level
     }
-    console.log(pos.x + " " + pos.y + " " + pos.z);
-    if(this.highlighted_square) {
+    if(this.highlighted_square
+      && this.highlighted_square.x == pos.x
+      && this.highlighted_square.y == pos.y
+      && this.highlighted_square.z == pos.z) {
       this.clear_highlight();
     } else {
       this.highlight_square(pos);
 
-      var menu_tree = [];
+      var menu_tree = this.ship.get_menu_tree_at(pos);
 
-      var construction_menu = {"name":"construction", "list":[]};
-
-      var things = this.ship.get_things(pos);
-      for(var i = 0; i < things.length; i++) {
-        menu_tree.push({
-          "name": things[i].name,
-          "list":[{"name": "deconstruct"}]
-        });
+      var construction_menu = {
+        "name":"construction",
+        "list":this.ship.get_construction_menu_list(pos)
+      };
+      if(construction_menu.list.length > 0) {
+        menu_tree.push(construction_menu);
       }
-      var buildables = this.ship.get_buildables(pos);
-      for(var i = 0; i < buildables.length; i++) {
-        construction_menu.list.push({"name": buildables[i]});
-      }
-      menu_tree.push(construction_menu);
 
-      this.active_menu = new Menu(menu_tree,
-        d3.select("#menus"),raw[0]+1, raw[1]+1);
-      console.log(event);
+      if(menu_tree.length == 0) {
+        menu_tree.push({"name":"empty space", "info":true});
+      }
+
+      this.active_menu = new Menu(menu_tree, d3.select("#menus"),raw[0]+1, raw[1]+1);
     }
   }
 }
