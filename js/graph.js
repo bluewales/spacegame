@@ -118,10 +118,10 @@ class Graph {
         weight = 1;
       } else {
         var wall = both_walls[orientation];
-        if(!wall)
-          weight = 1;
-        else
+        if(wall)
           weight = wall.traverse_weight;
+        else
+          weight = 1;
       }
     }
     return weight * this.cell_weight(to_pos);

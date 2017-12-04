@@ -4,11 +4,11 @@ class Jobs {
   }
 
   create_job(job) {
-    job.on_complete = this.complete_job;
     this.queue.push(job);
   }
 
   get_job(crew) {
+    shuffle_array(this.queue);
     for(var i = this.queue.length-1; i >= 0; i--) {
       if(!this.queue[i].active) {
         this.queue[i].active = true;
@@ -20,7 +20,7 @@ class Jobs {
   complete_job(job) {
     for(var i = this.queue.length-1; i >= 0; i--) {
       if(this.queue[i] === job) {
-        array.splice(i, 1);
+        this.queue.splice(i, 1);
         break;
       }
     }
@@ -29,16 +29,19 @@ class Jobs {
 
 class Job {
   constructor() {
-    this.on_complete = function(){};
     this.active = false;
   }
   work(crew) {
     console.log("Default Job cannot be worked, is always done.")
     return True;
   }
+  // leave this one alone, it belongs to the super class
   complete() {
     this.on_complete();
+    window.game.jobs.complete_job(this);
   }
+  // overwrite this one, it's supposed to be overwritten by the child class
+  on_complete(){}
 }
 
 class Patrol extends Job {
@@ -55,11 +58,15 @@ class Patrol extends Job {
     if(p.x==tp.x && p.y==tp.y && p.z==tp.z) {
       if(this.count++ >= 30) {
         this.count = 0;
-        this.current_point = (this.current_point + 1) % this.points.length;
+        this.current_point = (this.current_point + 1);
+        if(this.current_point >= this.points.length) return true;
       }
     } else {
       crew.move_towards(tp);
     }
     return false;
+  }
+  on_complete() {
+    
   }
 }

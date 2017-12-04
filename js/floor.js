@@ -1,15 +1,11 @@
-class Floor extends createjs.Container {
-
- constructor(ship, sheet, sprite_key, pos) {
-		super();
+class Floor extends Structure {
+ constructor(ship, raw) {
+		super(raw);
 
 		this.ship = ship;
-		this.sprite_key = sprite_key;
-		this.pos = pos;
+		this.sprite_key = raw.sprite;
 
-		this.passable = sprite_key != "X";
-		this.permiable = sprite_key == ".";
-		this.traverse_weight = this.passable ? 2 : 0;
+		this.permiable = this.sprite_key == ".";
 
 		this.x = this.ship.position_transform(this.pos.x);
 		this.y = this.ship.position_transform(this.pos.y);
@@ -19,13 +15,19 @@ class Floor extends createjs.Container {
 		skirt.graphics.beginFill('#2A2630')
 			.drawRect(-this.ship.padding, -this.ship.padding, grid, grid);
 		this.addChild(skirt);
-		this.addChild(new createjs.Sprite(sheet, sprite_key));
+		this.addChild(new createjs.Sprite(ship.sprites[raw.sprite].sprite, this.sprite_key));
 
 		this.name = "floor";
-		if(sprite_key=="h") this.name = "hatch";
+		if(this.sprite_key=="h") this.name = "hatch";
 
 		// handle click/tap
 		this.on('click', this.handle_click.bind(this));
+	}
+  get passable() {
+    return this.progress < 100 || this.sprite_key != "X";
+  }
+	get traverse_weight() {
+		return this.progress < 100 ? 1 : (this.passable ? 2 : 0);
 	}
 	handle_click(event) {
 		//window.game.handle_click(event, this);

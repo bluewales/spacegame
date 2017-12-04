@@ -6,9 +6,10 @@ function p_to_s(p) {
   return "(" + p.x + "," + p.y + "," + p.z + ")";
 }
 
-class Crew extends createjs.Sprite {
+class Crew extends createjs.Container {
 	constructor(ship, raw) {
-		super(ship.sprites[raw.sprite].sprite);
+		super();
+    this.addChild(new createjs.Sprite(ship.sprites[raw.sprite].sprite, raw.sprite));
 
     this.ship = ship;
     this.raw = raw;
@@ -30,6 +31,10 @@ class Crew extends createjs.Sprite {
   move_towards(target) {
     //console.log(p_to_s(this.pos) + " move toward " + p_to_s(target));
     this.path = get_path(this.pos,target);
+    if(this.path.length == 0) {
+      this.clear_path();
+      console.log("Path failed, we probably need to cancel this job.")
+    }
   }
   tick(event, game) {
     if(this.cooldown > 0) {
@@ -49,10 +54,12 @@ class Crew extends createjs.Sprite {
           this.cooldown = 30 * t.weight;
           this.speed = 1 / t.weight;
       } else {
+        console.log("Cancel path " + distance + " " + passable(c, t));
         this.clear_path();
       }
     } else if(this.current_job) {
       if(this.current_job.work(this)) {
+        this.current_job.complete();
         this.current_job = false;
       }
     } else {

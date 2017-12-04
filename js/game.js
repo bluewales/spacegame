@@ -19,6 +19,7 @@ class Game {
         .attr("height", this.height);
 
     this.sprites = {
+      /* Crew */
       "builder_crew": {
         "sources": [
           "img/sliced/creatures_sliced/images/oryx_16bit_scifi_creatures_1249.png",
@@ -49,12 +50,6 @@ class Game {
           "img/sliced/creatures_sliced/images/oryx_16bit_scifi_creatures_97.png"
         ]
       },
-      "blonde_crew": {
-        "sources": [
-          "img/sliced/creatures_sliced/images/oryx_16bit_scifi_creatures_664.png",
-          "img/sliced/creatures_sliced/images/oryx_16bit_scifi_creatures_665.png"
-        ]
-      },
 
       /* Structure */
       /* floors */
@@ -67,6 +62,32 @@ class Game {
 
       /* Background" */
       "background": {"sources": ["img/mars.jpg"]},
+
+      /* Effects */
+      "sparks_1": {
+        "sources": [
+          "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_79.png",
+          "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_89.png"
+        ]
+      },
+      "sparks_2": {
+        "sources": [
+          "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_80.png",
+          "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_90.png"
+        ]
+      },
+      "sparks_3": {
+        "sources": [
+          "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_81.png",
+          "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_91.png"
+        ]
+      },
+      "sparks_4": {
+        "sources": [
+          "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_82.png",
+          "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_92.png"
+        ]
+      },
     };
 
     this.sources = {
@@ -76,6 +97,7 @@ class Game {
     	"easel": {"source": "js/lib/easeljs-0.8.2.min.js"},
     	"astar": {"source": "js/lib/astar.js"},
     	"pathfinding": {"source": "js/pathfinding.js"},
+      "structure": {"source": "js/structure.js"},
     	"jobs": {"source": "js/jobs.js"},
     	"crew": {"source": "js/crew.js"},
       "wall": {"source": "js/wall.js"},
@@ -84,6 +106,7 @@ class Game {
     	"ship": {"source": "js/ship.js"},
     	"graph": {"source": "js/graph.js"},
       "construction": {"source": "js/construction.js"},
+
     };
 
     this.data = {
@@ -97,7 +120,7 @@ class Game {
       var source = this.sprites[name];
       for(var j = 0; j < source.sources.length; j++) {
         this.manifest.push(
-          {src: source.sources[j], id: name + (source.sources.length>0?j:"")}
+          {src: source.sources[j], id: name + (source.sources.length>0?("_"+j):"")}
         );
       }
     }
@@ -180,7 +203,7 @@ class Game {
         animations:{}
       }
       for(var j = 0; j < source.sources.length; j++) {
-        sprite_obj.images.push(event.target.getResult(name + j));
+        sprite_obj.images.push(event.target.getResult(name + (source.sources.length>0?("_"+j):"")));
         if(sprite_obj.animations[name])
           sprite_obj.animations[name].push(j);
         else
@@ -212,12 +235,12 @@ class Game {
     this.jobs = new Jobs();
 
     this.jobs.create_job(new Patrol([
-      {"x":0,"y":0,"z":1},
-      {"x":0,"y":0,"z":1}
+      {"x":2,"y":2,"z":-1},
+      {"x":1,"y":1,"z":0}
     ]));
     this.jobs.create_job(new Patrol([
       {"x":0,"y":0,"z":0},
-      {"x":2,"y":0,"z":1}
+      {"x":2,"y":0,"z":-1}
     ]));
 
   	createjs.Ticker.setFPS(32);
@@ -234,6 +257,12 @@ class Game {
   }
 
   tick(event) {
+    var ctx = this.canvas.getContext('2d');
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+
     var new_width = this.canvas.getBoundingClientRect().width;
     var new_height = this.canvas.getBoundingClientRect().height;
     if(new_width != this.width || new_height != this.height) {
@@ -277,15 +306,15 @@ class Game {
 
   re_center() {
     this.change_z(-this.z_level);
-    this.change_zoom(-this.zoom + 7);
+    this.change_zoom(-this.zoom + 10);
 
     var mid_x = (this.ship.graph.max_bound.x + this.ship.graph.min_bound.x) / 2 + 1;
     var mid_y = (this.ship.graph.max_bound.y + this.ship.graph.min_bound.y) / 2 + 1;
 
-    this.pan_x = -(this.ship.grid_width + this.ship.padding) * mid_x;
-    this.pan_y = -(this.ship.grid_width + this.ship.padding) * mid_y;
+    this.pan_x = -(this.ship.grid_width + this.ship.padding*2) * mid_x;
+    this.pan_y = -(this.ship.grid_width + this.ship.padding*2) * mid_y;
 
-    console.log(mid_x + " " + mid_y);
+    this.clear_highlight();
   }
 
 
@@ -319,8 +348,8 @@ class Game {
   handleKeyDown(event) {
     this.currentlyPressedKeys[event.keyCode] = true;
 
-    if(event.keyCode == 69) this.change_z(1); // e key
-    if(event.keyCode == 81) this.change_z(-1); // q key
+    if(event.keyCode == 69) this.change_z(-1); // e key
+    if(event.keyCode == 81) this.change_z(1); // q key
     if(event.keyCode == 32) this.re_center(); // space bar
   }
   handleKeyUp(event) {

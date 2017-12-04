@@ -1,14 +1,10 @@
-class Wall extends createjs.Container {
+class Wall extends Structure {
 
 	constructor(ship, raw) {
-		super();
+		super(raw);
 
 		this.ship = ship;
-		this.raw = raw;
 
-		this.passable = false;
-		this.traverse_weight = this.passable ? 2 : 0;
-		this.pos = raw.location;
 		this.ori = raw.orientation;
 
 		this.x = this.ship.position_transform(this.pos.x);
@@ -23,15 +19,23 @@ class Wall extends createjs.Container {
 			points = [[g+p*2,0],[g+p*2,g],[g+p,g+p],[g,g],[g,0],[g+p,-p]];
 		}
 
-		var skirt = new createjs.Shape();
-		skirt.graphics.beginFill('#D3D3D3').moveTo(points[0][0], points[0][1]);
+		var shape = new createjs.Shape();
+		shape.graphics.beginFill('#D3D3D3').moveTo(points[0][0], points[0][1]);
+
 		for(var i = 1; i < points.length; i++) {
-			skirt.graphics.lineTo(points[i][0], points[i][1]);
+			shape.graphics.lineTo(points[i][0], points[i][1]);
 		}
-		this.addChild(skirt);
+
+		this.addChild(shape);
 
 		this.name = "wall";
 		this.on('click', this.handle_click.bind(this));
+	}
+	get passable() {
+    return this.progress < 100;
+  }
+	get traverse_weight() {
+		return this.progress < 100 ? 1 : (this.passable ? 2 : 0);
 	}
 	handle_click(event) {
 	}

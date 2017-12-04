@@ -1,261 +1,67 @@
 {
-
-	"walls": [{
-			"orientation": "|",
-			"location": {
-				"x": -1,
-				"y": 0,
-				"z": 1
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": -1,
-				"y": 1,
-				"z": 1
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": -1,
-				"y": 2,
-				"z": 1
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": 2,
-				"y": 0,
-				"z": 1
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": 2,
-				"y": 1,
-				"z": 1
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": 2,
-				"y": 2,
-				"z": 1
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 0,
-				"y": -1,
-				"z": 1
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 1,
-				"y": -1,
-				"z": 1
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 2,
-				"y": -1,
-				"z": 1
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 0,
-				"y": 2,
-				"z": 1
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 1,
-				"y": 2,
-				"z": 1
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 2,
-				"y": 2,
-				"z": 1
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": -1,
-				"y": 0,
-				"z": 0
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": -1,
-				"y": 1,
-				"z": 0
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": -1,
-				"y": 2,
-				"z": 0
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": 2,
-				"y": 0,
-				"z": 0
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": 2,
-				"y": 1,
-				"z": 0
-			}
-		}, {
-			"orientation": "|",
-			"location": {
-				"x": 2,
-				"y": 2,
-				"z": 0
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 0,
-				"y": -1,
-				"z": 0
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 1,
-				"y": -1,
-				"z": 0
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 2,
-				"y": -1,
-				"z": 0
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 0,
-				"y": 2,
-				"z": 0
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 1,
-				"y": 2,
-				"z": 0
-			}
-		},
-		{
-			"orientation": "-",
-			"location": {
-				"x": 2,
-				"y": 2,
-				"z": 0
-			}
-		}
+	"walls": [
+		{"orientation": "|", "location": {"x": -1, "y": 0, "z": 0}, "progress": 100},
+		{"orientation": "|", "location": {"x": -1, "y": 1, "z": 0}, "progress": 100},
+		{"orientation": "|", "location": {"x": -1, "y": 2, "z": 0}, "progress": 100},
+		{"orientation": "|", "location": {"x": 2, "y": 0, "z": 0}, "progress": 100},
+		{"orientation": "|", "location": {"x": 2, "y": 1, "z": 0}, "progress": 100},
+		{"orientation": "|", "location": {"x": 2, "y": 2, "z": 0}, "progress": 100},
+		{"orientation": "-", "location": {"x": 0, "y": -1, "z": 0}, "progress": 100},
+		{"orientation": "-", "location": {"x": 1, "y": -1, "z": 0}, "progress": 100},
+		{"orientation": "-", "location": {"x": 2, "y": -1, "z": 0}, "progress": 100},
+		{"orientation": "-", "location": {"x": 0, "y": 2, "z": 0}, "progress": 100},
+		{"orientation": "-", "location": {"x": 1, "y": 2, "z": 0}, "progress": 100},
+		{"orientation": "-", "location": {"x": 2, "y": 2, "z": 0}, "progress": 100},
+		{"orientation": "|", "location": {"x": -1, "y": 0, "z": -1}, "progress": 100},
+		{"orientation": "|", "location": {"x": -1, "y": 1, "z": -1}, "progress": 100},
+		{"orientation": "|", "location": {"x": -1, "y": 2, "z": -1}, "progress": 100},
+		{"orientation": "|", "location": {"x": 2, "y": 0, "z": -1}, "progress": 100},
+		{"orientation": "|", "location": {"x": 2, "y": 1, "z": -1}, "progress": 100},
+		{"orientation": "|", "location": {"x": 2, "y": 2, "z": -1}, "progress": 100},
+		{"orientation": "-", "location": {"x": 0, "y": -1, "z": -1}, "progress": 100},
+		{"orientation": "-", "location": {"x": 1, "y": -1, "z": -1}, "progress": 100},
+		{"orientation": "-", "location": {"x": 2, "y": -1, "z": -1}, "progress": 100},
+		{"orientation": "-", "location": {"x": 0, "y": 2, "z": -1}, "progress": 100},
+		{"orientation": "-", "location": {"x": 2, "y": 2, "z": -1}, "progress": 100}
 	],
-	"floors": {
-		"0": [
-			"XXX",
-			"XXX",
-			"XXX"
-		],
-		"1": [
-			"XXX",
-			"XXX",
-			"hXX"
-		],
-		"2": [
-			"XXX",
-			"XXX",
-			"XXX"
-		]
-
-	},
-	"crew": [{
-		"sprite": "builder_crew",
-		"name": "constructor bot",
-		"location": {
-			"x": 1,
-			"y": 1,
-			"z": 1
-		}
-	}],
-	"furniture": [{
-			"sprite": "crate",
-			"location": {
-				"x": 1,
-				"y": 0,
-				"z": 1
-			}
-		},
-		{
-			"sprite": "crate",
-			"location": {
-				"x": 1,
-				"y": 2,
-				"z": 1
-			}
-		},
-		{
-			"sprite": "barrel",
-			"location": {
-				"x": 2,
-				"y": 2,
-				"z": 0
-			}
-		},
-		{
-			"sprite": "barrel",
-			"location": {
-				"x": 2,
-				"y": 0,
-				"z": 0
-			}
-		},
-		{
-			"sprite": "barrel",
-			"location": {
-				"x": 0,
-				"y": 1,
-				"z": 0
-			}
-		},
-		{
-			"sprite": "barrel",
-			"location": {
-				"x": 2,
-				"y": 1,
-				"z": 0
-			}
-		}
+	"floors":[
+		{"sprite": "X", "location": {"x": 0, "y": 0, "z": -1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 1, "y": 0, "z": -1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 2, "y": 0, "z": -1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 0, "y": 1, "z": -1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 1, "y": 1, "z": -1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 2, "y": 1, "z": -1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 0, "y": 2, "z": -1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 1, "y": 2, "z": -1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 2, "y": 2, "z": -1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 0, "y": 0, "z": 0}, "progress": 100},
+		{"sprite": "X", "location": {"x": 1, "y": 0, "z": 0}, "progress": 100},
+		{"sprite": "X", "location": {"x": 2, "y": 0, "z": 0}, "progress": 100},
+		{"sprite": "X", "location": {"x": 0, "y": 1, "z": 0}, "progress": 100},
+		{"sprite": "X", "location": {"x": 1, "y": 1, "z": 0}, "progress": 100},
+		{"sprite": "X", "location": {"x": 2, "y": 1, "z": 0}, "progress": 100},
+		{"sprite": "h", "location": {"x": 0, "y": 2, "z": 0}, "progress": 100},
+		{"sprite": "X", "location": {"x": 1, "y": 2, "z": 0}, "progress": 100},
+		{"sprite": "X", "location": {"x": 2, "y": 2, "z": 0}, "progress": 100},
+		{"sprite": "X", "location": {"x": 0, "y": 0, "z": 1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 1, "y": 0, "z": 1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 2, "y": 0, "z": 1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 0, "y": 1, "z": 1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 1, "y": 1, "z": 1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 2, "y": 1, "z": 1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 0, "y": 2, "z": 1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 1, "y": 2, "z": 1}, "progress": 100},
+		{"sprite": "X", "location": {"x": 2, "y": 2, "z": 1}, "progress": 100}
+	],
+	"crew": [
+		{"sprite": "builder_crew", "name": "constructor bot", "location": {"x": 1, "y": 1, "z": 0}}
+	],
+	"furniture": [
+		{"sprite": "crate", "location": {"x": 1, "y": 0, "z": 0}, "progress": 100},
+		{"sprite": "crate", "location": {"x": 1, "y": 2, "z": 0}, "progress": 100},
+		{"sprite": "barrel", "location": {"x": 2, "y": 2, "z": -1}, "progress": 100},
+		{"sprite": "barrel", "location": {"x": 2, "y": 0, "z": -1}, "progress": 100},
+		{"sprite": "barrel", "location": {"x": 0, "y": 1, "z": -1}, "progress": 100},
+		{"sprite": "barrel", "location": {"x": 2, "y": 1, "z": -1}, "progress": 100}
 	]
 }

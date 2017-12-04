@@ -1,12 +1,12 @@
 
-class Furniture extends createjs.Sprite {
-	constructor(ship, sheet, raw) {
-		super(sheet, raw.sprite);
+class Furniture extends Structure {
+	constructor(ship, raw) {
+		super(raw);
 
 		this.ship = ship;
+		this.sprite_key = raw.sprite;
 
-		this.pos = raw.location;
-    this.raw = raw;
+		this.addChild(new createjs.Sprite(ship.sprites[raw.sprite].sprite, this.sprite_key));
 
 		this.x = this.ship.position_transform(this.pos.x);
 		this.y = this.ship.position_transform(this.pos.y);

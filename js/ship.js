@@ -61,17 +61,10 @@ class Ship extends createjs.Container {
 
 		var x,y,z;
 
-  	var floors = raw_ship.floors;
-    for(z = this.min_z; z <= this.max_z; z++) {
-    	if(z in floors) {
-    		for(y = 0; y < floors[z].length; y++) {
-    			for(x = 0; x < floors[z][y].length; x++) {
-    				var floor_key = floors[z][y][x];
-    				this.add_floor_at({"x":x, "y":y, "z":z}, floor_key);
-    			}
-    		}
-    	}
-    }
+    var floors = raw_ship.floors;
+  	for(var i = 0; i < floors.length; i++) {
+  		this.add_floor(floors[i]);
+  	}
 
 		var walls = raw_ship.walls;
   	for(var i = 0; i < walls.length; i++) {
@@ -125,11 +118,13 @@ class Ship extends createjs.Container {
 		this.levels[pos.z].add(thing, layer);
   }
 
-  add_floor_at(pos, floor_key) {
-		var floor = new Floor(this, this.sprites[floor_key].sprite, floor_key, pos);
-
-    this.add_thing(pos, this.floors, floor, this.floor_layer);
-		this.graph.update_node( pos);
+  add_floor(floor_raw) {
+    var floor = new Floor(this, floor_raw);
+    this.add_thing(floor.pos, this.floors, floor, this.floor_layer);
+		this.graph.update_node(floor.pos);
+  }
+  get_floor(pos) {
+    return get_3d(this.floors, pos);
   }
   remove_floor(pos) {
     var floor = get_3d(this.floors, pos);
@@ -174,12 +169,13 @@ class Ship extends createjs.Container {
     var both_walls = get_3d(this.walls, wall_pos);
 		if(!both_walls) return undefined;
     var wall_ori = this.graph.orientations[dir];
+    if(dir == "-" || dir == "|") wall_ori = dir;
 		return both_walls[wall_ori];
   }
   add_crew_member(crew_raw) {
 		var crew_member = new Crew(this, crew_raw);
-    this.add_thing(crew_raw.location, this.crew, crew_member, this.crew_layer);
-		this.graph.update_node(crew_raw.location);
+    this.add_thing(crew_member.pos, this.crew, crew_member, this.crew_layer);
+		this.graph.update_node(crew_member.pos);
   }
 	change_position_crew(crew_member, p) {
 		if(get_3d(this.crew, crew_member.pos) !== crew_member) {
@@ -193,9 +189,9 @@ class Ship extends createjs.Container {
 		}
 	}
 	add_furniture(furniture_raw) {
-		var furniture = new Furniture(this, this.sprites[furniture_raw.sprite].sprite, furniture_raw);
-    this.add_thing(furniture_raw.location, this.furniture, furniture, this.furniture_layer);
-		this.graph.update_node(furniture_raw.location);
+		var furniture = new Furniture(this, furniture_raw);
+    this.add_thing(furniture.pos, this.furniture, furniture, this.furniture_layer);
+		this.graph.update_node(furniture.pos);
   }
   remove_furniture(pos) {
     var furniture = get_3d(this.furniture, pos);
@@ -244,17 +240,17 @@ class Ship extends createjs.Container {
         if(get_3d(this.floors, floor_pos)) {
           construction_menu_list.push({
             "name": "build floor",
-            "handle": create_floor.bind(pos)
+            "handle": create_floor.bind({"sprite":"X","location":pos})
           });
           break;
         }
       }
     }
     wall_menu_list = [
-      {"name":"build north wall","handle":create_wall.bind({"direction":"-","location":{"x":pos.x,"y":pos.y-1,"z":pos.z}})},
-      {"name":"build south wall","handle":create_wall.bind({"direction":"-","location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
-      {"name":"build east wall","handle":create_wall.bind({"direction":"|","location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
-      {"name":"build west wall","handle":create_wall.bind({"direction":"|","location":{"x":pos.x-1,"y":pos.y,"z":pos.z}})}
+      {"name":"build north wall","handle":create_wall.bind({"orientation":"-","build_pos":pos,"location":{"x":pos.x,"y":pos.y-1,"z":pos.z}})},
+      {"name":"build south wall","handle":create_wall.bind({"orientation":"-","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
+      {"name":"build east wall","handle":create_wall.bind({"orientation":"|","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
+      {"name":"build west wall","handle":create_wall.bind({"orientation":"|","build_pos":pos,"location":{"x":pos.x-1,"y":pos.y,"z":pos.z}})}
     ]
     if(wall_menu_list.length > 0) {
       construction_menu_list.push({"name": "walls", "list":wall_menu_list});
