@@ -66,10 +66,6 @@ class Door extends createjs.Container {
       "list":[{"name":"deconstruct", "handle":this.deconstruct.bind(this)}]
     }]};
   }
-  deconstruct() {
-    console.log("deconstruct " + this.name + " " + this.pos.x + "," + this.pos.y + "," + this.pos.z);
-    this.ship.remove_wall(this.pos, this.ori);
-  }
   tick(event) {
     var other_pos = {"x":this.pos.x+(this.ori=="|"?1:0),"y":this.pos.y+(this.ori=="-"?1:0), "z":this.pos.z};
     if(get_3d(window.game.ship.crew, this.pos) || get_3d(window.game.ship.crew, other_pos)) {

@@ -33,7 +33,7 @@ class Crew extends createjs.Container {
     this.path = get_path(this.pos,target);
     if(this.path.length == 0) {
       this.clear_path();
-      console.log("Path failed, we probably need to cancel this job.")
+      console.log("Path failed, we probably need to cancel this job. " + target.x + " " + target.y + " " + target.z);
     }
   }
   tick(event) {

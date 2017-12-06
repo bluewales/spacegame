@@ -103,7 +103,9 @@ class Game {
       "wall": {"source": "js/walls/wall.js"},
       "wall_panel": {"source": "js/walls/wall_panel.js"},
       "door": {"source": "js/walls/door.js"},
-      "floor": {"source": "js/floor.js"},
+      "floor": {"source": "js/floors/floor.js"},
+      "floor_plate": {"source": "js/floors/floor_plate.js"},
+      "hatch": {"source": "js/floors/hatch.js"},
       "furniture": {"source": "js/furniture.js"},
     	"ship": {"source": "js/ship.js"},
     	"graph": {"source": "js/graph.js"},
@@ -237,6 +239,7 @@ class Game {
     this.jobs = new Jobs();
 
     this.jobs.create_job(new Patrol([
+      {"x":0,"y":0,"z":-1},
       {"x":2,"y":2,"z":0},
       {"x":0,"y":0,"z":0}
     ]));

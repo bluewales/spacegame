@@ -253,7 +253,7 @@ class Ship extends createjs.Container {
         if(get_3d(this.floors, floor_pos)) {
           construction_menu_list.push({
             "name": "build floor",
-            "handle": create_floor.bind({"sprite":"X","location":pos})
+            "handle": create_floor.bind({"type":"plate","location":pos})
           });
           break;
         }
@@ -264,7 +264,7 @@ class Ship extends createjs.Container {
       {"name":"build south wall","handle":create_wall.bind({"orientation":"-","type":"panel","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
       {"name":"build east wall","handle":create_wall.bind({"orientation":"|","type":"panel","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
       {"name":"build west wall","handle":create_wall.bind({"orientation":"|","type":"panel","build_pos":pos,"location":{"x":pos.x-1,"y":pos.y,"z":pos.z}})}
-    ]
+    ];
     if(wall_menu_list.length > 0) {
       construction_menu_list.push({"name": "walls", "list":wall_menu_list});
     }

@@ -17,10 +17,11 @@ class Wall extends Structure {
 	get ori() {
 		return this.component.ori;
 	}
+  set name(value) {}
 	get name() {
 		return this.component.name;
 	}
-	set name(value) {}
+
   get passable() {
     return this.component.passable;
   }
