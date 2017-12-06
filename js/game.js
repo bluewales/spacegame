@@ -100,7 +100,9 @@ class Game {
       "structure": {"source": "js/structure.js"},
     	"jobs": {"source": "js/jobs.js"},
     	"crew": {"source": "js/crew.js"},
-      "wall": {"source": "js/wall.js"},
+      "wall": {"source": "js/walls/wall.js"},
+      "wall_panel": {"source": "js/walls/wall_panel.js"},
+      "door": {"source": "js/walls/door.js"},
       "floor": {"source": "js/floor.js"},
       "furniture": {"source": "js/furniture.js"},
     	"ship": {"source": "js/ship.js"},
@@ -235,12 +237,8 @@ class Game {
     this.jobs = new Jobs();
 
     this.jobs.create_job(new Patrol([
-      {"x":2,"y":2,"z":-1},
-      {"x":1,"y":1,"z":0}
-    ]));
-    this.jobs.create_job(new Patrol([
-      {"x":0,"y":0,"z":0},
-      {"x":2,"y":0,"z":-1}
+      {"x":2,"y":2,"z":0},
+      {"x":0,"y":0,"z":0}
     ]));
 
   	createjs.Ticker.setFPS(32);
@@ -296,12 +294,7 @@ class Game {
     if(this.currentlyPressedKeys[83]) this.pan(0, 5);
     if(this.currentlyPressedKeys[87]) this.pan(0, -5);
 
-    var iter = iterate_3d(this.ship.crew);
-    while(true) {
-      var crew_member = iter.next();
-      if(crew_member.done) break;
-      crew_member.value.tick(event, this);
-    }
+    this.ship.tick(event);
   }
 
   re_center() {

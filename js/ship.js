@@ -82,6 +82,19 @@ class Ship extends createjs.Container {
   	}
 	}
 
+  tick(event) {
+    for(var i = 0; i < this.places.length; i++) {
+      var iter = iterate_3d(this.places[i]);
+      while(true) {
+        var thing = iter.next();
+        if(thing.done) break;
+        if(thing.value.tick) thing.value.tick(event);
+        if(thing.value["-"] && thing.value["-"].tick) thing.value["-"].tick(event);
+        if(thing.value["|"] && thing.value["|"].tick) thing.value["|"].tick(event);
+      }
+    }
+  }
+
 	position_transform(x) {
 		return x*(this.grid_width+this.padding*2)+this.padding;
 	}
@@ -247,10 +260,10 @@ class Ship extends createjs.Container {
       }
     }
     wall_menu_list = [
-      {"name":"build north wall","handle":create_wall.bind({"orientation":"-","build_pos":pos,"location":{"x":pos.x,"y":pos.y-1,"z":pos.z}})},
-      {"name":"build south wall","handle":create_wall.bind({"orientation":"-","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
-      {"name":"build east wall","handle":create_wall.bind({"orientation":"|","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
-      {"name":"build west wall","handle":create_wall.bind({"orientation":"|","build_pos":pos,"location":{"x":pos.x-1,"y":pos.y,"z":pos.z}})}
+      {"name":"build north wall","handle":create_wall.bind({"orientation":"-","type":"panel","build_pos":pos,"location":{"x":pos.x,"y":pos.y-1,"z":pos.z}})},
+      {"name":"build south wall","handle":create_wall.bind({"orientation":"-","type":"panel","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
+      {"name":"build east wall","handle":create_wall.bind({"orientation":"|","type":"panel","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
+      {"name":"build west wall","handle":create_wall.bind({"orientation":"|","type":"panel","build_pos":pos,"location":{"x":pos.x-1,"y":pos.y,"z":pos.z}})}
     ]
     if(wall_menu_list.length > 0) {
       construction_menu_list.push({"name": "walls", "list":wall_menu_list});

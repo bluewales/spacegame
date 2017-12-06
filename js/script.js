@@ -40,3 +40,14 @@ function shuffle_array(a) {
         a[j] = x;
     }
 }
+
+function create_polygon(color, points) {
+	var shape = new createjs.Shape();
+	shape.graphics.beginFill(color).moveTo(points[0][0], points[0][1]);
+
+	for(var i = 1; i < points.length; i++) {
+		shape.graphics.lineTo(points[i][0], points[i][1]);
+	}
+
+	return shape;
+}

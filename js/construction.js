@@ -22,9 +22,6 @@ class Construct extends Job {
     super();
     this.structure = structure;
     this.buid_pos = build_pos || structure.pos;
-    console.log(structure.pos);
-    console.log(build_pos);
-    console.log(this.build_pos);
   }
   work(crew) {
     var p = crew.pos;

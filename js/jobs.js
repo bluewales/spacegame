@@ -67,6 +67,9 @@ class Patrol extends Job {
     return false;
   }
   on_complete() {
-    
+    window.game.jobs.create_job(new Patrol([
+      {"x":2,"y":2,"z":0},
+      {"x":0,"y":0,"z":0}
+    ]));
   }
 }

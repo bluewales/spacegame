@@ -36,7 +36,7 @@ class Crew extends createjs.Container {
       console.log("Path failed, we probably need to cancel this job.")
     }
   }
-  tick(event, game) {
+  tick(event) {
     if(this.cooldown > 0) {
       this.cooldown -= 1;
     } else if(this.path) {
@@ -63,7 +63,7 @@ class Crew extends createjs.Container {
         this.current_job = false;
       }
     } else {
-      this.current_job = game.jobs.get_job(this);
+      this.current_job = window.game.jobs.get_job(this);
     }
 
     var dx = this.ship.position_transform(this.pos.x) - this.x;
