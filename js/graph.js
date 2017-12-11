@@ -26,7 +26,7 @@ class Graph {
     }
 
     this.min_bound = {"x":0,"y":0,"z":0};
-    this.max_bound = {"x":0,"y":0,"z":0};
+    this.max_bound = {"x":-1,"y":-1,"z":-1};
 
     this.ship = ship;
     this.dirtyNodes = [];
@@ -35,10 +35,8 @@ class Graph {
     return get_3d(this.three_d, p);
   }
   clear_node(p) {
-    if(this.three_d[p.z] === undefined) return;
-    if(this.three_d[p.z][p.y] === undefined) return;
-    if(this.three_d[p.z][p.y][p.x] === undefined) return;
-    var node = this.three_d[p.z][p.y][p.x];
+    var node = get_3d(this.three_d, p);
+    if(node === undefined) return;
     for(var i = 0; i < this.neighbor_names.length; i++) {
       var neighbor_name = this.neighbor_names[i];
       var neighbor = node.neighbors[neighbor_name];
@@ -52,11 +50,13 @@ class Graph {
   }
 
   set_node(p) {
-    if(this.three_d[p.z] === undefined) this.three_d[p.z] = {};
-    if(this.three_d[p.z][p.y] === undefined) this.three_d[p.z][p.y] = {};
-    if(this.three_d[p.z][p.y][p.x] === undefined) this.three_d[p.z][p.y][p.x] = {};
 
-    var node = this.three_d[p.z][p.y][p.x];
+    var node = get_3d(this.three_d, p);
+    if(node === undefined) {
+      node = {};
+      set_3d(this.three_d, p, node);
+    }
+
     astar.cleanNode(node);
     node.x = p.x; node.y = p.y; node.z = p.z;
 
@@ -152,12 +152,12 @@ class Graph {
     this.set_node(p);
     if(part_of_bounding) {
       this.update_bounding(p);
-      this.update_node({"x":p.x+1,"y":p.y,"z":p.z}, false);
-      this.update_node({"x":p.x-1,"y":p.y,"z":p.z}, false);
-      this.update_node({"x":p.x,"y":p.y+1,"z":p.z}, false);
-      this.update_node({"x":p.x,"y":p.y-1,"z":p.z}, false);
-      this.update_node({"x":p.x,"y":p.y,"z":p.z+1}, false);
-      this.update_node({"x":p.x,"y":p.y,"z":p.z-1}, false);
+      this.update_node({"x":p.x+1,"y":p.y,"z":p.z},false);
+      this.update_node({"x":p.x-1,"y":p.y,"z":p.z},false);
+      this.update_node({"x":p.x,"y":p.y+1,"z":p.z},false);
+      this.update_node({"x":p.x,"y":p.y-1,"z":p.z},false);
+      this.update_node({"x":p.x,"y":p.y,"z":p.z+1},false);
+      this.update_node({"x":p.x,"y":p.y,"z":p.z-1},false);
     }
   }
   cleanDirty() {

@@ -54,7 +54,6 @@ class Game {
       /* Structure */
       /* floors */
       "X": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_01.png"]},
-      "h": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_106.png"]},
 
       /* Furniture */
       "crate": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_679.png"]},
@@ -114,8 +113,7 @@ class Game {
     };
 
     this.data = {
-      "ship": {"source": "dat/sample_ship6.json"},
-      "things": {"source": "dat/things.json"}
+      "ship": {"source": "dat/sample_ship6.json"}
     };
 
     this.manifest = [];
@@ -131,7 +129,7 @@ class Game {
 
     for(var name in this.sources) {
       var source = this.sources[name];
-      this.manifest.push({src: source.source, id: name});
+      this.manifest.push({src: source.source + "?a=" + Math.random(), id: name});
     }
 
     for(var name in this.data) {

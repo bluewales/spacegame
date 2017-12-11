@@ -1,0 +1,12 @@
+{
+	"walls": [
+		{"orientation": "|", "type":"panel", "location": {"x": 0, "y": 0, "z": 0}, "progress": 100},
+    {"orientation": "-", "type":"panel", "location": {"x": 0, "y": 0, "z": 0}, "progress": 100}
+	],
+	"floors":[
+	],
+	"crew": [
+	],
+	"furniture": [
+	]
+}
