@@ -130,11 +130,10 @@ class Ship extends createjs.Container {
 		if(place !== undefined) set_3d(place, pos, thing);
 		this.levels[pos.z].add(thing, layer);
   }
-
   add_floor(floor_raw) {
     var floor = new Floor(this, floor_raw);
     this.add_thing(floor.pos, this.floors, floor, this.floor_layer);
-		this.graph.update_node(floor.pos);
+		this.graph.update_floor(floor.pos);
   }
   get_floor(pos) {
     return get_3d(this.floors, pos);
@@ -143,7 +142,7 @@ class Ship extends createjs.Container {
     var floor = get_3d(this.floors, pos);
     this.levels[pos.z].remove(floor, this.floor_layer);
     set_3d(this.floors, pos, undefined);
-    this.graph.update_node(pos);
+    this.graph.update_floor(pos);
   }
   add_wall(wall_raw) {
     var wall = new Wall(this, wall_raw);
@@ -161,7 +160,7 @@ class Ship extends createjs.Container {
 			this.remove_wall(wall.pos, wall.raw.orientation);
 		}
 		both_walls[wall.raw.orientation] = wall;
-		this.graph.update_node(wall.pos);
+		this.graph.update_wall(wall.pos, wall.raw.orientation);
   }
 	remove_wall(pos, wall_dir) {
 		var both_walls = get_3d(this.walls, pos);
@@ -170,7 +169,7 @@ class Ship extends createjs.Container {
 		if(!wall) return;
 		this.levels[pos.z].remove(wall, this.wall_layer);
 		both_walls[wall_dir] = undefined;
-		this.graph.update_node(pos);
+		this.graph.update_wall(pos, wall_dir);
 	}
   get_wall(pos, dir) {
     var wall_pos = pos;
@@ -188,7 +187,6 @@ class Ship extends createjs.Container {
   add_crew_member(crew_raw) {
 		var crew_member = new Crew(this, crew_raw);
     this.add_thing(crew_member.pos, this.crew, crew_member, this.crew_layer);
-		this.graph.update_node(crew_member.pos);
   }
 	change_position_crew(crew_member, p) {
 		if(get_3d(this.crew, crew_member.pos) !== crew_member) {
@@ -204,13 +202,13 @@ class Ship extends createjs.Container {
 	add_furniture(furniture_raw) {
 		var furniture = new Furniture(this, furniture_raw);
     this.add_thing(furniture.pos, this.furniture, furniture, this.furniture_layer);
-		this.graph.update_node(furniture.pos);
+		this.graph.update_furniture(furniture.pos);
   }
   remove_furniture(pos) {
     var furniture = get_3d(this.furniture, pos);
     this.levels[pos.z].remove(furniture, this.furniture_layer);
     set_3d(this.furniture, pos, undefined);
-    this.graph.update_node(pos);
+    this.graph.update_furniture(pos);
   }
 
 	draw_highlight(pos) {

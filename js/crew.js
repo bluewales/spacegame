@@ -43,16 +43,17 @@ class Crew extends createjs.Container {
       var c = this.pos;
       var t = this.path[this.path_progress];
       var distance = Math.abs(c.x-t.x) + Math.abs(c.y-t.y) + Math.abs(c.z-t.z);
+      var path_weight = passable(c, t);
       if(distance == 0) {
         this.path_progress += 1;
         if(this.path_progress == this.path.length) {
           this.clear_path();
         }
-      } else if(distance == 1 && passable(c, t)) {
+      } else if(distance == 1 && path_weight > 0) {
           this.ship.change_position_crew(this, t);
           this.pos = t;
-          this.cooldown = 30 * t.weight;
-          this.speed = 1 / t.weight;
+          this.cooldown = 30 * path_weight;
+          this.speed = 1 / path_weight;
       } else {
         console.log("Cancel path " + distance + " " + passable(c, t));
         this.clear_path();

@@ -256,6 +256,8 @@ class Game {
   }
 
   tick(event) {
+    this.crew_ticks = 0;
+
     var ctx = this.canvas.getContext('2d');
     ctx.mozImageSmoothingEnabled = false;
     ctx.webkitImageSmoothingEnabled = false;

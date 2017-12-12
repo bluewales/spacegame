@@ -58,7 +58,7 @@ class Door extends createjs.Container {
     return true;
   }
   get traverse_weight() {
-    return this.progress < 100 ? 1 : (this.passable ? 2 : 0);
+    return this.progress < 100 ? 1 : (this.passable ? 1 : 0);
   }
   get_menu_item() {
     return {"name":this.name, "list":[{

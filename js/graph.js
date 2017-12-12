@@ -24,6 +24,10 @@ class Graph {
       "east":"|",
       "west":"|"
     }
+    this.dir_by_ori = {
+      "|":"east",
+      "-":"south"
+    };
 
     this.min_bound = {"x":0,"y":0,"z":0};
     this.max_bound = {"x":-1,"y":-1,"z":-1};
@@ -49,7 +53,17 @@ class Graph {
     node.weight = 0;
   }
 
-  set_node(p) {
+  set_neighbor(neighbors, dir, link) {
+    for(var i = 0; i < neighbors.length; i++) {
+      if(dir == neighbors[i].direction) {
+        neighbors.splice(i,1);
+        break;
+      }
+    }
+    if(link !== undefined && link.weight > 0) neighbors.push(link);
+  }
+
+  init_node(p) {
 
     var node = get_3d(this.three_d, p);
     if(node === undefined) {
@@ -57,29 +71,39 @@ class Graph {
       set_3d(this.three_d, p, node);
     }
 
-    astar.cleanNode(node);
     node.x = p.x; node.y = p.y; node.z = p.z;
+    astar.cleanNode(node);
+
 
     node.neighbors = [];
 
     for(var i = 0; i < this.neighbor_names.length; i++) {
-      var neighbor_name = this.neighbor_names[i];
-      var delta = this.neighbor_deltas[neighbor_name];
+      var neighbor_dir = this.neighbor_names[i];
 
+      var delta = this.neighbor_deltas[neighbor_dir];
       p.x += delta.x; p.y += delta.y; p.z += delta.z;
       var neighbor = this.get_node(p);
       p.x -= delta.x; p.y -= delta.y; p.z -= delta.z;
 
-      var link_weight = this.link_weight(p, neighbor_name);
-      node.weight = this.cell_weight(p);
+      var to_link = undefined;
 
-      if(link_weight > 0 && neighbor) {
-        node.neighbors.push({
-          "weight": (link_weight),
+
+      if(neighbor) {
+        to_link = {
+          "weight": this.link_weight(node, neighbor_dir),
           "node": neighbor,
-          "direction": neighbor_name
-        });
+          "direction": neighbor_dir
+        };
+
+        var return_dir = this.neighbor_oposites[neighbor_dir];
+        var return_link = {
+          "weight": this.link_weight(neighbor, return_dir),
+          "node": node,
+          "direction": return_dir
+        };
+        this.set_neighbor(neighbor.neighbors, return_dir, return_link);
       }
+      this.set_neighbor(node.neighbors, neighbor_dir, to_link);
     }
   }
 
@@ -142,24 +166,52 @@ class Graph {
       for(var x = this.min_bound.x-1; x <= this.max_bound.x+1; x++) {
         for(var y = this.min_bound.y-1; y <= this.max_bound.y+1; y++) {
           for(var z = this.min_bound.z-1; z <= this.max_bound.z+1; z++) {
-            this.update_node({"x":x,"y":y,"z":z}, false);
+            var pos = {"x":x,"y":y,"z":z};
+            if(!get_3d(this.three_d, pos))
+            this.init_node(pos);
           }
         }
       }
     }
   }
-  update_node(p, part_of_bounding=true) {
-    this.set_node(p);
-    if(part_of_bounding) {
-      this.update_bounding(p);
-      this.update_node({"x":p.x+1,"y":p.y,"z":p.z},false);
-      this.update_node({"x":p.x-1,"y":p.y,"z":p.z},false);
-      this.update_node({"x":p.x,"y":p.y+1,"z":p.z},false);
-      this.update_node({"x":p.x,"y":p.y-1,"z":p.z},false);
-      this.update_node({"x":p.x,"y":p.y,"z":p.z+1},false);
-      this.update_node({"x":p.x,"y":p.y,"z":p.z-1},false);
-    }
+
+  update_divider(pos, other_pos, dir) {
+    this.update_bounding(pos);
+    this.update_bounding(other_pos);
+
+    var node = this.get_node(pos);
+    var neighbor = this.get_node(other_pos);
+
+    var link = {
+      "weight": this.link_weight(node, dir),
+      "node": neighbor,
+      "direction": dir
+    };
+    this.set_neighbor(node.neighbors, dir, link);
+
+    var return_dir = this.neighbor_oposites[dir];
+    var return_link = {
+      "weight": this.link_weight(neighbor, return_dir),
+      "node": node,
+      "direction": return_dir
+    };
+    this.set_neighbor(neighbor.neighbors, return_dir, return_link);
   }
+
+  update_wall(pos, ori) {
+    var other_pos = {"x":pos.x+(ori=="|"?1:0),"y":pos.y+(ori=="-"?1:0),"z":pos.z};
+    var dir = this.dir_by_ori[ori];
+    this.update_divider(pos, other_pos, dir);
+  }
+  update_floor(pos) {
+    var other_pos = {"x":pos.x,"y":pos.y,"z":pos.z-1};
+    this.update_divider(pos, other_pos, "down");
+  }
+  update_furniture(pos) {
+    this.update_bounding(pos);
+    this.init_node(pos);
+  }
+
   cleanDirty() {
     for (var i = 0; i < this.dirtyNodes.length; i++) {
       astar.cleanNode(this.dirtyNodes[i]);

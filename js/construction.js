@@ -38,6 +38,6 @@ class Construct extends Job {
     return false;
   }
   on_complete() {
-    this.structure.ship.graph.update_node(this.structure.pos);
+    this.structure.ship.graph.init_node(this.structure.pos);
   }
 }

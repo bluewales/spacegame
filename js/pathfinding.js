@@ -16,23 +16,23 @@ function passable(from, to) {
 
   if(dx != 0) {
     if(dx > 0) {
-      return window.game.ship.graph.link_weight(from, "west") > 0;
+      return window.game.ship.graph.link_weight(from, "west");
     } else {
-      return window.game.ship.graph.link_weight(from, "east") > 0;
+      return window.game.ship.graph.link_weight(from, "east");
     }
   }
   if(dy != 0) {
     if(dy > 0) {
-      return window.game.ship.graph.link_weight(from, "north") > 0;
+      return window.game.ship.graph.link_weight(from, "north");
     } else {
-      return window.game.ship.graph.link_weight(from, "south") > 0;
+      return window.game.ship.graph.link_weight(from, "south");
     }
   }
   if(dz != 0) {
     if(dz > 0) {
-      return window.game.ship.graph.link_weight(from, "down") > 0;
+      return window.game.ship.graph.link_weight(from, "down");
     } else {
-      return window.game.ship.graph.link_weight(from, "up") > 0;
+      return window.game.ship.graph.link_weight(from, "up");
     }
   }
   console.log("ERROR");

@@ -13,7 +13,7 @@ function get_hatch_art(open) {
     shape.graphics.beginFill("#D3D3D3").drawCircle(g/2, g/2, g/2, g/2);
     drawing.addChild(shape);
 
-    var petals = 17;
+    var petals = 13;
     var R = g/2 - p;
     var r = (R-p*2) * (open);
     var c = g/2;
@@ -74,16 +74,16 @@ class Hatch extends createjs.Container {
     return true;
   }
   get traverse_weight() {
-    return this.progress < 100 ? 1 : (this.passable ? 2 : 0);
+    return this.progress < 100 ? 1 : (this.passable ? 1 : 0);
   }
   tick(event) {
     var other_pos = {"x":this.pos.x,"y":this.pos.y, "z":this.pos.z-1};
 
     if(get_3d(window.game.ship.crew, this.pos) || get_3d(window.game.ship.crew, other_pos)) {
-      this.open += 1/25;
+      this.open += 1/32;
       if(this.open > 1) this.open = 1;
     } else {
-      this.open -= 1/25;
+      this.open -= 1/32;
       if(this.open < 0) this.open = 0;
     }
 

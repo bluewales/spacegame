@@ -6,22 +6,22 @@ function init() {
 }
 
 function* iterate_3d(place) {
+	var things = [];
 	for(var i in place) {
-		var value = place[i];
-		if(value) yield value;
+		var thing = place[i];
+		if(thing !== undefined) things.push(thing);
+	}
+	for(var i = 0; i < things.length; i++) {
+		yield things[i];
 	}
 }
 
-function pos_to_index(p) {
-	return p.x+","+p.y+","+p.z;
-}
-
 function get_3d(place, p) {
-	return place[pos_to_index(p)];
+	return place[p.x+","+p.y+","+p.z];
 }
 
 function set_3d(place, p, thing) {
-	place[pos_to_index(p)] = thing;
+	place[p.x+","+p.y+","+p.z] = thing;
 }
 
 function shuffle_array(a) {
