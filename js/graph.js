@@ -114,8 +114,7 @@ class Graph {
     return weight;
   }
 
-  link_weight(pos, dir) {
-    var weight = 0;
+  get_divider(pos, dir) {
     var to_pos = {
       "x":pos.x+this.neighbor_deltas[dir].x,
       "y":pos.y+this.neighbor_deltas[dir].y,
@@ -126,11 +125,7 @@ class Graph {
       if(dir == "up") floor_pos = to_pos;
       var floor = get_3d(this.ship.floors, floor_pos);
 
-      if(floor) {
-        weight = floor.traverse_weight;
-      } else {
-        weight = 1;
-      }
+      return floor;
     } else {
       var wall_pos = pos;
       if(dir == "north" || dir == "west") {
@@ -139,15 +134,24 @@ class Graph {
       var orientation = this.orientations[dir];
       var both_walls = get_3d(this.ship.walls, wall_pos);
       if(!both_walls) {
-        weight = 1;
+        return undefined;
       } else {
         var wall = both_walls[orientation];
-        if(wall)
-          weight = wall.traverse_weight;
-        else
-          weight = 1;
+        return wall;
       }
     }
+  }
+
+  link_weight(pos, dir) {
+    var to_pos = {
+      "x":pos.x+this.neighbor_deltas[dir].x,
+      "y":pos.y+this.neighbor_deltas[dir].y,
+      "z":pos.z+this.neighbor_deltas[dir].z
+    };
+
+    var weight = 1;
+    var divider = this.get_divider(pos,dir);
+    if(divider) weight = divider.traverse_weight;
     return weight * this.cell_weight(to_pos);
   }
 

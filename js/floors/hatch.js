@@ -63,12 +63,8 @@ class Hatch extends createjs.Container {
     this.open = 0;
 
     this.drawing = new createjs.Container();
-
-
     this.addChild(this.drawing);
-
-
-    this.name = "wall";
+    this.name = "hatch";
   }
   get passable() {
     return true;

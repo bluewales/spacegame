@@ -16,14 +16,13 @@ class Floor extends Structure {
 		if(this.type == "hatch") this.component = new Hatch(ship, raw);
 		if(this.type == "plate") this.component = new FloorPlate(ship, raw);
 
-		this.name = "floor";
 		if(this.sprite_key=="h") this.name = "hatch";
 
 		this.addChild(this.component);
 	}
   set name(value) {}
   get name() {
-    return ths.component.name;
+    return this.component.name;
   }
   get permiable() {
     return this.component.permiable;

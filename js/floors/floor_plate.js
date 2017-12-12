@@ -14,7 +14,7 @@ class FloorPlate extends createjs.Container {
 		this.addChild(this.skirt);
 		this.addChild(new createjs.Sprite(this.ship.sprites[this.sprite_key].sprite, this.sprite_key));
 
-    this.name = "wall";
+    this.name = "floor";
   }
   get passable() {
     return this.progress < 100;
