@@ -1,3 +1,5 @@
+"use strict";
+
 function get_door_art(ori, open) {
   if(!window.singletons) window.singletons = {};
   if(!window.singletons.door_art) window.singletons.door_art = {};

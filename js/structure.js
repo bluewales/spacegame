@@ -1,3 +1,5 @@
+"use strict";
+
 class Structure extends createjs.Container {
  constructor(raw) {
    super();

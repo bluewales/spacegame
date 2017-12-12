@@ -1,3 +1,5 @@
+"use strict";
+
 function get_path(from, to) {
   var graph = window.game.ship.graph;
   var start = graph.get_node(from);

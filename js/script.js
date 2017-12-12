@@ -1,3 +1,4 @@
+"use strict";
 
 var seventh_root_of_two = Math.pow(2, 1/7);
 

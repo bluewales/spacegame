@@ -1,3 +1,4 @@
+"use strict";
 
 class Furniture extends Structure {
 	constructor(ship, raw) {

@@ -1,3 +1,5 @@
+"use strict";
+
 class Wall extends Structure {
 
   constructor(ship, raw) {

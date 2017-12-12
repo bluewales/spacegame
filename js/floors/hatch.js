@@ -1,3 +1,5 @@
+"use strict";
+
 function get_hatch_art(open) {
   if(!window.singletons) window.singletons = {};
   if(!window.singletons.hatch_art) window.singletons.hatch_art = {};

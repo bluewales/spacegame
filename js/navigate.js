@@ -1,3 +1,4 @@
+"use strict";
 
 var mass_of_sun = 1.98855e30;
 var gravitational_constant = 6.67384e-11;
@@ -47,7 +48,7 @@ class planet extends createjs.Container {
 class transfer extends createjs.Container {
 	constructor(from, to) {
 		super();
-		
+
 
 		var major_axis = from.r + to.r;
 		var minor_axis = 2*Math.sqrt(Math.pow(major_axis/2, 2) - Math.pow(major_axis/2 - to.r, 2));
@@ -90,7 +91,7 @@ class transfer extends createjs.Container {
 		real.rotation = -from.rotation + to.rotation - this.transfer_time/to.orbital_period * 360;
 		real.addChild(real_target_ghost);
 
-		
+
 
 		//this.addChild(arc);
 		this.addChild(curve);
@@ -127,9 +128,9 @@ function init_navigation() {
 	var stage = new createjs.Stage(canvas);
 	stage.x = centerX;
 	stage.y = centerY;
- 	
 
- 	
+
+
 
  	var max_r = Math.min(centerX, centerY) * 0.9;
 
@@ -163,7 +164,7 @@ function init_navigation() {
 
  	var now_t = new Date().getTime() / 1000;
 
-	
+
 	for(var i = 0; i < planets.length; i++) {
 		system.addChild(planets[i]);
 
@@ -172,7 +173,7 @@ function init_navigation() {
 
 	var transfers = [];
 
-	
+
 
 	var target_t = now_t;
 
@@ -207,7 +208,7 @@ function init_navigation() {
 			}
 
 			console.log(planets[i].name + " " + time_till_window);
-			
+
 
 			transfers.push({
 				"destination": planets[i].name,
@@ -223,7 +224,7 @@ function init_navigation() {
 		}
 	}
 
-    
+
     function change_time(t) {
 
 		target_t = now_t + t;
@@ -251,7 +252,7 @@ function init_navigation() {
     	.style("padding", "0px 20px")
     	.style("margin", "20px 0px");
 
-	d3.select("#timeline")	
+	d3.select("#timeline")
     	.append("div")
 	    	.attr("id", "display_marker")
 	    	.style("height", "20px")
@@ -348,7 +349,7 @@ function init_navigation() {
 		if(Math.abs(target_t - t) < dt) {
 			t = target_t;
 		}
-		
+
 
 		for(var i = 0; i < planets.length; i++) {
 			planets[i].set_time(t);
@@ -361,7 +362,7 @@ function init_navigation() {
 
 			current_transfer = new transfer(planets[current_planet], planets[target_index]);
             stage.addChild(current_transfer);
-            
+
             var messages = [
             	"Current planet: " + planets[current_planet].name,
             	"Destination: " + planets[target_index].name,
@@ -371,7 +372,7 @@ function init_navigation() {
             ];
 			d3.select("#status").select("div")
             	.selectAll("*").remove();
-            
+
             d3.select("#status").select("div")
             	.selectAll("p")
             	.data(messages)

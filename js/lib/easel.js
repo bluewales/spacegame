@@ -1,3 +1,5 @@
+"use strict";
+
 /*!
 * @license EaselJS
 * Visit http://createjs.com/ for documentation, updates and examples.

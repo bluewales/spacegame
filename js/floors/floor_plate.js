@@ -1,3 +1,5 @@
+"use strict";
+
 class FloorPlate extends createjs.Container {
 
   constructor(ship, raw) {

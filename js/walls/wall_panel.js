@@ -1,3 +1,5 @@
+"use strict";
+
 class WallPanel extends createjs.Container {
 
   constructor(ship, raw) {

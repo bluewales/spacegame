@@ -1,3 +1,5 @@
+"use strict";
+
 class Floor extends Structure {
  constructor(ship, raw) {
 		super(raw);

@@ -1,3 +1,5 @@
+"use strict";
+
 // javascript-astar 0.4.1
 // http://github.com/bgrins/javascript-astar
 // Freely distributable under the MIT License.
