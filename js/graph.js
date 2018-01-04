@@ -76,6 +76,8 @@ class Graph {
     node.x = p.x; node.y = p.y; node.z = p.z;
     astar.cleanNode(node);
 
+    this.ship.rooms.add_node(node);
+
 
     node.neighbors = [];
 
@@ -116,22 +118,17 @@ class Graph {
     return weight;
   }
 
-  get_divider(pos, dir) {
-    var to_pos = {
-      "x":pos.x+this.neighbor_deltas[dir].x,
-      "y":pos.y+this.neighbor_deltas[dir].y,
-      "z":pos.z+this.neighbor_deltas[dir].z
-    };
+  get_divider(pos, other_pos, dir) {
     if(dir == "up" || dir == "down") {
       var floor_pos = pos;
-      if(dir == "up") floor_pos = to_pos;
+      if(dir == "up") floor_pos = other_pos;
       var floor = get_3d(this.ship.floors, floor_pos);
 
       return floor;
     } else {
       var wall_pos = pos;
       if(dir == "north" || dir == "west") {
-        wall_pos = to_pos;
+        wall_pos = other_pos;
       }
       var orientation = this.orientations[dir];
       var both_walls = get_3d(this.ship.walls, wall_pos);
@@ -152,7 +149,7 @@ class Graph {
     };
 
     var weight = 1;
-    var divider = this.get_divider(pos,dir);
+    var divider = this.get_divider(pos, to_pos, dir);
     if(divider) weight = divider.traverse_weight;
     return weight * this.cell_weight(to_pos);
   }
@@ -202,6 +199,8 @@ class Graph {
       "direction": return_dir
     };
     this.set_neighbor(neighbor.neighbors, return_dir, return_link);
+
+    this.ship.rooms.update_divider(pos, other_pos, dir);
   }
 
   update_wall(pos, ori) {

@@ -10,8 +10,6 @@ class Floor extends Structure {
 		this.x = this.ship.position_transform(this.pos.x);
 		this.y = this.ship.position_transform(this.pos.y);
 
-
-
     this.ship = ship;
 		this.raw = raw;
 		this.type = raw.type;
@@ -44,5 +42,12 @@ class Floor extends Structure {
   }
   tick(event) {
     if(this.component.tick) this.component.tick(event);
+  }
+  get_raw() {
+    this.raw.location = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
+    this.raw.progress = this.progress;
+    this.raw.name = this.name;
+    this.raw.type = this.type;
+    return this.raw;
   }
 }

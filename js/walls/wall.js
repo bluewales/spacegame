@@ -43,4 +43,12 @@ class Wall extends Structure {
   tick(event) {
     if(this.component.tick) this.component.tick(event);
   }
+  get_raw() {
+    this.raw.location = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
+    this.raw.orientation = this.ori;
+    this.raw.progress = this.progress;
+    this.raw.name = this.name;
+    this.raw.type = this.type;
+    return this.raw;
+  }
 }

@@ -7,22 +7,44 @@ function init() {
 }
 
 function* iterate_3d(place) {
-	var things = [];
-	for(var i in place) {
-		var thing = place[i];
-		if(thing !== undefined) things.push(thing);
+	if(place.d === undefined) place.d = {};
+	if(place.iter === undefined) {place.iter = []; place.index = 0;}
+	if(place.changed) {
+		place.index = 0;
+		place.changed = false;
+		for(var z in place.d) {
+			for(var y in place.d[z]) {
+				for(var x in place.d[z][y]) {
+					var thing = place.d[z][y][x];
+					if(thing !== undefined) {
+						if(place.index < place.iter.length) place.iter[place.index] = thing;
+						else place.iter.push(thing);
+						place.index++;
+					}
+				}
+			}
+		}
 	}
-	for(var i = 0; i < things.length; i++) {
-		yield things[i];
+
+	for(var i = 0; i < place.index; i++) {
+		yield place.iter[i];
 	}
 }
 
 function get_3d(place, p) {
-	return place[p.x+","+p.y+","+p.z];
+	if(place.d && place.d[p.z] && place.d[p.z][p.y]) {
+		return place.d[p.z][p.y][p.x];
+	} else {
+		return undefined;
+	}
 }
 
 function set_3d(place, p, thing) {
-	place[p.x+","+p.y+","+p.z] = thing;
+	if(place.d === undefined) place.d = {};
+	if(place.d[p.z] === undefined) place.d[p.z] = {};
+	if(place.d[p.z][p.y] === undefined) place.d[p.z][p.y] = {};
+	place.d[p.z][p.y][p.x] = thing;
+	place.changed = true;
 }
 
 function shuffle_array(a) {

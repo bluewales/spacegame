@@ -28,7 +28,7 @@ class Level extends createjs.Container {
 }
 
 class Ship extends createjs.Container {
-	constructor(sprites, raw_ship) {
+	constructor(sprites, raw) {
 		super();
 
     this.sprites = sprites;
@@ -55,34 +55,54 @@ class Ship extends createjs.Container {
 
     this.levels = {};
 		this.graph = new Graph(this);
+    this.rooms = new Rooms(this);
 
-		this.raw_ship = raw_ship;
+		this.raw = raw;
 
-		this.min_z = d3.min([d3.min(d3.keys(raw_ship.walls), function(d) {return d*1;}),d3.min(raw_ship.walls, function(d) {return d.location.z*1;})]);
-  	this.max_z = d3.max([d3.max(d3.keys(raw_ship.walls), function(d) {return d*1;}),d3.max(raw_ship.walls, function(d) {return d.location.z*1;})]);
+		this.min_z = d3.min([d3.min(d3.keys(raw.walls), function(d) {return d*1;}),d3.min(raw.walls, function(d) {return d.location.z*1;})]);
+  	this.max_z = d3.max([d3.max(d3.keys(raw.walls), function(d) {return d*1;}),d3.max(raw.walls, function(d) {return d.location.z*1;})]);
 
 		var x,y,z;
 
-    var floors = raw_ship.floors;
+    var floors = raw.floors;
   	for(var i = 0; i < floors.length; i++) {
   		this.add_floor(floors[i]);
   	}
 
-		var walls = raw_ship.walls;
+		var walls = raw.walls;
   	for(var i = 0; i < walls.length; i++) {
   		this.add_wall(walls[i]);
   	}
 
-  	var crew = raw_ship.crew;
+  	var crew = raw.crew;
   	for(var i = 0; i < crew.length; i++) {
   		this.add_crew_member(crew[i]);
   	}
 
-    var furniture = raw_ship.furniture;
+    var furniture = raw.furniture;
   	for(var i = 0; i < furniture.length; i++) {
   		this.add_furniture(furniture[i]);
   	}
 	}
+
+  get_raw() {
+    this.raw = {"walls": [], "floors":[], "crew": [], "furniture": []};
+    for (var thing of iterate_3d(this.walls)) {
+      if(thing['-']) this.raw.walls.push(thing['-'].get_raw());
+      if(thing['|']) this.raw.walls.push(thing['|'].get_raw());
+    }
+    for (var thing of iterate_3d(this.floors)) {
+      this.raw.floors.push(thing.get_raw());
+    };
+    for (var thing of iterate_3d(this.crew)) {
+      this.raw.crew.push(thing.get_raw());
+    };
+    for (var thing of iterate_3d(this.furniture)) {
+      this.raw.furniture.push(thing.get_raw());
+    };
+    console.log(this.raw);
+    return this.raw;
+  }
 
   tick(event) {
     for(var i = 0; i < this.places.length; i++) {

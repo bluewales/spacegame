@@ -10,11 +10,14 @@ function p_to_s(p) {
 class Crew extends createjs.Container {
 	constructor(ship, raw) {
 		super();
+
+
     this.addChild(new createjs.Sprite(ship.sprites[raw.sprite].sprite, raw.sprite));
 
     this.ship = ship;
     this.raw = raw;
     this.pos = raw.location;
+    this.sprite = raw.sprite;
 
     this.x = this.ship.position_transform(this.pos.x);
 		this.y = this.ship.position_transform(this.pos.y);
@@ -88,4 +91,10 @@ class Crew extends createjs.Container {
 	handle_click(event) {
     console.log("crew clicked");
 	}
+  get_raw() {
+    this.raw.location = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
+    this.raw.name = this.name;
+    this.raw.sprite = this.sprite;
+    return this.raw;
+  }
 }

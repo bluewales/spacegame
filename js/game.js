@@ -110,11 +110,12 @@ class Game {
     	"ship": {"source": "js/ship.js"},
     	"graph": {"source": "js/graph.js"},
       "construction": {"source": "js/construction.js"},
+      "rooms": {"source": "js/rooms.js"},
 
     };
 
     this.data = {
-      "ship": {"source": "dat/sample_ship6.json"}
+      "ship": {"source": "/api/?method=get_save&auth_token=z8JWkVFP\/gkTaaSMLFC\/p0C34A1T5Qxd"}
     };
 
     this.manifest = [];
@@ -217,7 +218,7 @@ class Game {
 
     this.things = event.target.getResult("things");
 
-  	var raw_ship = event.target.getResult("ship");
+  	var raw_ship = JSON.parse(JSON.parse(event.target.getResult("ship")).data);
   	this.ship = new Ship(this.sprites, raw_ship);
 
   	this.ship.set_display_level(this.z_level);
@@ -254,9 +255,15 @@ class Game {
     );
 
     this.re_center();
+
+    this.last_save = Date.now()/1000;
   }
 
+
   tick(event) {
+    //if(this.once) return; this.once = true;
+    var now = Date.now()/1000;
+
     this.crew_ticks = 0;
 
     var ctx = this.canvas.getContext('2d');
@@ -290,7 +297,6 @@ class Game {
     this.stage.x = centerX + this.pan_x * real_zoom_multiplier;
     this.stage.y = centerY + this.pan_y * real_zoom_multiplier;
 
-
     this.stage.update(event);
 
     if(this.currentlyPressedKeys[65]) this.pan(-5, 0);
@@ -299,6 +305,11 @@ class Game {
     if(this.currentlyPressedKeys[87]) this.pan(0, -5);
 
     this.ship.tick(event);
+
+    if(now - this.last_save > 5 * 60) {
+      this.last_save = now;
+      this.save();
+    }
   }
 
   re_center() {
@@ -388,7 +399,19 @@ class Game {
         menu_tree.push({"name":"empty space", "info":true});
       }
 
-      this.active_menu = new Menu(menu_tree, d3.select("#menus"),raw[0]+1, raw[1]+1);
+      this.active_menu = new Menu(menu_tree, d3.select("#menus"), raw[0]+1, raw[1]+1);
     }
+  }
+
+  save() {
+    console.log("Saving");
+    var raw_data = this.ship.get_raw();
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/?method=set_save", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({
+        "data": raw_data,
+        "auth_token": "z8JWkVFP\/gkTaaSMLFC\/p0C34A1T5Qxd"
+    }));
   }
 }
