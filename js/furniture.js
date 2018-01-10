@@ -13,9 +13,6 @@ class Furniture extends Structure {
 		this.y = this.ship.position_transform(this.pos.y);
 
 		this.name = raw.sprite;
-
-		// handle click
-		this.on('click', this.handle_click.bind(this));
 	}
 	get_menu_item() {
     return {"name":this.name, "list":[{"name":"deconstruct", "handle":this.deconstruct.bind(this)}]}

@@ -5,6 +5,8 @@
  /*jshint esversion: 6 */
 
 
+
+
 class Game {
   constructor() {
     this.width = d3.select("canvas").node().getBoundingClientRect().width;
@@ -26,7 +28,7 @@ class Game {
           "img/sliced/creatures_sliced/images/oryx_16bit_scifi_creatures_1249.png",
           "img/sliced/creatures_sliced/images/oryx_16bit_scifi_creatures_1250.png"
         ]
-      },
+      },/*
       "hat_crew": {
         "sources": [
           "img/sliced/creatures_sliced/images/oryx_16bit_scifi_creatures_01.png",
@@ -50,7 +52,7 @@ class Game {
           "img/sliced/creatures_sliced/images/oryx_16bit_scifi_creatures_96.png",
           "img/sliced/creatures_sliced/images/oryx_16bit_scifi_creatures_97.png"
         ]
-      },
+      },*/
 
       /* Structure */
       /* floors */
@@ -64,6 +66,7 @@ class Game {
       "background": {"sources": ["img/mars.jpg"]},
 
       /* Effects */
+      /*
       "sparks_1": {
         "sources": [
           "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_79.png",
@@ -87,7 +90,7 @@ class Game {
           "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_82.png",
           "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_92.png"
         ]
-      },
+      },*/
     };
 
     this.sources = {
@@ -111,12 +114,10 @@ class Game {
     	"graph": {"source": "js/graph.js"},
       "construction": {"source": "js/construction.js"},
       "rooms": {"source": "js/rooms.js"},
-
+      "api": {"source": "js/api.js"},
+      "prompt": {"source": "js/prompt.js"},
     };
 
-    this.data = {
-      "ship": {"source": "/api/?method=get_save&auth_token=z8JWkVFP\/gkTaaSMLFC\/p0C34A1T5Qxd"}
-    };
 
     this.manifest = [];
 
@@ -150,11 +151,11 @@ class Game {
         .style("color", "black")
         .style("margin", "auto")
         .style("width", "300px")
-        .style("height", "50%")
+        .style("height", "50%");
 
     loading_div.append("h1")
       .style("color", "black")
-      .text("Space Game")
+      .text("Safiina")
       .style("margin", "auto")
       .style("position", "static")
       .style("font-size", "200%")
@@ -176,10 +177,10 @@ class Game {
           .style("width", "0px")
           .style("height", "25px");
 
-    this.loader.on("progress", function(event) {
+    this.loader.on("progress", (function(event) {
       console.log(Math.round(event.progress*100) + " % loaded");
       d3.select("#loading_bar").style("width", (event.progress*100) + "%");
-    });
+    }).bind(this));
 
     this.loader.loadManifest(this.manifest, true, "");
 
@@ -190,13 +191,22 @@ class Game {
     this.currentlyPressedKeys = {};
   }
 
-  on_asset_load(event) {
-  	console.log("handleComplete");
 
-  	this.canvas = document.getElementById("easel");
 
-    d3.select("body").style("background-image", "url('img/mars.jpg')");
+  on_asset_load() {
+    this.api = new API();
+
     d3.select("#loading").remove();
+    d3.select("body").style("background-image", "url('img/mars.jpg')");
+
+    this.api.download_save_state((function(game_state){
+      this.game_state=game_state;
+      this.start_game();
+    }).bind(this));
+  }
+
+  start_game() {
+  	this.canvas = document.getElementById("easel");
 
     for(var name in this.sprites) {
       var source = this.sprites[name];
@@ -207,7 +217,7 @@ class Game {
         animations:{}
       }
       for(var j = 0; j < source.sources.length; j++) {
-        sprite_obj.images.push(event.target.getResult(name + (source.sources.length>0?("_"+j):"")));
+        sprite_obj.images.push(this.loader.getResult(name + (source.sources.length>0?("_"+j):"")));
         if(sprite_obj.animations[name])
           sprite_obj.animations[name].push(j);
         else
@@ -216,9 +226,9 @@ class Game {
       source.sprite = new createjs.SpriteSheet(sprite_obj);
     }
 
-    this.things = event.target.getResult("things");
+    this.things = this.loader.getResult("things");
 
-  	var raw_ship = JSON.parse(JSON.parse(event.target.getResult("ship")).data);
+  	var raw_ship = JSON.parse(this.game_state);
   	this.ship = new Ship(this.sprites, raw_ship);
 
   	this.ship.set_display_level(this.z_level);
@@ -256,13 +266,14 @@ class Game {
 
     this.re_center();
 
-    this.last_save = Date.now()/1000;
+    this.now = Date.now()/1000;
+    this.last_save = this.now;
   }
 
 
   tick(event) {
     //if(this.once) return; this.once = true;
-    var now = Date.now()/1000;
+    this.now = Date.now()/1000;
 
     this.crew_ticks = 0;
 
@@ -306,8 +317,8 @@ class Game {
 
     this.ship.tick(event);
 
-    if(now - this.last_save > 5 * 60) {
-      this.last_save = now;
+    if(this.now - this.last_save > 5 * 60) {
+      this.last_save = this.now;
       this.save();
     }
   }
@@ -404,14 +415,7 @@ class Game {
   }
 
   save() {
-    console.log("Saving");
-    var raw_data = this.ship.get_raw();
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/?method=set_save", true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({
-        "data": raw_data,
-        "auth_token": "z8JWkVFP\/gkTaaSMLFC\/p0C34A1T5Qxd"
-    }));
+    this.game_state = this.ship.get_raw();
+    this.api.upload_save_state(this.game_state);
   }
 }

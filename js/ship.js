@@ -100,7 +100,7 @@ class Ship extends createjs.Container {
     for (var thing of iterate_3d(this.furniture)) {
       this.raw.furniture.push(thing.get_raw());
     };
-    console.log(this.raw);
+    //console.log(this.raw);
     return this.raw;
   }
 

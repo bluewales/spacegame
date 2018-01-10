@@ -116,3 +116,12 @@ canvas, svg { position:fixed; top:0; bottom:0; left:0; right:0; height:100%; wid
 h6 {
     color: white;
 }
+
+#ui {
+  position: absolute;
+  z-index:1000;
+  width: 100%;
+  top:50%;
+  height: 200px;
+  margin-top: -100px;
+}
