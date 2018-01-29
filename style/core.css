@@ -122,6 +122,33 @@ h6 {
   z-index:1000;
   width: 100%;
   top:50%;
-  height: 200px;
   margin-top: -100px;
+}
+
+.prompt {
+    color: black;
+    width: 100%;
+    text-align: center;
+    margin: 10px auto;
+}
+
+.prompt > h2 {
+    font-size: 150%;
+}
+
+.prompt > .button:hover {
+    cursor: pointer;
+}
+
+.prompt.message {
+
+}
+
+.prompt.message:hover {
+  color: grey;
+  cursor: pointer;
+}
+
+.prompt.error_message {
+    color: red;
 }

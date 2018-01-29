@@ -11,8 +11,9 @@ class API {
 
     var on_complete = (function(text) {
       var response = JSON.parse(text);
+      console.log(response);
       if(response.success === "false" && response.logged_in === "false" && try_login) {
-        this.login((function() {this.make_call(data, callback, try_login=false);}).bind(this));
+        this.login((function() {this.make_call(data, callback, try_login=false);}).bind(this), response.message);
       } else {
         if(callback) callback(response);
       }
@@ -28,7 +29,7 @@ class API {
     console.log(data);
     xhr.send(JSON.stringify(data));
   }
-  login(callback) {
+  login(callback, last_error=false) {
 
     login_prompt((function(username, password) {
       this.make_call(
@@ -38,9 +39,21 @@ class API {
           if(callback) callback();
         }).bind(this)
       );
-    }).bind(this));
-
-
+    }).bind(this), last_error);
+  }
+  create_account(username, password, callback) {
+    this.make_call(
+      {"method": "createuser", "username": username, "password1": password, "password2": password},
+      (function(response){
+        if(callback && response.success === "true") {
+          this.token = response.auth_token;
+          callback(true);
+        } else {
+          callback(response.message);
+        }
+      }).bind(this),
+      false
+    );
   }
   upload_save_state(state) {
     this.make_call({"data": state,"method": "set_save"});

@@ -184,10 +184,6 @@ class Game {
 
     this.loader.loadManifest(this.manifest, true, "");
 
-    document.onkeydown = this.handleKeyDown.bind(this);
-    document.onkeyup = this.handleKeyUp.bind(this);
-    document.onmousewheel = this.handleMouseWheel.bind(this);
-
     this.currentlyPressedKeys = {};
   }
 
@@ -268,6 +264,11 @@ class Game {
 
     this.now = Date.now()/1000;
     this.last_save = this.now;
+
+    // setup inputs
+    document.onkeydown = this.handleKeyDown.bind(this);
+    document.onkeyup = this.handleKeyUp.bind(this);
+    document.onmousewheel = this.handleMouseWheel.bind(this);
   }
 
 
