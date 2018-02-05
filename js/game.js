@@ -95,6 +95,7 @@ class Game {
 
     this.sources = {
       /* javascript */
+      "palettes": {"source": "js/palettes.js"},
       "menu": {"source": "js/menu.js"},
       "d3": {"source": "js/lib/d3.js"},
     	"easel": {"source": "js/lib/easeljs-0.8.2.min.js"},
@@ -115,7 +116,15 @@ class Game {
       "construction": {"source": "js/construction.js"},
       "rooms": {"source": "js/rooms.js"},
       "api": {"source": "js/api.js"},
-      "prompt": {"source": "js/prompt.js"},
+      "prompt": {"source": "js/ui/prompt.js"},
+      "ui_level": {"source": "js/ui/level.js"},
+      "hud": {"source": "js/ui/hud.js"},
+      "bottom_bar": {"source": "js/ui/bottom_bar.js"},
+      "top_bar": {"source": "js/ui/top_bar.js"},
+      "button": {"source": "js/ui/button.js"},
+      "card_frame": {"source": "js/ui/card_frame.js"},
+      "card_table": {"source": "js/ui/card_table.js"},
+      "controls": {"source": "js/ui/cards/controls.js"},
     };
 
 
@@ -192,9 +201,6 @@ class Game {
   on_asset_load() {
     this.api = new API();
 
-    d3.select("#loading").remove();
-    d3.select("body").style("background-image", "url('img/mars.jpg')");
-
     this.api.download_save_state((function(game_state){
       this.game_state=game_state;
       this.start_game();
@@ -203,6 +209,14 @@ class Game {
 
   start_game() {
   	this.canvas = document.getElementById("easel");
+
+    var ctx = this.canvas.getContext('2d');
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+
+
 
     for(var name in this.sprites) {
       var source = this.sprites[name];
@@ -230,17 +244,41 @@ class Game {
   	this.ship.set_display_level(this.z_level);
 
 
-    var ctx = this.canvas.getContext('2d');
-    ctx.mozImageSmoothingEnabled = false;
-    ctx.webkitImageSmoothingEnabled = false;
-    ctx.msImageSmoothingEnabled = false;
-    ctx.imageSmoothingEnabled = false;
+    this.ui_level = new UILevel(this.z_level);
 
 
-  	this.stage = new createjs.Stage(this.canvas);
-  	this.stage.addChild(this.ship);
 
-    d3.select("#easel").on("click",function(){window.game.handle_click(this);});
+    this.bg_img = document.createElement("img");
+    this.bg_img.src = "img/mars.jpg";
+    this.background = new createjs.Shape();
+    this.background.graphics
+      .beginBitmapFill(this.bg_img, "repeat")
+      .drawRect(0,0,this.width,this.height);
+    this.background.on("click", this.handle_click.bind(this));
+
+
+
+
+
+    this.space = new createjs.Container();
+    this.space.addChild(this.ship);
+    this.space.on("click", this.handle_click.bind(this));
+
+    this.hud = new HUD();
+    this.hud.addChild(this.ui_level);
+    this.hud.on("click", function(evt){}.bind(this));
+
+    this.card_table = new CardTable();
+
+    this.stage = new createjs.Stage(this.canvas);
+    this.stage.addChild(this.background);
+  	this.stage.addChild(this.space);
+    this.stage.addChild(this.hud);
+    this.stage.addChild(this.card_table);
+
+
+
+
 
     this.jobs = new Jobs();
 
@@ -253,12 +291,7 @@ class Game {
   	createjs.Ticker.setFPS(32);
   	createjs.Ticker.on("tick", this.tick.bind(this));
 
-    this.z_menu = new Menu(
-      [{"name":"z-level: " + this.z_level,"info":true}],
-      d3.select("#menus"),
-      this.width - 100,
-      this.height - 25
-    );
+
 
     this.re_center();
 
@@ -294,22 +327,23 @@ class Game {
           .attr("width", this.width)
           .attr("height", this.height);
 
-      this.z_menu.ul
-        .style("left", this.width - 100 + "px")
-        .style("top", this.height - 25 + "px");
+      this.background.graphics
+        .clear()
+        .beginBitmapFill(this.bg_img, "repeat")
+        .drawRect(0,0,this.width,this.height);
     }
 
     var centerX = this.canvas.width/2;
     var centerY = this.canvas.height/2;
 
     var real_zoom_multiplier = Math.pow(seventh_root_of_two, this.zoom);
-    this.stage.scaleX = real_zoom_multiplier;
-    this.stage.scaleY = real_zoom_multiplier;
+    this.ship.scaleX = real_zoom_multiplier;
+    this.ship.scaleY = real_zoom_multiplier;
 
-    this.stage.x = centerX + this.pan_x * real_zoom_multiplier;
-    this.stage.y = centerY + this.pan_y * real_zoom_multiplier;
+    this.ship.x = centerX + this.pan_x * real_zoom_multiplier;
+    this.ship.y = centerY + this.pan_y * real_zoom_multiplier;
 
-    this.stage.update(event);
+
 
     if(this.currentlyPressedKeys[65]) this.pan(-5, 0);
     if(this.currentlyPressedKeys[68]) this.pan(5, 0);
@@ -317,6 +351,9 @@ class Game {
     if(this.currentlyPressedKeys[87]) this.pan(0, -5);
 
     this.ship.tick(event);
+    this.hud.tick(this.width, this.height);
+
+    this.stage.update(event);
 
     if(this.now - this.last_save > 5 * 60) {
       this.last_save = this.now;
@@ -341,7 +378,7 @@ class Game {
   change_z(dz) {
   	this.z_level += dz;
   	this.ship.set_display_level(this.z_level);
-    this.z_menu.lines.text("z-level: " + this.z_level);
+    this.ui_level.set_level(this.z_level);
     if(this.highlighted_square) this.clear_highlight();
   }
 
@@ -368,8 +405,8 @@ class Game {
   handleKeyDown(event) {
     this.currentlyPressedKeys[event.keyCode] = true;
 
-    if(event.keyCode == 69) this.change_z(-1); // e key
-    if(event.keyCode == 81) this.change_z(1); // q key
+    if(event.keyCode == 69) this.change_z(1); // e key
+    if(event.keyCode == 81) this.change_z(-1); // q key
     if(event.keyCode == 32) this.re_center(); // space bar
   }
   handleKeyUp(event) {
@@ -379,14 +416,13 @@ class Game {
     this.change_zoom(event.deltaY / 100);
   }
   handle_click(event) {
-    var raw = d3.mouse(event);
     var centerX = this.canvas.width/2;
     var centerY = this.canvas.height/2;
     var real_zoom_multiplier = Math.pow(seventh_root_of_two, this.zoom);
     var grid = this.ship.grid_width + (this.ship.padding*2);
     var pos = {
-      "x":Math.floor((raw[0]-centerX-this.pan_x*real_zoom_multiplier)/(grid*real_zoom_multiplier)),
-      "y":Math.floor((raw[1]-centerY-this.pan_y*real_zoom_multiplier)/(grid*real_zoom_multiplier)),
+      "x":Math.floor((event.stageX-centerX-this.pan_x*real_zoom_multiplier)/(grid*real_zoom_multiplier)),
+      "y":Math.floor((event.stageY-centerY-this.pan_y*real_zoom_multiplier)/(grid*real_zoom_multiplier)),
       "z":this.z_level
     }
     if(this.highlighted_square
@@ -411,7 +447,7 @@ class Game {
         menu_tree.push({"name":"empty space", "info":true});
       }
 
-      this.active_menu = new Menu(menu_tree, d3.select("#menus"), raw[0]+1, raw[1]+1);
+      this.active_menu = new Menu(menu_tree, d3.select("#menus"), event.stageX+1, event.stageY+1);
     }
   }
 

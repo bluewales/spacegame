@@ -12,7 +12,7 @@ function get_hatch_art(open) {
     var drawing = new createjs.Container();
 
     var shape = new createjs.Shape();
-    shape.graphics.beginFill("#D3D3D3").drawCircle(g/2, g/2, g/2, g/2);
+    shape.graphics.beginFill(ship_palette[1]).drawCircle(g/2, g/2, g/2, g/2);
     drawing.addChild(shape);
 
     var petals = 13;
@@ -33,7 +33,7 @@ function get_hatch_art(open) {
       var p1 = [c+R*Math.sin(theta),c+R*Math.cos(theta)];
       var p2 = [c+R*Math.sin(theta2),c+R*Math.cos(theta2)];
       var p3 = [c+cr*Math.sin(phi),c+cr*Math.cos(phi)];
-      drawing.addChild(create_polygon("#605DEF", [p1,p2,p3]));
+      drawing.addChild(create_polygon(ship_palette[2], [p1,p2,p3]));
 
       centers.push(p3);
     }
@@ -57,7 +57,7 @@ class Hatch extends createjs.Container {
 
     var grid = this.ship.grid_width+this.ship.padding*2;
 		this.skirt = new createjs.Shape();
-		this.skirt.graphics.beginFill('#2A2630')
+		this.skirt.graphics.beginFill(ship_palette[0])
 			.drawRect(-this.ship.padding, -this.ship.padding, grid, grid);
 		this.addChild(this.skirt);
 		//this.addChild(new createjs.Sprite(this.ship.sprites[this.sprite_key].sprite, this.sprite_key));

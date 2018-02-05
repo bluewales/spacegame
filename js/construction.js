@@ -5,7 +5,6 @@
  */
 
 function create_floor() {
-  console.log(this);
   window.game.ship.add_floor(this);
   var floor = window.game.ship.get_floor(this.location);
   var job = new Construct(floor);
@@ -14,7 +13,6 @@ function create_floor() {
 }
 
 function create_wall() {
-  console.log(this);
   window.game.ship.add_wall(this);
   var wall = window.game.ship.get_wall(this.location, this.orientation);
   var job = new Construct(wall, this.build_pos);

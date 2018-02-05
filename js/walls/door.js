@@ -13,21 +13,21 @@ function get_door_art(ori, open) {
     var o = open;
 
     var v_drawing = new createjs.Container();
-    v_drawing.addChild(create_polygon('#D3D3D3', [[g+p*2,0],[g+p,p],[g,0],[g+p,-p]]));
-    v_drawing.addChild(create_polygon('#605DEF', [[g+p*2,0],[g+p*2,(1-o)*(g/2-p)],[g+p,(1-o)*(g/2-p)+p],[g,(1-o)*(g/2-p)],[g,0],[g+p,p]]));
-    v_drawing.addChild(create_polygon('#D3D3D3', [[g+p*2,(1-o)*(g/2-p)],[g+p*2,(1-o)*(g/2-p)+p],[g,(1-o)*(g/2-p)+p],[g,(1-o)*(g/2-p)],[g+p,(1-o)*(g/2-p)+p]]));
-    v_drawing.addChild(create_polygon('#D3D3D3', [[g+p*2,(1+o)*(g/2-p)+p],[g+p*2,(1+o)*(g/2-p)+2*p],[g+p,(1+o)*(g/2-p)+p],[g,(1+o)*(g/2-p)+2*p],[g,(1+o)*(g/2-p)+p]]));
-    v_drawing.addChild(create_polygon('#605DEF', [[g+p*2,(1+o)*(g/2-p)+2*p],[g+p*2,g],[g+p,g-p],[g,g],[g,(1+o)*(g/2-p)+2*p],[g+p,(1+o)*(g/2-p)+p]]));
-    v_drawing.addChild(create_polygon('#D3D3D3', [[g+p*2,g],[g+p,g-p],[g,g],[g+p,g+p]]));
+    v_drawing.addChild(create_polygon(ship_palette[1], [[g+p*2,0],[g+p,p],[g,0],[g+p,-p]]));
+    v_drawing.addChild(create_polygon(ship_palette[2], [[g+p*2,0],[g+p*2,(1-o)*(g/2-p)],[g+p,(1-o)*(g/2-p)+p],[g,(1-o)*(g/2-p)],[g,0],[g+p,p]]));
+    v_drawing.addChild(create_polygon(ship_palette[1], [[g+p*2,(1-o)*(g/2-p)],[g+p*2,(1-o)*(g/2-p)+p],[g,(1-o)*(g/2-p)+p],[g,(1-o)*(g/2-p)],[g+p,(1-o)*(g/2-p)+p]]));
+    v_drawing.addChild(create_polygon(ship_palette[1], [[g+p*2,(1+o)*(g/2-p)+p],[g+p*2,(1+o)*(g/2-p)+2*p],[g+p,(1+o)*(g/2-p)+p],[g,(1+o)*(g/2-p)+2*p],[g,(1+o)*(g/2-p)+p]]));
+    v_drawing.addChild(create_polygon(ship_palette[2], [[g+p*2,(1+o)*(g/2-p)+2*p],[g+p*2,g],[g+p,g-p],[g,g],[g,(1+o)*(g/2-p)+2*p],[g+p,(1+o)*(g/2-p)+p]]));
+    v_drawing.addChild(create_polygon(ship_palette[1], [[g+p*2,g],[g+p,g-p],[g,g],[g+p,g+p]]));
     window.singletons.door_art[open]['|'] = v_drawing;
 
     var h_drawing = new createjs.Container();
-    h_drawing.addChild(create_polygon('#D3D3D3', [[0,g+p*2],[p,g+p],[0,g],[-p,g+p]]));
-    h_drawing.addChild(create_polygon('#605DEF', [[0,g+p*2],[(1-o)*(g/2-p),g+p*2],[(1-o)*(g/2-p)+p,g+p],[(1-o)*(g/2-p),g],[0,g],[p,g+p]]));
-    h_drawing.addChild(create_polygon('#D3D3D3', [[(1-o)*(g/2-p),g+p*2],[(1-o)*(g/2-p)+p,g+p*2],[(1-o)*(g/2-p)+p,g],[(1-o)*(g/2-p),g],[(1-o)*(g/2-p)+p,g+p]]));
-    h_drawing.addChild(create_polygon('#D3D3D3', [[(1+o)*(g/2-p)+p,g+p*2],[(1+o)*(g/2-p)+2*p,g+p*2],[(1+o)*(g/2-p)+p,g+p],[(1+o)*(g/2-p)+2*p,g],[(1+o)*(g/2-p)+p,g]]));
-    h_drawing.addChild(create_polygon('#605DEF', [[(1+o)*(g/2-p)+2*p,g+p*2],[g,g+p*2],[g-p,g+p],[g,g],[(1+o)*(g/2-p)+2*p,g],[(1+o)*(g/2-p)+p,g+p]]));
-    h_drawing.addChild(create_polygon('#D3D3D3', [[g,g+p*2],[g-p,g+p],[g,g],[g+p,g+p]]));
+    h_drawing.addChild(create_polygon(ship_palette[1], [[0,g+p*2],[p,g+p],[0,g],[-p,g+p]]));
+    h_drawing.addChild(create_polygon(ship_palette[2], [[0,g+p*2],[(1-o)*(g/2-p),g+p*2],[(1-o)*(g/2-p)+p,g+p],[(1-o)*(g/2-p),g],[0,g],[p,g+p]]));
+    h_drawing.addChild(create_polygon(ship_palette[1], [[(1-o)*(g/2-p),g+p*2],[(1-o)*(g/2-p)+p,g+p*2],[(1-o)*(g/2-p)+p,g],[(1-o)*(g/2-p),g],[(1-o)*(g/2-p)+p,g+p]]));
+    h_drawing.addChild(create_polygon(ship_palette[1], [[(1+o)*(g/2-p)+p,g+p*2],[(1+o)*(g/2-p)+2*p,g+p*2],[(1+o)*(g/2-p)+p,g+p],[(1+o)*(g/2-p)+2*p,g],[(1+o)*(g/2-p)+p,g]]));
+    h_drawing.addChild(create_polygon(ship_palette[2], [[(1+o)*(g/2-p)+2*p,g+p*2],[g,g+p*2],[g-p,g+p],[g,g],[(1+o)*(g/2-p)+2*p,g],[(1+o)*(g/2-p)+p,g+p]]));
+    h_drawing.addChild(create_polygon(ship_palette[1], [[g,g+p*2],[g-p,g+p],[g,g],[g+p,g+p]]));
     window.singletons.door_art[open]['-'] = h_drawing;
   }
 

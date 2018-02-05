@@ -41,7 +41,6 @@ function create_account(callback, error_message=null) {
 
   	}},
     {display: "Go to login", type: "message", action: function() {
-      remove_prompt();
       login_prompt(callback);
   	}}
   ];
@@ -52,7 +51,8 @@ function create_account(callback, error_message=null) {
 }
 
 function remove_prompt() {
-  var form_div = d3.select("#ui").select("div");
+  console.log("remove prmpt");
+  var form_div = d3.select(".prompt_box");
   var ps = form_div.select("form")
     .selectAll("p")
     .on("click", null)
@@ -63,8 +63,10 @@ function remove_prompt() {
 }
 
 function prompt(structure) {
+  remove_prompt();
   var form = d3.select("#ui")
     .append("div")
+    .classed("prompt_box", true)
     .style("background-color", "white")
     .style("border", "4px solid grey")
     .style("margin", "0px auto")
