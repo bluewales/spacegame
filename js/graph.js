@@ -204,6 +204,7 @@ class Graph {
   }
 
   update_wall(pos, ori) {
+    var ori = pos.ori;
     var other_pos = {"x":pos.x+(ori=="|"?1:0),"y":pos.y+(ori=="-"?1:0),"z":pos.z};
     var dir = this.dir_by_ori[ori];
     this.update_divider(pos, other_pos, dir);

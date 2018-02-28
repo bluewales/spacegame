@@ -1,5 +1,3 @@
-"use strict";
-
 class Floor extends Structure {
  constructor(ship, raw) {
 		super(raw);
@@ -44,7 +42,7 @@ class Floor extends Structure {
     if(this.component.tick) this.component.tick(event);
   }
   get_raw() {
-    this.raw.location = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
+    this.raw.pos = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
     this.raw.progress = this.progress;
     this.raw.name = this.name;
     this.raw.type = this.type;

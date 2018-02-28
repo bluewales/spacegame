@@ -17,11 +17,9 @@ var color_palettes = [
     ["#171A13","#4C4D4F","#F2F6F6","#9EABB5","#8F7168"],
     ["#202309","#734D2C","#C55C12","#F4C899","#C59052"],
     ["#455245","#4A71A3","#A8A098","#F4D8AD","#918873"],
-    ["#4A2822","#FF0000","#ECEAE1","#DDB18B","#AC8668"],
+    ["#4A2822","#ECEAE1","#DDB18B","#AC8668","#FF0000"],
     ["#635D59","#2E2435","#EEECDA","#CCB594","#95786B"],
-
-    ["#512D4C","#F0EEEC","#B86B47","#C2A39B","#634A64"],
-
+    ["#512D4C","#F0EEEC","#634A64","#C2A39B","#B86B47"],
     ["#2D2B25","#5F5E53","#4A4035","#B8C5C8","#90856B"],
     ["#1D130C","#693E37","#FAA61E","#DDB896","#B35F3C"],
     ["#231601","#70561C","#C98500","#FFBF00","#EACC89"],
@@ -29,4 +27,5 @@ var color_palettes = [
 ];
 
 var ship_palette = color_palettes[0];
+//var menu_palette = color_palettes[22];
 var menu_palette = color_palettes[18];

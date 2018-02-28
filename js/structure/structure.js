@@ -1,5 +1,3 @@
-"use strict";
-
 class Structure extends createjs.Container {
  constructor(raw) {
    super();
@@ -7,7 +5,9 @@ class Structure extends createjs.Container {
    if(raw.progress === undefined)
     this.progress = 0;
    this.raw = raw;
-   this.pos = raw.location;
+   this.pos = raw.pos;
+
+
  }
  set progress(value) {
    this._progress = value;

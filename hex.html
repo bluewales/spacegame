@@ -23,7 +23,6 @@
   var grid_height = 65;
 
   var sum = 0;
-
   var min = 0;
   var max = 0;
 
@@ -116,21 +115,29 @@
 			if(grid[subtracter[0]][subtracter[1]] < min) min = grid[subtracter[0]][subtracter[1]];
 		}
 
-    //var c_level = (max-min)/3+min;
     var c_level = sum / (grid_width * grid_height);
-    //console.log(max + " " + min + " " + c_level);
+
+		var lowland = [34,139,34];
+		var highland = [210,180,140];
 
     for(var i = 0; i < grid_width; i++) {
       for(var j = 0; j < grid_height; j++) {
         if(grid[i][j] > c_level) {
-					var red = 255*(grid[i][j]-c_level) / (max-c_level);
-          var green = 255-255*(grid[i][j]-c_level) / (max-c_level);
-					var blue = 255*(grid[i][j]-c_level) / (max-c_level);
+
+					var ratio = (grid[i][j]-c_level) / (max-c_level);
+
+					var red = lowland[0] + (highland[0]-lowland[0])*ratio;
+          var green = lowland[1] + (highland[1]-lowland[1])*ratio;
+					var blue = lowland[2] + (highland[2]-lowland[2])*ratio;
           draw_hex(i, j, "rgb(" + Math.floor(red) + ", " + Math.floor(green) + ", " + Math.floor(blue) + ")");
         } else {
-          var green = 0;//grid[i][j]>0?128:0;
-          var blue = 255-128*(c_level-grid[i][j]) / (c_level-min);
-          draw_hex(i, j, "rgb(0, " + Math.floor(green) + ", " + Math.floor(blue) + ")");
+
+					var ratio = (c_level-grid[i][j]) / (c_level-min);
+
+					var red = 0;
+          var green = 0;
+          var blue = 255-128*ratio;
+          draw_hex(i, j, "rgb(" + Math.floor(red) + ", " + Math.floor(green) + ", " + Math.floor(blue) + ")");
         }
       }
     }

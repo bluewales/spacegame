@@ -11,7 +11,6 @@ class API {
 
     var on_complete = (function(text) {
       var response = JSON.parse(text);
-      console.log(response);
       if(response.success === "false" && response.logged_in === "false" && try_login) {
         this.login((function() {this.make_call(data, callback, try_login=false);}).bind(this), response.message);
       } else {
@@ -26,7 +25,6 @@ class API {
     });
 
     if(this.token) data.auth_token = this.token;
-    console.log(data);
     xhr.send(JSON.stringify(data));
   }
   login(callback, last_error=false) {

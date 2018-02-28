@@ -3,7 +3,7 @@
 class FloorPlate extends createjs.Container {
 
   constructor(ship, raw) {
-    super(raw);
+    super();
 
     this.ship = ship;
 		this.type = raw.type;
@@ -24,4 +24,13 @@ class FloorPlate extends createjs.Container {
   get traverse_weight() {
     return this.progress < 100 ? 1 : (this.passable ? 2 : 0);
   }
+
+  static generate_raw(pos) {
+    return {
+  		"type": "plate",
+  		"pos": pos,
+  		"name": "floor"
+  	};
+  }
+
 }

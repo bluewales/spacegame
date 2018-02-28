@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Created by Luke on 7/9/2017.
  */
@@ -59,8 +57,8 @@ class Ship extends createjs.Container {
 
 		this.raw = raw;
 
-		this.min_z = d3.min([d3.min(d3.keys(raw.walls), function(d) {return d*1;}),d3.min(raw.walls, function(d) {return d.location.z*1;})]);
-  	this.max_z = d3.max([d3.max(d3.keys(raw.walls), function(d) {return d*1;}),d3.max(raw.walls, function(d) {return d.location.z*1;})]);
+		this.min_z = d3.min([d3.min(d3.keys(raw.walls), function(d) {return d*1;}),d3.min(raw.walls, function(d) {return d.pos.z*1;})]);
+  	this.max_z = d3.max([d3.max(d3.keys(raw.walls), function(d) {return d*1;}),d3.max(raw.walls, function(d) {return d.pos.z*1;})]);
 
 		var x,y,z;
 
@@ -173,38 +171,30 @@ class Ship extends createjs.Container {
 			this.levels[wall.pos.z] = new Level();
 		this.levels[wall.pos.z].add(wall, this.wall_layer);
 
-		var both_walls = get_3d(this.walls, wall_raw.location);
+		var both_walls = get_3d(this.walls, wall_raw.pos);
 		if(!both_walls) {
 			set_3d(this.walls, wall.pos, {});
-			both_walls = get_3d(this.walls, wall_raw.location);
+			both_walls = get_3d(this.walls, wall_raw.pos);
 		}
-		if(both_walls[wall.raw.direction]) {
-			this.remove_wall(wall.pos, wall.raw.orientation);
+		if(both_walls[wall.pos.ori]) {
+			this.remove_wall(wall.pos);
 		}
-		both_walls[wall.raw.orientation] = wall;
-		this.graph.update_wall(wall.pos, wall.raw.orientation);
+		both_walls[wall.pos.ori] = wall;
+		this.graph.update_wall(wall.pos);
   }
-	remove_wall(pos, wall_dir) {
+	remove_wall(pos) {
 		var both_walls = get_3d(this.walls, pos);
 		if(!both_walls) return;
-		var wall = both_walls[wall_dir];
+		var wall = both_walls[pos.ori];
 		if(!wall) return;
 		this.levels[pos.z].remove(wall, this.wall_layer);
 		both_walls[wall_dir] = undefined;
 		this.graph.update_wall(pos, wall_dir);
 	}
-  get_wall(pos, dir) {
-    var wall_pos = pos;
-    if(dir == "north" || dir == "west") {
-      var delta = this.graph.neighbor_deltas[dir];
-      wall_pos = {"x":pos.x+delta.x,"y":pos.y+delta.y,"z":pos.z+delta.z};
-    }
-
-    var both_walls = get_3d(this.walls, wall_pos);
+  get_wall(pos) {
+    var both_walls = get_3d(this.walls, pos);
 		if(!both_walls) return undefined;
-    var wall_ori = this.graph.orientations[dir];
-    if(dir == "-" || dir == "|") wall_ori = dir;
-		return both_walls[wall_ori];
+		return both_walls[pos.ori];
   }
   add_crew_member(crew_raw) {
 		var crew_member = new Crew(this, crew_raw);
@@ -235,10 +225,26 @@ class Ship extends createjs.Container {
 
 	draw_highlight(pos) {
 		var grid = this.grid_width+this.padding*2;
-		this.highlight_square = new createjs.Shape();
-		this.highlight_square.graphics
-			.beginStroke('orange')
-			.drawRect(pos.x*grid, pos.y*grid, grid, grid);
+    if(!this.highlight_square) {
+  		this.highlight_square = new createjs.Shape();
+    }
+    this.highlight_square.graphics.clear();
+    if(pos.ori) {
+      if(pos.ori == "-") {
+        this.highlight_square.graphics
+    			.beginFill('red')
+    			.drawRect(pos.x*grid, (pos.y+1)*grid - this.padding, grid, this.padding*2);
+      } else {
+    		this.highlight_square.graphics
+    			.beginFill('red')
+    			.drawRect((pos.x + 1)*grid - this.padding, pos.y*grid, this.padding*2, grid);
+      }
+    } else {
+      this.highlight_square.graphics
+  			.beginStroke('orange')
+  			.drawRect(pos.x*grid, pos.y*grid, grid, grid);
+    }
+
 		this.addChild(this.highlight_square);
 	}
 	clear_highlight() {
@@ -250,7 +256,8 @@ class Ship extends createjs.Container {
     this.addChild(this.levels[z_level]);
     return;
 
-		for(var z = d3.min(d3.keys(this.levels), function(d) {return d*1;}); z <= z_level; z++) {
+    var min_z = d3.min(d3.keys(this.levels), function(d) {return d*1;});
+		for(var z = min_z; z <= z_level; z++) {
 			if(this.levels[z] !== undefined) {
 				var darken = Math.pow(0.5, z_level-z);
 				this.levels[z].alpha = Math.floor(darken);
@@ -258,36 +265,4 @@ class Ship extends createjs.Container {
 			}
 		}
 	}
-
-	get_construction_menu_list(pos) {
-    var construction_menu_list = [];
-    var wall_menu_list = [];
-    var floor_menu_list = [];
-    var dirs = ["north","south","east","west"];
-
-    if(!get_3d(this.floors, pos)) {
-      for(var i = 0; i < dirs.length; i++) {
-        var dir = dirs[i];
-        var d = this.graph.neighbor_deltas;
-        var floor_pos = {"x":pos.x+d[dir].x,"y":pos.y+d[dir].y,"z":pos.z+d[dir].z};
-        if(get_3d(this.floors, floor_pos)) {
-          construction_menu_list.push({
-            "name": "build floor",
-            "handle": create_floor.bind({"type":"plate","location":pos})
-          });
-          break;
-        }
-      }
-    }
-    wall_menu_list = [
-      {"name":"build north wall","handle":create_wall.bind({"orientation":"-","type":"panel","build_pos":pos,"location":{"x":pos.x,"y":pos.y-1,"z":pos.z}})},
-      {"name":"build south wall","handle":create_wall.bind({"orientation":"-","type":"panel","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
-      {"name":"build east wall","handle":create_wall.bind({"orientation":"|","type":"panel","build_pos":pos,"location":{"x":pos.x,"y":pos.y,"z":pos.z}})},
-      {"name":"build west wall","handle":create_wall.bind({"orientation":"|","type":"panel","build_pos":pos,"location":{"x":pos.x-1,"y":pos.y,"z":pos.z}})}
-    ];
-    if(wall_menu_list.length > 0) {
-      construction_menu_list.push({"name": "walls", "list":wall_menu_list});
-    }
-    return construction_menu_list;
-  }
 }

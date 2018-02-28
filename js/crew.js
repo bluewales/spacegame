@@ -16,7 +16,7 @@ class Crew extends createjs.Container {
 
     this.ship = ship;
     this.raw = raw;
-    this.pos = raw.location;
+    this.pos = raw.pos;
     this.sprite = raw.sprite;
 
     this.x = this.ship.position_transform(this.pos.x);
@@ -92,7 +92,7 @@ class Crew extends createjs.Container {
     console.log("crew clicked");
 	}
   get_raw() {
-    this.raw.location = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
+    this.raw.pos = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
     this.raw.name = this.name;
     this.raw.sprite = this.sprite;
     return this.raw;

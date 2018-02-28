@@ -1,9 +1,7 @@
-"use strict";
 /**
  * Created by Ox The Automaton on 7/1/2017.
  */
  /*jshint esversion: 6 */
-
 
 
 
@@ -62,7 +60,7 @@ class Game {
       "crate": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_679.png"]},
       "barrel": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_708.png"]},
 
-      /* Background" */
+      /* Background */
       "background": {"sources": ["img/mars.jpg"]},
 
       /* Effects */
@@ -91,6 +89,10 @@ class Game {
           "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_92.png"
         ]
       },*/
+
+      /* UI */
+      "pinned": {"sources": ["img/ui/pinned.png"]},
+      "un_pinned": {"sources": ["img/ui/un_pinned.png"]},
     };
 
     this.sources = {
@@ -101,15 +103,15 @@ class Game {
     	"easel": {"source": "js/lib/easeljs-0.8.2.min.js"},
     	"astar": {"source": "js/lib/astar.js"},
     	"pathfinding": {"source": "js/pathfinding.js"},
-      "structure": {"source": "js/structure.js"},
+      "structure": {"source": "js/structure/structure.js"},
     	"jobs": {"source": "js/jobs.js"},
     	"crew": {"source": "js/crew.js"},
-      "wall": {"source": "js/walls/wall.js"},
-      "wall_panel": {"source": "js/walls/wall_panel.js"},
-      "door": {"source": "js/walls/door.js"},
-      "floor": {"source": "js/floors/floor.js"},
-      "floor_plate": {"source": "js/floors/floor_plate.js"},
-      "hatch": {"source": "js/floors/hatch.js"},
+      "wall": {"source": "js/structure/walls/wall.js"},
+      "wall_panel": {"source": "js/structure/walls/wall_panel.js"},
+      "door": {"source": "js/structure/walls/door.js"},
+      "floor": {"source": "js/structure/floors/floor.js"},
+      "floor_plate": {"source": "js/structure/floors/floor_plate.js"},
+      "hatch": {"source": "js/structure/floors/hatch.js"},
       "furniture": {"source": "js/furniture.js"},
     	"ship": {"source": "js/ship.js"},
     	"graph": {"source": "js/graph.js"},
@@ -122,9 +124,11 @@ class Game {
       "bottom_bar": {"source": "js/ui/bottom_bar.js"},
       "top_bar": {"source": "js/ui/top_bar.js"},
       "button": {"source": "js/ui/button.js"},
-      "card_frame": {"source": "js/ui/card_frame.js"},
+      "card": {"source": "js/ui/cards/card.js"},
       "card_table": {"source": "js/ui/card_table.js"},
-      "controls": {"source": "js/ui/cards/controls.js"},
+      "card_frame": {"source": "js/ui/cards/card_frame.js"},
+      "controls_card": {"source": "js/ui/cards/controls_card.js"},
+      "build_card": {"source": "js/ui/cards/build_card.js"},
     };
 
 
@@ -254,7 +258,7 @@ class Game {
     this.background.graphics
       .beginBitmapFill(this.bg_img, "repeat")
       .drawRect(0,0,this.width,this.height);
-    this.background.on("click", this.handle_click.bind(this));
+
 
 
 
@@ -264,11 +268,10 @@ class Game {
     this.space.addChild(this.ship);
     this.space.on("click", this.handle_click.bind(this));
 
+    this.card_table = new CardTable();
     this.hud = new HUD();
     this.hud.addChild(this.ui_level);
     this.hud.on("click", function(evt){}.bind(this));
-
-    this.card_table = new CardTable();
 
     this.stage = new createjs.Stage(this.canvas);
     this.stage.addChild(this.background);
@@ -284,7 +287,7 @@ class Game {
 
     this.jobs.create_job(new Patrol([
       {"x":0,"y":0,"z":-1},
-      {"x":2,"y":2,"z":0},
+      {"x":2,"y":2,"z":1},
       {"x":0,"y":0,"z":0}
     ]));
 
@@ -299,17 +302,23 @@ class Game {
     this.last_save = this.now;
 
     // setup inputs
+
+    this.space.on("click", this.handle_click.bind(this));
+    this.background.on("click", this.handle_click.bind(this));
+
     document.onkeydown = this.handleKeyDown.bind(this);
     document.onkeyup = this.handleKeyUp.bind(this);
     document.onmousewheel = this.handleMouseWheel.bind(this);
+
+    console.log(this.stage);
   }
 
 
   tick(event) {
-    //if(this.once) return; this.once = true;
     this.now = Date.now()/1000;
 
     this.crew_ticks = 0;
+
 
     var ctx = this.canvas.getContext('2d');
     ctx.mozImageSmoothingEnabled = false;
@@ -343,8 +352,6 @@ class Game {
     this.ship.x = centerX + this.pan_x * real_zoom_multiplier;
     this.ship.y = centerY + this.pan_y * real_zoom_multiplier;
 
-
-
     if(this.currentlyPressedKeys[65]) this.pan(-5, 0);
     if(this.currentlyPressedKeys[68]) this.pan(5, 0);
     if(this.currentlyPressedKeys[83]) this.pan(0, 5);
@@ -359,14 +366,31 @@ class Game {
       this.last_save = this.now;
       this.save();
     }
+
+    if(this.build_cell_cursor || this.build_wall_cursor) {
+      var mouse_hits_ui = this.hud.hitTest(this.stage.mouseX, this.stage.mouseY) || this.card_table.hitTest(this.stage.mouseX, this.stage.mouseY);
+
+      if(mouse_hits_ui) {
+        this.clear_highlight();
+      } else {
+        if(this.build_cell_cursor) {
+          var pos = this.pos_from_coord(this.stage.mouseX, this.stage.mouseY);
+          this.highlight_square(pos);
+        }
+        if(this.build_wall_cursor) {
+          var pos = this.wall_pos_from_coord(this.stage.mouseX, this.stage.mouseY);
+          this.highlight_square(pos);
+        }
+      }
+    }
   }
 
   re_center() {
     this.change_z(-this.z_level);
     this.change_zoom(-this.zoom + 10);
 
-    var mid_x = (this.ship.graph.max_bound.x + this.ship.graph.min_bound.x) / 2 + 1;
-    var mid_y = (this.ship.graph.max_bound.y + this.ship.graph.min_bound.y) / 2 + 1;
+    var mid_x = (this.ship.graph.max_bound.x + this.ship.graph.min_bound.x+1) / 2;
+    var mid_y = (this.ship.graph.max_bound.y + this.ship.graph.min_bound.y+1) / 2;
 
     this.pan_x = -(this.ship.grid_width + this.ship.padding*2) * mid_x;
     this.pan_y = -(this.ship.grid_width + this.ship.padding*2) * mid_y;
@@ -396,12 +420,14 @@ class Game {
     this.highlighted_square = pos;
     this.ship.draw_highlight(pos);
   }
-  clear_highlight() {
+  clear_highlight(clear_focus=true) {
     this.highlighted_square = null;
     this.ship.clear_highlight();
-    if(this.active_menu) this.active_menu.destroy();
-    this.active_menu = false;
+    if(clear_focus) {
+      this.card_table.focus(undefined);
+    }
   }
+
   handleKeyDown(event) {
     this.currentlyPressedKeys[event.keyCode] = true;
 
@@ -416,39 +442,65 @@ class Game {
     this.change_zoom(event.deltaY / 100);
   }
   handle_click(event) {
-    var centerX = this.canvas.width/2;
-    var centerY = this.canvas.height/2;
+    var pos = this.pos_from_coord(event.stageX, event.stageY);
+
+    if(this.build_cell_cursor && this.build_cell_cursor !== true) {
+      console.log("build a " + this.build_cell_cursor.name);
+      create_floor(this.build_cell_cursor, pos);
+    }
+  }
+
+  pos_from_coord(stageX, stageY) {
+    var centerX = this.canvas.width / 2;
+    var centerY = this.canvas.height / 2;
     var real_zoom_multiplier = Math.pow(seventh_root_of_two, this.zoom);
     var grid = this.ship.grid_width + (this.ship.padding*2);
+    var x = Math.floor((stageX-centerX-this.pan_x*real_zoom_multiplier)/(grid*real_zoom_multiplier));
+    var y = Math.floor((stageY-centerY-this.pan_y*real_zoom_multiplier)/(grid*real_zoom_multiplier));
     var pos = {
-      "x":Math.floor((event.stageX-centerX-this.pan_x*real_zoom_multiplier)/(grid*real_zoom_multiplier)),
-      "y":Math.floor((event.stageY-centerY-this.pan_y*real_zoom_multiplier)/(grid*real_zoom_multiplier)),
-      "z":this.z_level
+      "x": x,
+      "y": y,
+      "z": this.z_level
     }
-    if(this.highlighted_square
-      && this.highlighted_square.x == pos.x
-      && this.highlighted_square.y == pos.y
-      && this.highlighted_square.z == pos.z) {
-      this.clear_highlight();
+    return pos;
+  }
+
+  wall_pos_from_coord(stageX, stageY) {
+    var centerX = this.canvas.width / 2;
+    var centerY = this.canvas.height / 2;
+    var real_zoom_multiplier = Math.pow(seventh_root_of_two, this.zoom);
+    var grid = this.ship.grid_width + (this.ship.padding*2);
+    var x = (stageX-centerX-this.pan_x*real_zoom_multiplier) / (grid*real_zoom_multiplier);
+    var y = (stageY-centerY-this.pan_y*real_zoom_multiplier) / (grid*real_zoom_multiplier);
+    var px = x % 1 + (x < 0?1:0);
+    var py = y % 1 + (y < 0?1:0);
+
+    console.log(px + " " + py);
+
+    var step_back = 1-px > py;
+    var ori = "-";
+    if(px > py) {
+      if(step_back) {
+        y -= 1;
+        ori = "-";
+      } else {
+        ori = "|";
+      }
     } else {
-      this.highlight_square(pos);
-
-      var menu_tree = this.ship.get_menu_tree_at(pos);
-
-      var construction_menu = {
-        "name":"construction",
-        "list":this.ship.get_construction_menu_list(pos)
-      };
-      if(construction_menu.list.length > 0) {
-        menu_tree.push(construction_menu);
+      if(step_back) {
+        x -= 1;
+        ori = "|";
+      } else {
+        ori = "-";
       }
-
-      if(menu_tree.length == 0) {
-        menu_tree.push({"name":"empty space", "info":true});
-      }
-
-      this.active_menu = new Menu(menu_tree, d3.select("#menus"), event.stageX+1, event.stageY+1);
     }
+    var pos = {
+      "x": Math.floor(x),
+      "y": Math.floor(y),
+      "z": this.z_level,
+      "ori": ori
+    }
+    return pos;
   }
 
   save() {
