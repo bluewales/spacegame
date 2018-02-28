@@ -12,10 +12,26 @@ class TopBar extends createjs.Container {
     this.box.graphics.beginFill(menu_palette[0]).drawRect(0, 0, this.width, this.height).endFill();
     this.addChild(this.box);
 
-    this.control_card = new Controls();
+    this.button_data = [
+      {
+        "name":"Controls",
+        "card": new ControlsCard()
+      }
+    ];
 
     this.buttons = new createjs.Container();
-    this.buttons.addChild(new Button(this.button_width, this.button_height, "Controls", this.control_card));
+    for(var i = 0; i < this.button_data.length; i++) {
+      var button_config = {
+        "width": this.button_width,
+        "height": this.button_height,
+        "text": this.button_data[i].name,
+        "card": this.button_data[i].card
+      };
+      var button = new Button(button_config);
+      this.buttons.addChild(button);
+      button.active = true;
+      this.button_data[i].button = button;
+    }
     this.addChild(this.buttons);
   }
 

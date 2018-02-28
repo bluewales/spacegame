@@ -14,12 +14,32 @@ class BottomBar extends createjs.Container {
     this.box.graphics.beginFill(menu_palette[0]).drawRect(0, this.height-this.bar_height, this.width, this.height).endFill();
     this.addChild(this.box);
 
+    this.button_data = [
+      {
+        "name":"Build",
+        "card": new BuildCard()
+      }
+      //this.buttons.addChild(new Button(this.button_width, this.button_height, "Crew"));
+      //this.buttons.addChild(new Button(this.button_width, this.button_height, "Jobs"));
+      //this.buttons.addChild(new Button(this.button_width, this.button_height, "Trade"));
+      //this.buttons.addChild(new Button(this.button_width, this.button_height, "Navigation"));
+    ];
+
     this.buttons = new createjs.Container();
-    //this.buttons.addChild(new Button(this.button_width, this.button_height, "Crew"));
-    //this.buttons.addChild(new Button(this.button_width, this.button_height, "Jobs"));
-    //this.buttons.addChild(new Button(this.button_width, this.button_height, "Trade"));
-    //this.buttons.addChild(new Button(this.button_width, this.button_height, "Navigation"));
+    for(var i = 0; i < this.button_data.length; i++) {
+      var button_config = {
+        "width": this.button_width,
+        "height": this.button_height,
+        "text": this.button_data[i].name,
+        "card": this.button_data[i].card
+      };
+      var button = new Button(button_config);
+      this.buttons.addChild(button);
+      button.active = true;
+      this.button_data[i].button = button;
+    }
     this.addChild(this.buttons);
+
   }
 
 
