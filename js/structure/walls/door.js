@@ -1,16 +1,7 @@
-class Door extends createjs.Container {
+class Door extends Wall {
 
   constructor(ship, raw) {
-    super();
-
-    this.ship = ship;
-    this.pos = raw.pos;
-
-    var g = this.ship.grid_width;
-    var p = this.ship.padding;
-
-    this.drawing = new createjs.Container();
-    this.addChild(this.drawing);
+    super(ship, raw);
 
     this.open = 0;
     this.name = "door";
@@ -41,6 +32,14 @@ class Door extends createjs.Container {
 
     this.drawing = this.get_door_art(this.pos.ori, this.open);
     this.addChild(this.drawing);
+  }
+
+  static generate_raw(pos) {
+    return {
+      "type": "Door",
+      "pos": pos,
+      "progress": 0
+    };
   }
 
   get_door_art(ori, open) {

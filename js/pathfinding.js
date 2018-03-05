@@ -4,6 +4,7 @@ function get_path(from, to) {
   var graph = window.game.ship.graph;
   var start = graph.get_node(from);
   var end = graph.get_node(to);
+
   return astar.search(graph, start, end);
 }
 

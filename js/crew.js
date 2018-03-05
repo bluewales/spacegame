@@ -4,7 +4,7 @@
  */
 
 function p_to_s(p) {
-  return "(" + p.x + "," + p.y + "," + p.z + ")";
+  return pos_to_index(p);
 }
 
 class Crew extends createjs.Container {
@@ -32,12 +32,19 @@ class Crew extends createjs.Container {
 		// handle click
 		this.on('click', this.handle_click.bind(this));
 	}
-  move_towards(target) {
-    //console.log(p_to_s(this.pos) + " move toward " + p_to_s(target));
-    this.path = get_path(this.pos, target);
+  move_towards(p) {
+    //console.log(p_to_s(this.pos) + " move toward " + p_to_s(p));
+    this.path = get_path(this.pos, {x:p.x, y:p.y, z:p.z});
+    if(p.ori) {
+      var other_p = {"x":p.x+(p.ori=="|"?1:0), "y":p.y+(p.ori=="-"?1:0), "z":p.z};
+      var other_path = get_path(this.pos, other_p);
+      if(this.path.length > this.other_path.length) {
+        this.path = other_path;
+      }
+    }
     if(this.path.length == 0) {
       this.clear_path();
-      console.log("Path failed, we probably need to cancel this job. " + p_to_s(target));
+      console.log("Path failed, we probably need to cancel this job. " + p_to_s(p));
     }
   }
   tick(event) {

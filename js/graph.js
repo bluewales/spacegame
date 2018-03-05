@@ -128,20 +128,19 @@ class Graph {
     } else {
       var wall_pos = pos;
       if(dir == "north" || dir == "west") {
-        wall_pos = other_pos;
+        wall_pos = {"x":other_pos.x,"y":other_pos.y,"z":other_pos.z};
+      } else {
+        wall_pos = {"x":pos.x,"y":pos.y,"z":pos.z};
       }
       var orientation = this.orientations[dir];
-      var both_walls = get_3d(this.ship.walls, wall_pos);
-      if(!both_walls) {
-        return undefined;
-      } else {
-        var wall = both_walls[orientation];
-        return wall;
-      }
+      wall_pos.ori = orientation;
+      var wall = get_3d(this.ship.walls, wall_pos);
+      return wall;
     }
   }
 
   link_weight(pos, dir) {
+
     var to_pos = {
       "x":pos.x+this.neighbor_deltas[dir].x,
       "y":pos.y+this.neighbor_deltas[dir].y,
@@ -203,11 +202,12 @@ class Graph {
     this.ship.rooms.update_divider(pos, other_pos, dir);
   }
 
-  update_wall(pos, ori) {
+  update_wall(pos) {
     var ori = pos.ori;
+    var cell_pos = {"x":pos.x,"y":pos.y,"z":pos.z};
     var other_pos = {"x":pos.x+(ori=="|"?1:0),"y":pos.y+(ori=="-"?1:0),"z":pos.z};
     var dir = this.dir_by_ori[ori];
-    this.update_divider(pos, other_pos, dir);
+    this.update_divider(cell_pos, other_pos, dir);
   }
   update_floor(pos) {
     var other_pos = {"x":pos.x,"y":pos.y,"z":pos.z-1};
@@ -216,6 +216,15 @@ class Graph {
   update_furniture(pos) {
     this.update_bounding(pos);
     this.init_node(pos);
+  }
+
+  update_pos(pos) {
+    if(pos.ori) {
+      this.update_wall(pos);
+    } else {
+      this.update_floor(pos);
+      this.update_furniture(pos);
+    }
   }
 
   cleanDirty() {

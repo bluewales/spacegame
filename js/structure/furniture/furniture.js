@@ -1,16 +1,6 @@
-"use strict";
-
 class Furniture extends Structure {
 	constructor(ship, raw) {
-		super(raw);
-
-		this.ship = ship;
-		this.sprite = raw.sprite;
-
-		this.addChild(new createjs.Sprite(ship.sprites[raw.sprite].sprite, this.sprite));
-
-		this.x = this.ship.position_transform(this.pos.x);
-		this.y = this.ship.position_transform(this.pos.y);
+		super(ship, raw);
 
 		this.name = raw.sprite;
 	}
@@ -27,5 +17,8 @@ class Furniture extends Structure {
     this.raw.name = this.name;
     this.raw.sprite = this.sprite;
     return this.raw;
+  }
+  get layer() {
+    return "furniture";
   }
 }

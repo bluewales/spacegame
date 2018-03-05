@@ -1,13 +1,10 @@
 "use strict";
 
-class WallPanel extends createjs.Container {
+class WallPanel extends Wall {
 
   constructor(ship, raw) {
-    super(raw);
+    super(ship, raw);
 
-    this.ship = ship;
-    this.pos = raw.pos;
-		this.type = raw.type;
 
     var g = this.ship.grid_width;
     var p = this.ship.padding;
@@ -28,5 +25,13 @@ class WallPanel extends createjs.Container {
   }
   get traverse_weight() {
     return this.progress < 100 ? 1 : (this.passable ? 2 : 0);
+  }
+
+  static generate_raw(pos) {
+    return {
+      "type": "WallPanel",
+      "pos": pos,
+      "progress": 0
+    };
   }
 }

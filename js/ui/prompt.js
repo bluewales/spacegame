@@ -51,7 +51,6 @@ function create_account(callback, error_message=null) {
 }
 
 function remove_prompt() {
-  console.log("remove prmpt");
   var form_div = d3.select(".prompt_box");
   var ps = form_div.select("form")
     .selectAll("p")

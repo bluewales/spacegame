@@ -23,6 +23,17 @@ function create_wall(wall_type, pos) {
   window.game.jobs.create_job(job);
 }
 
+function construct_structure(type, pos) {
+  var raw = type.generate_raw(pos);
+  var structure = game.ship.add_structure(raw);
+  var job = new Construct(structure, this.build_pos);
+  job.on_complete = function(){game.ship.graph.update_pos(structure.pos);};
+
+  window.game.jobs.create_job(job);
+
+  console.log("build " + raw.type + " at " + pos_to_index(pos));
+}
+
 
 class Construct extends Job {
   constructor(structure, build_pos=false) {

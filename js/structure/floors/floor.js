@@ -1,22 +1,7 @@
 class Floor extends Structure {
  constructor(ship, raw) {
-		super(raw);
+		super(ship, raw);
 
-		this.ship = ship;
-		this.type = raw.type;
-
-		this.x = this.ship.position_transform(this.pos.x);
-		this.y = this.ship.position_transform(this.pos.y);
-
-    this.ship = ship;
-		this.raw = raw;
-		this.type = raw.type;
-		if(this.type == "hatch") this.component = new Hatch(ship, raw);
-		if(this.type == "plate") this.component = new FloorPlate(ship, raw);
-
-		if(this.sprite_key=="h") this.name = "hatch";
-
-		this.addChild(this.component);
 	}
   set name(value) {}
   get name() {
@@ -38,14 +23,13 @@ class Floor extends Structure {
     console.log("deconstruct " + this.name + " " + this.pos.x + ","+this.pos.y + "," + this.pos.z);
     this.ship.remove_floor(this.pos);
   }
-  tick(event) {
-    if(this.component.tick) this.component.tick(event);
-  }
   get_raw() {
     this.raw.pos = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
     this.raw.progress = this.progress;
-    this.raw.name = this.name;
     this.raw.type = this.type;
     return this.raw;
+  }
+  get layer() {
+    return "floor";
   }
 }

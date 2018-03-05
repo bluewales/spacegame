@@ -64,12 +64,17 @@ class Ship extends createjs.Container {
 
     var floors = raw.floors;
   	for(var i = 0; i < floors.length; i++) {
-  		this.add_floor(floors[i]);
+  		this.add_structure(floors[i]);
   	}
 
 		var walls = raw.walls;
   	for(var i = 0; i < walls.length; i++) {
-  		this.add_wall(walls[i]);
+  		this.add_structure(walls[i]);
+  	}
+
+    var furniture = raw.furniture;
+  	for(var i = 0; i < furniture.length; i++) {
+  		this.add_structure(furniture[i]);
   	}
 
   	var crew = raw.crew;
@@ -77,17 +82,13 @@ class Ship extends createjs.Container {
   		this.add_crew_member(crew[i]);
   	}
 
-    var furniture = raw.furniture;
-  	for(var i = 0; i < furniture.length; i++) {
-  		this.add_furniture(furniture[i]);
-  	}
+
 	}
 
   get_raw() {
     this.raw = {"walls": [], "floors":[], "crew": [], "furniture": []};
     for (var thing of iterate_3d(this.walls)) {
-      if(thing['-']) this.raw.walls.push(thing['-'].get_raw());
-      if(thing['|']) this.raw.walls.push(thing['|'].get_raw());
+      this.raw.walls.push(thing.get_raw());
     }
     for (var thing of iterate_3d(this.floors)) {
       this.raw.floors.push(thing.get_raw());
@@ -150,10 +151,39 @@ class Ship extends createjs.Container {
 		if(place !== undefined) set_3d(place, pos, thing);
 		this.levels[pos.z].add(thing, layer);
   }
-  add_floor(floor_raw) {
-    var floor = new Floor(this, floor_raw);
-    this.add_thing(floor.pos, this.floors, floor, this.floor_layer);
-		this.graph.update_floor(floor.pos);
+  get_layer_from_string(str) {
+    switch(str) {
+      case "floor":
+        return this.floor_layer;
+      case "wall":
+        return this.wall_layer;
+      case "furniture":
+        return this.furniture_layer;
+      default:
+        console.log("ERROR cannot find layer '" + str + "'");
+        return undefined;
+    }
+  }
+  get_place_from_string(str) {
+    switch(str) {
+      case "floor":
+        return this.floors;
+      case "wall":
+        return this.walls;
+      case "furniture":
+        return this.furniture;
+      default:
+        console.log("ERROR cannot find place '" + str + "'");
+        return undefined;
+    }
+  }
+  add_structure(raw) {
+    var structure = Structure.createStructure(this, raw);
+    var layer = this.get_layer_from_string(structure.layer);
+    var place = this.get_place_from_string(structure.layer);
+    this.add_thing(structure.pos, place, structure, layer);
+    this.graph.update_pos(structure.pos);
+    return structure;
   }
   get_floor(pos) {
     return get_3d(this.floors, pos);
@@ -162,40 +192,24 @@ class Ship extends createjs.Container {
     var floor = get_3d(this.floors, pos);
     this.levels[pos.z].remove(floor, this.floor_layer);
     set_3d(this.floors, pos, undefined);
-    this.graph.update_floor(pos);
+    this.graph.update_pos(pos);
   }
-  add_wall(wall_raw) {
-    var wall = new Wall(this, wall_raw);
-
-		if(this.levels[wall.pos.z] === undefined)
-			this.levels[wall.pos.z] = new Level();
-		this.levels[wall.pos.z].add(wall, this.wall_layer);
-
-		var both_walls = get_3d(this.walls, wall_raw.pos);
-		if(!both_walls) {
-			set_3d(this.walls, wall.pos, {});
-			both_walls = get_3d(this.walls, wall_raw.pos);
-		}
-		if(both_walls[wall.pos.ori]) {
-			this.remove_wall(wall.pos);
-		}
-		both_walls[wall.pos.ori] = wall;
-		this.graph.update_wall(wall.pos);
+  get_wall(pos) {
+    return get_3d(this.walls, pos);
   }
 	remove_wall(pos) {
-		var both_walls = get_3d(this.walls, pos);
-		if(!both_walls) return;
-		var wall = both_walls[pos.ori];
-		if(!wall) return;
+    var floor = get_3d(this.walls, pos);
 		this.levels[pos.z].remove(wall, this.wall_layer);
-		both_walls[wall_dir] = undefined;
-		this.graph.update_wall(pos, wall_dir);
+		set_3d(this.walls, pos, undefined);
+		this.graph.update_pos(pos);
 	}
-  get_wall(pos) {
-    var both_walls = get_3d(this.walls, pos);
-		if(!both_walls) return undefined;
-		return both_walls[pos.ori];
+  remove_furniture(pos) {
+    var furniture = get_3d(this.furniture, pos);
+    this.levels[pos.z].remove(furniture, this.furniture_layer);
+    set_3d(this.furniture, pos, undefined);
+    this.graph.update_pos(pos);
   }
+
   add_crew_member(crew_raw) {
 		var crew_member = new Crew(this, crew_raw);
     this.add_thing(crew_member.pos, this.crew, crew_member, this.crew_layer);
@@ -211,17 +225,7 @@ class Ship extends createjs.Container {
 			this.add_thing(p, this.crew, crew_member, this.crew_layer);
 		}
 	}
-	add_furniture(furniture_raw) {
-		var furniture = new Furniture(this, furniture_raw);
-    this.add_thing(furniture.pos, this.furniture, furniture, this.furniture_layer);
-		this.graph.update_furniture(furniture.pos);
-  }
-  remove_furniture(pos) {
-    var furniture = get_3d(this.furniture, pos);
-    this.levels[pos.z].remove(furniture, this.furniture_layer);
-    set_3d(this.furniture, pos, undefined);
-    this.graph.update_furniture(pos);
-  }
+
 
 	draw_highlight(pos) {
 		var grid = this.grid_width+this.padding*2;

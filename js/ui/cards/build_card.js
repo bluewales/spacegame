@@ -2,13 +2,13 @@ class BuildCard extends Card {
   constructor(button) {
 
     var items = [
-      {"name":"wall", "type":"wall", "target":WallPanel},
-      {"name":"floor", "type":"floor", "target":FloorPlate},
-      {"name":"door", "type":"wall", "target":Door},
-      {"name":"hatch", "type":"floor", "target":Hatch},
-      {"name":"barrel", "type":"furniture", "target":true},
-      {"name":"crate", "type":"furniture", "target":true},
-      {"name":"destroy", "target":true}
+      {"name":"wall", "grid":"wall", "type":WallPanel},
+      {"name":"floor", "grid":"cell", "type":FloorPlate},
+      {"name":"door", "grid":"wall", "type":Door},
+      {"name":"hatch", "grid":"cell", "type":Hatch},
+      {"name":"barrel", "grid":"cell", "type":Barrel},
+      {"name":"crate", "grid":"cell", "type":Crate},
+      {"name":"destroy", "type":true}
     ];
 
     var item_width = 48;
@@ -57,15 +57,20 @@ class BuildCard extends Card {
         this.items[i].button.active = false;
       }
     }
-    game.build_cell_cursor = false;
-    game.build_wall_cursor = false;
+    game.cell_cursor = false;
+    game.wall_cursor = false;
     if(!item) return;
 
     if(activating) {
-      if(item.type == "wall") {
-        game.build_wall_cursor = item.target;
+
+      var build_callback = function(pos) {
+        construct_structure(item.type, pos);
+      };
+
+      if(item.grid == "wall") {
+        game.wall_cursor = build_callback;
       } else {
-        game.build_cell_cursor = item.target;
+        game.cell_cursor = build_callback;
       }
     }
   }

@@ -1,9 +1,8 @@
-class Hatch extends createjs.Container {
+class Hatch extends Floor {
 
   constructor(ship, raw) {
-    super(raw);
+    super(ship, raw);
 
-    this.ship = ship;
 		this.type = raw.type;
     this.sprite_key = "h";
     this.pos = raw.pos;
@@ -45,10 +44,9 @@ class Hatch extends createjs.Container {
 
   static generate_raw(pos) {
     return {
-  		"type": "hatch",
+  		"type": "Hatch",
   		"pos": pos,
-  		"progress": 100,
-  		"name": "hatch"
+  		"progress": 0
   	};
   }
 

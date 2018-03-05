@@ -3,18 +3,12 @@
 class Wall extends Structure {
 
   constructor(ship, raw) {
-    super(raw);
+    super(ship, raw);
 
-    this.ship = ship;
-		this.raw = raw;
-		this.type = raw.type;
-		if(this.type == "door") this.component = new Door(ship, raw);
-		if(this.type == "panel") this.component = new WallPanel(ship, raw);
 
-    this.x = this.ship.position_transform(this.pos.x);
-    this.y = this.ship.position_transform(this.pos.y);
 
-    this.addChild(this.component);
+
+
   }
 	get ori() {
 		return this.component.ori;
@@ -40,14 +34,13 @@ class Wall extends Structure {
     console.log("deconstruct " + this.name + " " + this.pos.x + "," + this.pos.y + "," + this.pos.z);
     this.ship.remove_wall(this.pos, this.ori);
   }
-  tick(event) {
-    if(this.component.tick) this.component.tick(event);
-  }
   get_raw() {
     this.raw.pos = this.pos;
     this.raw.progress = this.progress;
-    this.raw.name = this.name;
     this.raw.type = this.type;
     return this.raw;
+  }
+  get layer() {
+    return "wall";
   }
 }

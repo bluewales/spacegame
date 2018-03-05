@@ -1,12 +1,8 @@
-"use strict";
-
-class FloorPlate extends createjs.Container {
+class FloorPlate extends Floor {
 
   constructor(ship, raw) {
-    super();
+    super(ship, raw);
 
-    this.ship = ship;
-		this.type = raw.type;
     this.sprite_key = "X";
 
     var grid = this.ship.grid_width+this.ship.padding*2;
@@ -27,9 +23,9 @@ class FloorPlate extends createjs.Container {
 
   static generate_raw(pos) {
     return {
-  		"type": "plate",
+  		"type": "FloorPlate",
   		"pos": pos,
-  		"name": "floor"
+  		"progress": 0
   	};
   }
 

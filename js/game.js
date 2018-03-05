@@ -112,7 +112,9 @@ class Game {
       "floor": {"source": "js/structure/floors/floor.js"},
       "floor_plate": {"source": "js/structure/floors/floor_plate.js"},
       "hatch": {"source": "js/structure/floors/hatch.js"},
-      "furniture": {"source": "js/furniture.js"},
+      "furniture": {"source": "js/structure/furniture/furniture.js"},
+      "crate": {"source": "js/structure/furniture/crate.js"},
+      "barrel": {"source": "js/structure/furniture/barrel.js"},
     	"ship": {"source": "js/ship.js"},
     	"graph": {"source": "js/graph.js"},
       "construction": {"source": "js/construction.js"},
@@ -319,7 +321,6 @@ class Game {
 
     this.crew_ticks = 0;
 
-
     var ctx = this.canvas.getContext('2d');
     ctx.mozImageSmoothingEnabled = false;
     ctx.webkitImageSmoothingEnabled = false;
@@ -367,17 +368,17 @@ class Game {
       this.save();
     }
 
-    if(this.build_cell_cursor || this.build_wall_cursor) {
+    if(this.cell_cursor || this.wall_cursor) {
       var mouse_hits_ui = this.hud.hitTest(this.stage.mouseX, this.stage.mouseY) || this.card_table.hitTest(this.stage.mouseX, this.stage.mouseY);
 
       if(mouse_hits_ui) {
         this.clear_highlight();
       } else {
-        if(this.build_cell_cursor) {
+        if(this.cell_cursor) {
           var pos = this.pos_from_coord(this.stage.mouseX, this.stage.mouseY);
           this.highlight_square(pos);
         }
-        if(this.build_wall_cursor) {
+        if(this.wall_cursor) {
           var pos = this.wall_pos_from_coord(this.stage.mouseX, this.stage.mouseY);
           this.highlight_square(pos);
         }
@@ -443,10 +444,13 @@ class Game {
   }
   handle_click(event) {
     var pos = this.pos_from_coord(event.stageX, event.stageY);
+    var wall_pos = this.wall_pos_from_coord(event.stageX, event.stageY);
 
-    if(this.build_cell_cursor && this.build_cell_cursor !== true) {
-      console.log("build a " + this.build_cell_cursor.name);
-      create_floor(this.build_cell_cursor, pos);
+    if(this.cell_cursor) {
+      this.cell_cursor(pos);
+    }
+    if(this.wall_cursor) {
+      this.wall_cursor(wall_pos);
     }
   }
 
@@ -461,7 +465,7 @@ class Game {
       "x": x,
       "y": y,
       "z": this.z_level
-    }
+    };
     return pos;
   }
 
@@ -474,8 +478,6 @@ class Game {
     var y = (stageY-centerY-this.pan_y*real_zoom_multiplier) / (grid*real_zoom_multiplier);
     var px = x % 1 + (x < 0?1:0);
     var py = y % 1 + (y < 0?1:0);
-
-    console.log(px + " " + py);
 
     var step_back = 1-px > py;
     var ori = "-";
@@ -499,7 +501,7 @@ class Game {
       "y": Math.floor(y),
       "z": this.z_level,
       "ori": ori
-    }
+    };
     return pos;
   }
 

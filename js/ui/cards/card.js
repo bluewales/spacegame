@@ -15,6 +15,9 @@ class Card extends createjs.Container {
 
     this.button = button;
 
+    this.on("click", function(event) {this.frame.click(event);});
+    this.on("mousedown", function(event) {this.frame.mousedown(event);});
+
     game.card_table.register(this);
   }
   deactivate() {}

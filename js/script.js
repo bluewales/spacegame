@@ -11,15 +11,13 @@ function* iterate_3d(place) {
 		place.index = 0;
 		place.changed = false;
 		for(var z in place.d) {
-			for(var y in place.d[z]) {
-				for(var x in place.d[z][y]) {
-					var thing = place.d[z][y][x];
-					if(thing !== undefined) {
-						if(place.index < place.iter.length) place.iter[place.index] = thing;
-						else place.iter.push(thing);
-						place.index++;
-					}
-				}
+			var thing = place.d[z];
+			if(thing !== undefined) {
+				if(place.index < place.iter.length)
+					place.iter[place.index] = thing;
+				else
+					place.iter.push(thing);
+				place.index++;
 			}
 		}
 	}
@@ -29,19 +27,22 @@ function* iterate_3d(place) {
 	}
 }
 
+function pos_to_index(p) {
+	var dim = p.ori ? p.ori : ",";
+
+	return p.x + dim + p.y + dim + p.z;
+}
+
 function get_3d(place, p) {
-	if(place.d && place.d[p.z] && place.d[p.z][p.y]) {
-		return place.d[p.z][p.y][p.x];
-	} else {
-		return undefined;
-	}
+	var index = pos_to_index(p);
+	if(place.d === undefined) return undefined;
+	return place.d[index];
 }
 
 function set_3d(place, p, thing) {
+	var index = pos_to_index(p);
 	if(place.d === undefined) place.d = {};
-	if(place.d[p.z] === undefined) place.d[p.z] = {};
-	if(place.d[p.z][p.y] === undefined) place.d[p.z][p.y] = {};
-	place.d[p.z][p.y][p.x] = thing;
+	place.d[index] = thing;
 	place.changed = true;
 }
 
