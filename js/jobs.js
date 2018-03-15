@@ -1,5 +1,3 @@
-"use strict";
-
 class Jobs {
   constructor() {
     this.queue = [];
@@ -7,15 +5,24 @@ class Jobs {
 
   create_job(job) {
     this.queue.push(job);
+    job.job_queue = this;
   }
 
   get_job(crew) {
-    shuffle_array(this.queue);
+    var distance = undefined;
+    var closest = undefined;
     for(var i = this.queue.length-1; i >= 0; i--) {
       if(!this.queue[i].active) {
-        this.queue[i].active = true;
-        return this.queue[i];
+        var d = walled_distance(crew.pos, this.queue[i].pos);
+        if(closest === undefined || d < distance) {
+          distance = d;
+          closest = this.queue[i];
+        }
       }
+    }
+    if(closest) {
+      closest.active = true;
+      return closest;
     }
   }
 
@@ -33,14 +40,17 @@ class Job {
   constructor() {
     this.active = false;
   }
+  init(raw, objects) {
+    this.active = raw.active;
+  }
   work(crew) {
     console.log("Default Job cannot be worked, is always done.")
-    return True;
+    return true;
   }
   // leave this one alone, it belongs to the super class
   complete() {
     this.on_complete();
-    window.game.jobs.complete_job(this);
+    this.job_queue.complete_job(this);
   }
   // overwrite this one, it's supposed to be overwritten by the child class
   on_complete(){}
@@ -50,14 +60,25 @@ class Patrol extends Job {
   constructor(points) {
     super();
     this.current_point = 0;
-    this.points = points;
     this.count = 0;
+    if(points) {
+      this.points = points;
+      this.pos = this.points[0];
+    }
   }
+  init(raw, objects) {
+    super.init(raw, objects);
+    this.current_point = raw.current_point;
+    this.points = raw.points;
+    this.count = raw.count;
+    this.pos = this.points[0];
+  }
+  start(raw, objects) {}
   work(crew) {
     var p = crew.pos;
     var tp = this.points[this.current_point];
 
-    if(p.x==tp.x && p.y==tp.y && p.z==tp.z) {
+    if(walled_distance(p, tp) == 0) {
       if(this.count++ >= 30) {
         this.count = 0;
         this.current_point = (this.current_point + 1);
@@ -69,5 +90,14 @@ class Patrol extends Job {
     return false;
   }
   on_complete() {
+  }
+  get_raw(callback) {
+    this.raw = {};
+    this.raw.current_point = this.current_point;
+    this.raw.points = this.points;
+    this.raw.count = this.count;
+    this.raw.active = this.active;
+    this.raw.type = "Patrol";
+    callback(this, this.raw);
   }
 }

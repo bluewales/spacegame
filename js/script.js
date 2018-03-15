@@ -56,6 +56,18 @@ function shuffle_array(a) {
     }
 }
 
+function copy_pos(pos) {
+	return {"x": pos.x, "y":pos.y, "z":pos.z, "ori":pos.ori};
+}
+
+function copy_posses(posses) {
+	var result = [];
+	for(var i = 0; i < posses.length; i++) {
+		result.push(copy_pos( posses[i]));
+	}
+	return result;
+}
+
 function create_polygon(color, points, shape) {
 	if(shape === undefined) {
 		shape = new createjs.Shape();

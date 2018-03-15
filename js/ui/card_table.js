@@ -29,4 +29,22 @@ class CardTable extends createjs.Container {
       this.cards.push(card);
     }
   }
+  tick(width, height) {
+    var cards = this.children;
+    var margin = 20;
+    for(var i = 0; i < cards.length; i++) {
+      if(cards[i].x < margin - cards[i].width) {
+        cards[i].x = margin - cards[i].width;
+      }
+      if(cards[i].x > width - margin) {
+        cards[i].x = width - margin;
+      }
+      if(cards[i].y < margin - cards[i].height) {
+        cards[i].y = margin - cards[i].height;
+      }
+      if(cards[i].y > height - margin) {
+        cards[i].y = height - margin;
+      }
+    }
+  }
 }

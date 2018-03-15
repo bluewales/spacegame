@@ -1,5 +1,3 @@
-"use strict";
-
 class Graph {
   constructor(ship) {
     this.three_d = {};

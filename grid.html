@@ -16,8 +16,8 @@
 	var height = 800;
 	c.width = width;
 	c.height = height;
-    
-    var cells = 20;
+
+  var cells = 20;
 
 	var grid_width = width / cells;
 	var waggle = grid_width / 4;
@@ -28,9 +28,9 @@
 	var y_velocity = [];
 
 	var dv = 0.02;
-    
-    var x_walk = Math.round(cells / 2);
-    var y_walk = Math.round(cells / 2);
+
+  var x_walk = Math.round(cells / 2);
+  var y_walk = Math.round(cells / 2);
 
 	for(var i = 0; i < width / grid_width; i++) {
 		var x = i * grid_width + grid_width/2;
@@ -42,7 +42,7 @@
 		y_spacing.push([y,y]);
 		y_velocity.push([0,0]);
 	}
-    
+
     var count = 1000;
     var path = [];
 
@@ -138,14 +138,14 @@
 		}
 */
 
-        
+
         count += 1;
-        
+
         if(count > 1) {
-        
+
             path.push([x_walk, y_walk]);
-            
-            
+
+
             var d = 0;
             if(Math.random() > 0.5) {
                 d = -1;
@@ -169,10 +169,10 @@
             if(y_walk > cells-2) {
                 y_walk = cells-2;
             }
-            
+
             count = 0;
         }
-        
+
         for(var i = 0; i < path.length; i++) {
             var start = [path[i][0], path[i][1]];
             var end = [path[i][0]+1, path[i][1]+1];

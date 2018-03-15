@@ -1,24 +1,33 @@
 class Furniture extends Structure {
-	constructor(ship, raw) {
-		super(ship, raw);
+	constructor() {
+		super();
+	}
+	init(raw, objects) {
+		super.init(raw, objects);
 
 		this.name = raw.sprite;
 	}
-	get_menu_item() {
-    return {"name":this.name, "list":[{"name":"deconstruct", "handle":this.deconstruct.bind(this)}]}
+
+  start(raw, objects) {
+    super.start(raw, objects);
   }
 	deconstruct() {
     console.log("deconstruct " + this.name + " " + this.pos.x + ","+this.pos.y + "," + this.pos.z);
 		this.ship.remove_furniture(this.pos);
   }
-	get_raw() {
-    this.raw.location = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
+	get_raw(callback) {
+		this.raw = {};
+    this.raw.pos = {x:this.pos.x, y:this.pos.y, z:this.pos.z};
 		this.raw.progress = this.progress;
-    this.raw.name = this.name;
-    this.raw.sprite = this.sprite;
-    return this.raw;
+		this.raw.ship = this.ship.id;
+		this.raw.type = this.type;
+    callback(this, this.raw);
   }
   get layer() {
     return "furniture";
+  }
+  static can_build(pos) {
+    if(game.ship.get_furniture(pos)) return false;
+    return true;
   }
 }

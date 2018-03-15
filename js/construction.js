@@ -2,50 +2,46 @@
  * Created by ldavidson on 7/13/2017.
  */
 
-function create_floor(floor_type, pos) {
-
-  var existing_floor = window.game.ship.get_floor(pos);
-  if(existing_floor) return;
-
-  var raw = floor_type.generate_raw(pos);
-  window.game.ship.add_floor(raw);
-  var floor = window.game.ship.get_floor(pos);
-  var job = new Construct(floor);
-  job.on_complete = function(){game.ship.graph.update_floor(this.structure.pos);};
-  window.game.jobs.create_job(job);
-}
-
-function create_wall(wall_type, pos) {
-  window.game.ship.add_wall(this);
-  var wall = window.game.ship.get_wall(this.location, this.orientation);
-  var job = new Construct(wall, this.build_pos);
-  job.on_complete = function(){game.ship.graph.update_wall(this.structure.pos, this.structure.ori);};
-  window.game.jobs.create_job(job);
-}
 
 function construct_structure(type, pos) {
+  if(!type.can_build(pos)) {
+    return;
+  }
   var raw = type.generate_raw(pos);
-  var structure = game.ship.add_structure(raw);
+  var structure = new type();
+  structure.init(raw);
+  structure.start(raw);
+  game.ship.add_structure(structure);
   var job = new Construct(structure, this.build_pos);
   job.on_complete = function(){game.ship.graph.update_pos(structure.pos);};
 
-  window.game.jobs.create_job(job);
+  game.ship.jobs.create_job(job);
 
   console.log("build " + raw.type + " at " + pos_to_index(pos));
 }
 
 
 class Construct extends Job {
-  constructor(structure, build_pos=false) {
+  constructor(structure) {
     super();
-    this.structure = structure;
-    this.buid_pos = build_pos || structure.pos;
+    if(structure) {
+      this.structure = structure;
+      this.pos = this.structure.pos;
+    }
   }
+  init(raw, objects) {
+    super.init(raw, objects);
+    this.structure = objects[raw.structure];
+    this.pos = this.structure.pos;
+  }
+  start(raw, objects) {
+  }
+
   work(crew) {
     var p = crew.pos;
-    var tp = this.buid_pos;
+    var tp = this.pos;
 
-    if(p.x==tp.x && p.y==tp.y && p.z==tp.z) {
+    if(walled_distance(p, tp) == 0) {
       this.structure.progress = this.structure.progress+1;
       if(this.structure.progress >= 100) {
           return true;
@@ -55,7 +51,16 @@ class Construct extends Job {
     }
     return false;
   }
+
   on_complete() {
     this.structure.ship.graph.init_node(this.structure.pos);
+  }
+
+  get_raw(callback) {
+    this.raw = {};
+    this.raw.structure = this.structure.id;
+    this.raw.count = this.count;
+    this.raw.type = "Construct";
+    callback(this, this.raw);
   }
 }

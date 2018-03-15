@@ -1,7 +1,10 @@
 class Hatch extends Floor {
 
-  constructor(ship, raw) {
-    super(ship, raw);
+  constructor() {
+    super();
+  }
+  init(raw, objects) {
+    super.init(raw, objects);
 
 		this.type = raw.type;
     this.sprite_key = "h";
@@ -12,13 +15,16 @@ class Hatch extends Floor {
 		this.skirt.graphics.beginFill(ship_palette[0])
 			.drawRect(-this.ship.padding, -this.ship.padding, grid, grid);
 		this.addChild(this.skirt);
-		//this.addChild(new createjs.Sprite(this.ship.sprites[this.sprite_key].sprite, this.sprite_key));
+		//this.addChild(new createjs.Sprite(game.ship.sprites[this.sprite_key].sprite, this.sprite_key));
 
     this.open = 0;
 
     this.drawing = new createjs.Container();
     this.addChild(this.drawing);
     this.name = "hatch";
+  }
+  start(raw, objects) {
+    super.start(raw, objects);
   }
   get passable() {
     return true;
@@ -29,13 +35,14 @@ class Hatch extends Floor {
   tick(event) {
     var other_pos = {"x":this.pos.x,"y":this.pos.y, "z":this.pos.z-1};
 
-    if(get_3d(window.game.ship.crew, this.pos) || get_3d(window.game.ship.crew, other_pos)) {
+    if(get_3d(game.ship.crew, this.pos) || get_3d(game.ship.crew, other_pos)) {
       this.open += 1/32;
       if(this.open > 1) this.open = 1;
     } else {
       this.open -= 1/32;
       if(this.open < 0) this.open = 0;
     }
+    if(this.progress < 100) this.open = 0;
 
     this.removeChild(this.drawing);
     this.drawing = this.get_hatch_art(this.open);
@@ -54,8 +61,8 @@ class Hatch extends Floor {
     if(!this.hatch_art) this.hatch_art = {};
     if(!this.hatch_art[open]) {
 
-      var g = window.game.ship.grid_width;
-      var p = window.game.ship.padding;
+      var g = game.ship.grid_width;
+      var p = game.ship.padding;
       var o = open;
 
       var drawing = new createjs.Container();

@@ -1,10 +1,15 @@
 class Door extends Wall {
 
-  constructor(ship, raw) {
-    super(ship, raw);
+  constructor() {
+    super();
+  }
+  init(raw, objects) {
+    super.init(raw, objects);
 
     this.open = 0;
-    this.name = "door";
+  }
+  start(raw, objects) {
+    super.start(raw, objects);
   }
   get passable() {
     return true;
@@ -19,14 +24,16 @@ class Door extends Wall {
     }]};
   }
   tick(event) {
-    var other_pos = {"x":this.pos.x+(this.pos.ori=="|"?1:0),"y":this.pos.y+(this.pos.ori=="-"?1:0), "z":this.pos.z};
-    if(get_3d(window.game.ship.crew, this.pos) || get_3d(window.game.ship.crew, other_pos)) {
+    var pos = {x:this.pos.x, y:this.pos.y, z:this.pos.z};
+    var other_pos = {x:this.pos.x+(this.pos.ori=="|"?1:0),y:this.pos.y+(this.pos.ori=="-"?1:0), z:this.pos.z};
+    if(get_3d(window.game.ship.crew, pos) || get_3d(window.game.ship.crew, other_pos)) {
       this.open += 1/25;
       if(this.open > 1) this.open = 1;
     } else {
       this.open -= 1/25;
       if(this.open < 0) this.open = 0;
     }
+    if(this.progress < 100) this.open = 0;
 
     this.removeChild(this.drawing);
 

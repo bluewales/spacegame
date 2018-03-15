@@ -7,13 +7,15 @@
 
 class Game {
   constructor() {
-    this.width = d3.select("canvas").node().getBoundingClientRect().width;
-    this.height = d3.select("canvas").node().getBoundingClientRect().height;
+    this.width = d3.select("canvas").node().getBoundingClientRect().width - 1;
+    this.height = d3.select("canvas").node().getBoundingClientRect().height - 1;
 
     this.pan_x = 0;
     this.pan_y = 0;
     this.z_level = 1;
-    this.zoom = 15;
+    this.zoom = 16;
+
+    this.index = {};
 
     d3.select("canvas")
         .attr("width", this.width)
@@ -53,8 +55,8 @@ class Game {
       },*/
 
       /* Structure */
-      /* floors */
-      "X": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_01.png"]},
+      /* Floors */
+      "floor_plate": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_01.png"]},
 
       /* Furniture */
       "crate": {"sources": ["img/sliced/world_sliced/images/oryx_16bit_scifi_world_679.png"]},
@@ -63,8 +65,10 @@ class Game {
       /* Background */
       "background": {"sources": ["img/mars.jpg"]},
 
+      /* Items */
+      "steel_sprite": {"sources": ["img/items/steel-plate.png"]},
+
       /* Effects */
-      /*
       "sparks_1": {
         "sources": [
           "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_79.png",
@@ -88,7 +92,7 @@ class Game {
           "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_82.png",
           "img/sliced/FX_sm_sliced/images/oryx_16bit_scifi_FX_sm_92.png"
         ]
-      },*/
+      },
 
       /* UI */
       "pinned": {"sources": ["img/ui/pinned.png"]},
@@ -97,40 +101,42 @@ class Game {
 
     this.sources = {
       /* javascript */
-      "palettes": {"source": "js/palettes.js"},
-      "menu": {"source": "js/menu.js"},
-      "d3": {"source": "js/lib/d3.js"},
-    	"easel": {"source": "js/lib/easeljs-0.8.2.min.js"},
-    	"astar": {"source": "js/lib/astar.js"},
-    	"pathfinding": {"source": "js/pathfinding.js"},
+      "api": {"source": "js/api.js"},
+      "astar": {"source": "js/lib/astar.js"},
+      "easel": {"source": "js/lib/easeljs-0.8.2.min.js"},
       "structure": {"source": "js/structure/structure.js"},
-    	"jobs": {"source": "js/jobs.js"},
-    	"crew": {"source": "js/crew.js"},
+      "furniture": {"source": "js/structure/furniture/furniture.js"},
+      "barrel": {"source": "js/structure/furniture/barrel.js"},
+      "bottom_bar": {"source": "js/ui/bottom_bar.js"},
+      "card": {"source": "js/ui/cards/card.js"},
+      "build_card": {"source": "js/ui/cards/build_card.js"},
+      "button": {"source": "js/ui/button.js"},
+      "card_frame": {"source": "js/ui/cards/card_frame.js"},
+      "card_table": {"source": "js/ui/card_table.js"},
+      "jobs": {"source": "js/jobs.js"},
+      "construction": {"source": "js/construction.js"},
+      "controls_card": {"source": "js/ui/cards/controls_card.js"},
+      "crate": {"source": "js/structure/furniture/crate.js"},
+      "crew": {"source": "js/crew.js"},
+      "d3": {"source": "js/lib/d3.js"},
       "wall": {"source": "js/structure/walls/wall.js"},
-      "wall_panel": {"source": "js/structure/walls/wall_panel.js"},
       "door": {"source": "js/structure/walls/door.js"},
       "floor": {"source": "js/structure/floors/floor.js"},
       "floor_plate": {"source": "js/structure/floors/floor_plate.js"},
+      "graph": {"source": "js/graph.js"},
       "hatch": {"source": "js/structure/floors/hatch.js"},
-      "furniture": {"source": "js/structure/furniture/furniture.js"},
-      "crate": {"source": "js/structure/furniture/crate.js"},
-      "barrel": {"source": "js/structure/furniture/barrel.js"},
-    	"ship": {"source": "js/ship.js"},
-    	"graph": {"source": "js/graph.js"},
-      "construction": {"source": "js/construction.js"},
-      "rooms": {"source": "js/rooms.js"},
-      "api": {"source": "js/api.js"},
-      "prompt": {"source": "js/ui/prompt.js"},
-      "ui_level": {"source": "js/ui/level.js"},
       "hud": {"source": "js/ui/hud.js"},
-      "bottom_bar": {"source": "js/ui/bottom_bar.js"},
+      "palettes": {"source": "js/palettes.js"},
+    	"pathfinding": {"source": "js/pathfinding.js"},
+      "prompt": {"source": "js/ui/prompt.js"},
+      "rooms": {"source": "js/rooms.js"},
+      "ship": {"source": "js/ship.js"},
       "top_bar": {"source": "js/ui/top_bar.js"},
-      "button": {"source": "js/ui/button.js"},
-      "card": {"source": "js/ui/cards/card.js"},
-      "card_table": {"source": "js/ui/card_table.js"},
-      "card_frame": {"source": "js/ui/cards/card_frame.js"},
-      "controls_card": {"source": "js/ui/cards/controls_card.js"},
-      "build_card": {"source": "js/ui/cards/build_card.js"},
+      "wall_panel": {"source": "js/structure/walls/wall_panel.js"},
+      "ui_level": {"source": "js/ui/level.js"},
+      "item": {"source": "js/items/item.js"},
+      "steel": {"source": "js/items/steel.js"},
+      "serialization": {"source": "js/serialization.js"},
     };
 
 
@@ -242,10 +248,7 @@ class Game {
       source.sprite = new createjs.SpriteSheet(sprite_obj);
     }
 
-    this.things = this.loader.getResult("things");
-
-  	var raw_ship = JSON.parse(this.game_state);
-  	this.ship = new Ship(this.sprites, raw_ship);
+  	this.ship = deserialize(this.game_state);
 
   	this.ship.set_display_level(this.z_level);
 
@@ -265,12 +268,12 @@ class Game {
 
 
 
-
     this.space = new createjs.Container();
     this.space.addChild(this.ship);
     this.space.on("click", this.handle_click.bind(this));
 
     this.card_table = new CardTable();
+
     this.hud = new HUD();
     this.hud.addChild(this.ui_level);
     this.hud.on("click", function(evt){}.bind(this));
@@ -285,13 +288,7 @@ class Game {
 
 
 
-    this.jobs = new Jobs();
 
-    this.jobs.create_job(new Patrol([
-      {"x":0,"y":0,"z":-1},
-      {"x":2,"y":2,"z":1},
-      {"x":0,"y":0,"z":0}
-    ]));
 
   	createjs.Ticker.setFPS(32);
   	createjs.Ticker.on("tick", this.tick.bind(this));
@@ -341,6 +338,9 @@ class Game {
         .clear()
         .beginBitmapFill(this.bg_img, "repeat")
         .drawRect(0,0,this.width,this.height);
+
+        this.hud.tick(this.width, this.height);
+        this.card_table.tick(this.width, this.height);
     }
 
     var centerX = this.canvas.width/2;
@@ -359,7 +359,7 @@ class Game {
     if(this.currentlyPressedKeys[87]) this.pan(0, -5);
 
     this.ship.tick(event);
-    this.hud.tick(this.width, this.height);
+
 
     this.stage.update(event);
 
@@ -474,8 +474,8 @@ class Game {
     var centerY = this.canvas.height / 2;
     var real_zoom_multiplier = Math.pow(seventh_root_of_two, this.zoom);
     var grid = this.ship.grid_width + (this.ship.padding*2);
-    var x = (stageX-centerX-this.pan_x*real_zoom_multiplier) / (grid*real_zoom_multiplier);
-    var y = (stageY-centerY-this.pan_y*real_zoom_multiplier) / (grid*real_zoom_multiplier);
+    var x = (stageX - centerX - this.pan_x*real_zoom_multiplier) / (grid*real_zoom_multiplier);
+    var y = (stageY - centerY - this.pan_y*real_zoom_multiplier) / (grid*real_zoom_multiplier);
     var px = x % 1 + (x < 0?1:0);
     var py = y % 1 + (y < 0?1:0);
 
@@ -506,7 +506,8 @@ class Game {
   }
 
   save() {
-    this.game_state = this.ship.get_raw();
+    this.game_state = serialize(this.ship);
+    console.log(this.game_state);
     this.api.upload_save_state(this.game_state);
   }
 }

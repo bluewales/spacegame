@@ -1,0 +1,76 @@
+{
+	"ship": {
+		"wall": [
+			{"type":"WallPanel", "pos": {"x": -1, "y": 0, "z": 0, "ori":"|"}, "progress": 100, "id":1},
+			{"type":"WallPanel", "pos": {"x": -1, "y": 1, "z": 0, "ori":"|"}, "progress": 100, "id":2},
+			{"type":"WallPanel", "pos": {"x": -1, "y": 2, "z": 0, "ori":"|"}, "progress": 100, "id":3},
+			{"type":"WallPanel", "pos": {"x": 2, "y": 0, "z": 0, "ori":"|"}, "progress": 100, "id":4},
+			{"type":"WallPanel", "pos": {"x": 2, "y": 1, "z": 0, "ori":"|"}, "progress": 100, "id":5},
+			{"type":"Door", "pos": {"x": 1, "y": 1, "z": 0, "ori":"|"}, "progress": 100, "id":6},
+			{"type":"WallPanel", "pos": {"x": 2, "y": 2, "z": 0, "ori":"|"}, "progress": 100, "id":7},
+			{"type":"WallPanel", "pos": {"x": 0, "y": -1, "z": 0, "ori":"-"}, "progress": 100, "id":8},
+			{"type":"WallPanel", "pos": {"x": 1, "y": -1, "z": 0, "ori":"-"}, "progress": 100, "id":9},
+			{"type":"WallPanel", "pos": {"x": 2, "y": -1, "z": 0, "ori":"-"}, "progress": 100, "id":10},
+			{"type":"WallPanel", "pos": {"x": 0, "y": 2, "z": 0, "ori":"-"}, "progress": 100, "id":11},
+			{"type":"WallPanel", "pos": {"x": 1, "y": 2, "z": 0, "ori":"-"}, "progress": 100, "id":12},
+			{"type":"Door", "pos": {"x": 2, "y": 2, "z": 0, "ori":"-"}, "progress": 100, "id":13},
+			{"type":"WallPanel", "pos": {"x": -1, "y": 0, "z": -1, "ori":"|"}, "progress": 100, "id":14},
+			{"type":"WallPanel", "pos": {"x": -1, "y": 1, "z": -1, "ori":"|"}, "progress": 100, "id":15},
+			{"type":"WallPanel", "pos": {"x": -1, "y": 2, "z": -1, "ori":"|"}, "progress": 100, "id":16},
+			{"type":"WallPanel", "pos": {"x": 2, "y": 0, "z": -1, "ori":"|"}, "progress": 100, "id":17},
+			{"type":"WallPanel", "pos": {"x": 2, "y": 1, "z": -1, "ori":"|"}, "progress": 100, "id":18},
+			{"type":"WallPanel", "pos": {"x": 2, "y": 2, "z": -1, "ori":"|"}, "progress": 100, "id":19},
+			{"type":"WallPanel", "pos": {"x": 0, "y": -1, "z": -1, "ori":"-"}, "progress": 100, "id":20},
+			{"type":"WallPanel", "pos": {"x": 1, "y": -1, "z": -1, "ori":"-"}, "progress": 100, "id":21},
+			{"type":"WallPanel", "pos": {"x": 2, "y": -1, "z": -1, "ori":"-"}, "progress": 100, "id":22},
+			{"type":"WallPanel", "pos": {"x": 0, "y": 2, "z": -1, "ori":"-"}, "progress": 100, "id":23},
+			{"type":"WallPanel", "pos": {"x": 2, "y": 2, "z": -1, "ori":"-"}, "progress": 100, "id":24},
+			{"type":"WallPanel", "pos": {"x": 1, "y": 2, "z": -1, "ori":"-"}, "progress": 100, "id":25},
+			{"type":"WallPanel", "pos": {"x": 1, "y": 2, "z": 0, "ori":"|"}, "progress": 100, "id":26},
+			{"type":"WallPanel", "pos": {"x": 2, "y": 0, "z": 0, "ori":"-"}, "progress": 100, "id":27}
+		],
+		"floor":[
+			{"type": "FloorPlate", "pos": {"x": 0, "y": 0, "z": -1}, "progress": 100, "id":28},
+			{"type": "FloorPlate", "pos": {"x": 1, "y": 0, "z": -1}, "progress": 100, "id":29},
+			{"type": "FloorPlate", "pos": {"x": 2, "y": 0, "z": -1}, "progress": 100, "id":30},
+			{"type": "FloorPlate", "pos": {"x": 0, "y": 1, "z": -1}, "progress": 100, "id":31},
+			{"type": "FloorPlate", "pos": {"x": 1, "y": 1, "z": -1}, "progress": 100, "id":32},
+			{"type": "FloorPlate", "pos": {"x": 2, "y": 1, "z": -1}, "progress": 100, "id":33},
+			{"type": "FloorPlate", "pos": {"x": 0, "y": 2, "z": -1}, "progress": 100, "id":34},
+			{"type": "FloorPlate", "pos": {"x": 1, "y": 2, "z": -1}, "progress": 100, "id":35},
+			{"type": "FloorPlate", "pos": {"x": 2, "y": 2, "z": -1}, "progress": 100, "id":36},
+			{"type": "FloorPlate", "pos": {"x": 0, "y": 0, "z": 0}, "progress": 100, "id":37},
+			{"type": "FloorPlate", "pos": {"x": 1, "y": 0, "z": 0}, "progress": 100, "id":38},
+			{"type": "FloorPlate", "pos": {"x": 2, "y": 0, "z": 0}, "progress": 100, "id":39},
+			{"type": "FloorPlate", "pos": {"x": 0, "y": 1, "z": 0}, "progress": 100, "id":40},
+			{"type": "FloorPlate", "pos": {"x": 1, "y": 1, "z": 0}, "progress": 100, "id":41},
+			{"type": "FloorPlate", "pos": {"x": 2, "y": 1, "z": 0}, "progress": 100, "id":42},
+			{"type": "Hatch", "pos": {"x": 0, "y": 2, "z": 0}, "progress": 100, "id":43},
+			{"type": "FloorPlate", "pos": {"x": 1, "y": 2, "z": 0}, "progress": 100, "id":44},
+			{"type": "FloorPlate", "pos": {"x": 2, "y": 2, "z": 0}, "progress": 100, "id":45},
+			{"type": "FloorPlate", "pos": {"x": 0, "y": 0, "z": 1}, "progress": 100, "id":46},
+			{"type": "FloorPlate", "pos": {"x": 1, "y": 0, "z": 1}, "progress": 100, "id":47},
+			{"type": "FloorPlate", "pos": {"x": 2, "y": 0, "z": 1}, "progress": 100, "id":48},
+			{"type": "FloorPlate", "pos": {"x": 0, "y": 1, "z": 1}, "progress": 100, "id":49},
+			{"type": "FloorPlate", "pos": {"x": 1, "y": 1, "z": 1}, "progress": 100, "id":50},
+			{"type": "FloorPlate", "pos": {"x": 2, "y": 1, "z": 1}, "progress": 100, "id":51},
+			{"type": "FloorPlate", "pos": {"x": 0, "y": 2, "z": 1}, "progress": 100, "id":52},
+			{"type": "FloorPlate", "pos": {"x": 1, "y": 2, "z": 1}, "progress": 100, "id":53},
+			{"type": "FloorPlate", "pos": {"x": 2, "y": 2, "z": 1}, "progress": 100, "id":54}
+		],
+		"crew": [
+			{"sprite": "builder_crew", "name": "constructor bot", "pos": {"x": 0, "y": 0, "z": 0}, "id":55}
+		],
+		"furniture": [
+			{"type": "Barrel", "pos": {"x": 1, "y": 0, "z": 0}, "progress": 100, "id":56},
+			{"type": "Barrel", "pos": {"x": 1, "y": 2, "z": 0}, "progress": 100, "id":57},
+			{"type": "Crate", "pos": {"x": 2, "y": 2, "z": -1}, "progress": 100, "items":[], "id":58},
+			{"type": "Crate", "pos": {"x": 2, "y": 0, "z": -1}, "progress": 100, "items":[], "id":59},
+			{"type": "Crate", "pos": {"x": 0, "y": 1, "z": -1}, "progress": 100, "items":[], "id":60},
+			{"type": "Crate", "pos": {"x": 2, "y": 1, "z": -1}, "progress": 100, "items":[], "id":61}
+		],
+		"item": [
+			{"type": "Steel", "pos": {"x": 1, "y": 1, "z": 0}, "id":62}
+		]
+	}
+}

@@ -26,10 +26,8 @@ class Level extends createjs.Container {
 }
 
 class Ship extends createjs.Container {
-	constructor(sprites, raw) {
+	constructor() {
 		super();
-
-    this.sprites = sprites;
 
 		this.grid_width = 24;
 		this.padding = 1;
@@ -37,17 +35,20 @@ class Ship extends createjs.Container {
 		this.floor_layer = 0;
 		this.wall_layer = 1;
 		this.furniture_layer = 2;
-		this.crew_layer = 3;
+    this.item_layer = 3;
+    this.crew_layer = 4;
 
 		this.floors = {};
 		this.walls = {};
 		this.furniture = {};
+    this.items = {};
 		this.crew = {};
 
 		this.places = [
 			this.floors,
 			this.walls,
 			this.furniture,
+      this.items,
 			this.crew
 		];
 
@@ -55,63 +56,84 @@ class Ship extends createjs.Container {
 		this.graph = new Graph(this);
     this.rooms = new Rooms(this);
 
-		this.raw = raw;
+    this.jobs = new Jobs();
 
-		this.min_z = d3.min([d3.min(d3.keys(raw.walls), function(d) {return d*1;}),d3.min(raw.walls, function(d) {return d.pos.z*1;})]);
-  	this.max_z = d3.max([d3.max(d3.keys(raw.walls), function(d) {return d*1;}),d3.max(raw.walls, function(d) {return d.pos.z*1;})]);
+    this.jobs.create_job(new Patrol([
+      {"x":0,"y":0,"z":-1},
+      {"x":0,"y":0,"z":1},
+      {"x":-1,"y":-1,"z":0}
+    ]));
+  }
 
-		var x,y,z;
+  init(raw, objects) {
+    this.type = raw.type;
 
-    var floors = raw.floors;
+  }
+
+  start(raw, objects) {
+    var floors = raw.floor;
+    if(!floors) floors = [];
   	for(var i = 0; i < floors.length; i++) {
-  		this.add_structure(floors[i]);
+      this.add_structure(objects[floors[i]]);
   	}
 
-		var walls = raw.walls;
+		var walls = raw.wall;
+    if(!walls) walls = [];
   	for(var i = 0; i < walls.length; i++) {
-  		this.add_structure(walls[i]);
+      this.add_structure(objects[walls[i]]);
   	}
 
     var furniture = raw.furniture;
+    if(!furniture) furniture = [];
   	for(var i = 0; i < furniture.length; i++) {
-  		this.add_structure(furniture[i]);
+  		this.add_structure(objects[furniture[i]]);
   	}
 
   	var crew = raw.crew;
+    if(!crew) crew = [];
   	for(var i = 0; i < crew.length; i++) {
-  		this.add_crew_member(crew[i]);
+  		this.add_crew_member(objects[crew[i]]);
   	}
 
+    var items = raw.item;
+    if(!items) items = [];
+  	for(var i = 0; i < items.length; i++) {
+  		this.add_item(objects[items[i]]);
+  	}
 
+    var jobs = raw.jobs;
+    if(!jobs) jobs = [];
+    for(var i = 0; i < jobs.length; i++) {
+      this.jobs.create_job(objects[jobs[i]]);
+  	}
 	}
 
-  get_raw() {
-    this.raw = {"walls": [], "floors":[], "crew": [], "furniture": []};
-    for (var thing of iterate_3d(this.walls)) {
-      this.raw.walls.push(thing.get_raw());
+  get_raw(callback) {
+    this.raw = {};
+    this.raw.type = this.type;
+
+    for(var i = 0; i < this.places.length; i++) {
+      for (var thing of iterate_3d(this.places[i])) {
+        var layer = thing.layer;
+        if(this.raw[layer] === undefined) this.raw[layer] = [];
+        this.raw[layer].push(thing.id);
+        thing.get_raw(callback);
+      }
     }
-    for (var thing of iterate_3d(this.floors)) {
-      this.raw.floors.push(thing.get_raw());
-    };
-    for (var thing of iterate_3d(this.crew)) {
-      this.raw.crew.push(thing.get_raw());
-    };
-    for (var thing of iterate_3d(this.furniture)) {
-      this.raw.furniture.push(thing.get_raw());
-    };
-    //console.log(this.raw);
-    return this.raw;
+
+    this.raw.jobs = [];
+    for(var i = 0; i < this.jobs.queue.length; i++) {
+      this.raw.jobs.push(this.jobs.queue[i].id);
+      this.jobs.queue[i].get_raw(callback);
+    }
+
+    callback(this, this.raw);
   }
 
   tick(event) {
     for(var i = 0; i < this.places.length; i++) {
-      var iter = iterate_3d(this.places[i]);
-      while(true) {
-        var thing = iter.next();
-        if(thing.done) break;
-        if(thing.value.tick) thing.value.tick(event);
-        if(thing.value["-"] && thing.value["-"].tick) thing.value["-"].tick(event);
-        if(thing.value["|"] && thing.value["|"].tick) thing.value["|"].tick(event);
+      for (var thing of iterate_3d(this.places[i])) {
+        if(thing.tick) thing.tick(event);
       }
     }
   }
@@ -120,33 +142,12 @@ class Ship extends createjs.Container {
 		return x*(this.grid_width+this.padding*2)+this.padding;
 	}
 
-  get_menu_tree_at(pos) {
-    var menu_tree = [];
-
-		var floor = get_3d(this.floors, pos);
-		if(floor) menu_tree.push(floor.get_menu_item());
-
-    var furniture = get_3d(this.furniture, pos);
-		if(furniture) menu_tree.push(furniture.get_menu_item());
-
-    var walls = [];
-    var dirs = ["north","south","east","west"];
-    for(var i = 0; i < dirs.length; i++) {
-      var wall = this.get_wall(pos, dirs[i]);
-      if(wall) walls.push({"dir":dirs[i],"wall":wall});
-    }
-    if(walls.length > 0) {
-      var wall_menu_list = [];
-      for(var i = 0; i < walls.length; i++) {
-        wall_menu_list.push({"name":walls[i].dir, "list":[{"name":"deconstruct","handle":walls[i].wall.deconstruct.bind(walls[i].wall)}]});
-      }
-      menu_tree.push({"name": "walls", "list":wall_menu_list});
-    }
-		return menu_tree;
-  }
 
   add_thing(pos, place, thing, layer) {
-    if(this.levels[pos.z] === undefined) this.levels[pos.z] = new Level();
+    if(this.levels[pos.z] === undefined) {
+      this.levels[pos.z] = new Level();
+      this.set_display_level(game.z_level);
+    }
     this.levels[pos.z].remove(thing, layer);
 		if(place !== undefined) set_3d(place, pos, thing);
 		this.levels[pos.z].add(thing, layer);
@@ -159,6 +160,8 @@ class Ship extends createjs.Container {
         return this.wall_layer;
       case "furniture":
         return this.furniture_layer;
+      case "item":
+        return this.item_layer;
       default:
         console.log("ERROR cannot find layer '" + str + "'");
         return undefined;
@@ -172,13 +175,14 @@ class Ship extends createjs.Container {
         return this.walls;
       case "furniture":
         return this.furniture;
+      case "item":
+        return this.items;
       default:
         console.log("ERROR cannot find place '" + str + "'");
         return undefined;
     }
   }
-  add_structure(raw) {
-    var structure = Structure.createStructure(this, raw);
+  add_structure(structure) {
     var layer = this.get_layer_from_string(structure.layer);
     var place = this.get_place_from_string(structure.layer);
     this.add_thing(structure.pos, place, structure, layer);
@@ -197,6 +201,9 @@ class Ship extends createjs.Container {
   get_wall(pos) {
     return get_3d(this.walls, pos);
   }
+  get_furniture(pos) {
+    return get_3d(this.furniture, pos);
+  }
 	remove_wall(pos) {
     var floor = get_3d(this.walls, pos);
 		this.levels[pos.z].remove(wall, this.wall_layer);
@@ -210,10 +217,20 @@ class Ship extends createjs.Container {
     this.graph.update_pos(pos);
   }
 
-  add_crew_member(crew_raw) {
-		var crew_member = new Crew(this, crew_raw);
+  add_crew_member(crew_member) {
     this.add_thing(crew_member.pos, this.crew, crew_member, this.crew_layer);
   }
+
+  add_item(item) {
+    var layer = this.get_layer_from_string(item.layer);
+    var place = this.get_place_from_string(item.layer);
+    this.add_thing(item.pos, place, item, layer);
+
+    console.log(item);
+
+    return item;
+  }
+
 	change_position_crew(crew_member, p) {
 		if(get_3d(this.crew, crew_member.pos) !== crew_member) {
 			console.log("ERROR!");

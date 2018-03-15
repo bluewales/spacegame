@@ -1,5 +1,3 @@
-"use strict";
-
 var mass_of_sun = 1.98855e30;
 var gravitational_constant = 6.67384e-11;
 var orbital_mu = 1.327124400419394e+20;
@@ -121,10 +119,10 @@ function init_navigation() {
         .style("border-color", "white")
         .style("border-width", "5px");
 
-    var centerX = width / 2;
+  var centerX = width / 2;
  	var centerY = height / 2;
 
-    var canvas = d3.select("#system_map").node();
+  var canvas = d3.select("#system_map").node();
 	var stage = new createjs.Stage(canvas);
 	stage.x = centerX;
 	stage.y = centerY;
@@ -136,15 +134,15 @@ function init_navigation() {
 
  	var planets_raw = [
  		{"name":"sun","r":0,"start_rotation":0,"color":"yellow"},
- 		{"name":"mercury","r":57.91e+9,"start_rotation":37,"color":"brown"},
+ 		//{"name":"mercury","r":57.91e+9,"start_rotation":37,"color":"brown"},
  		{"name":"venus","r":108.2e+9,"start_rotation":266,"color":"green"},
- 		{"name":"earth","r":149.6e+9,"start_rotation":100,"color":"blue"},
- 		{"name":"mars","r":227.9e+9,"start_rotation":20,"color":"red"},
+ 		//{"name":"earth","r":149.6e+9,"start_rotation":100,"color":"blue"},
+ 		//{"name":"mars","r":227.9e+9,"start_rotation":20,"color":"red"},
  		//{"name":"vesta","r":353e+9,"start_rotation":Math.random()*360,"color":"grey"},
  		//{"name":"ceres","r":414e+9,"start_rotation":Math.random()*360,"color":"grey"},
  		//{"name":"palas","r":414e+9,"start_rotation":Math.random()*360,"color":"grey"},
  		//{"name":"hygiea","r":470e+9,"start_rotation":Math.random()*360,"color":"grey"},
- 		//{"name":"jupiter","r":778.5e+9,"start_rotation":Math.random()*360,"color":"purple"},
+ 		{"name":"jupiter","r":778.5e+9,"start_rotation":Math.random()*360,"color":"purple"},
  		//{"name":"saturn","r":1.429e+12,"start_rotation":Math.random()*360,"color":"gold"},
  		//{"name":"george","r":2.871e+12,"start_rotation":Math.random()*360,"color":"blue"},
  		//{"name":"neptune","r":4.498e+12,"start_rotation":Math.random()*360,"color":"darkblue"}
@@ -160,10 +158,9 @@ function init_navigation() {
  		planets.push(new planet(p.name, p.r, p.start_rotation, p.color, r_convert));
  	}
 
- 	var current_planet = 3;
+ 	var current_planet = 2;
 
  	var now_t = new Date().getTime() / 1000;
-
 
 	for(var i = 0; i < planets.length; i++) {
 		system.addChild(planets[i]);
@@ -172,8 +169,6 @@ function init_navigation() {
 	}
 
 	var transfers = [];
-
-
 
 	var target_t = now_t;
 
@@ -226,9 +221,7 @@ function init_navigation() {
 
 
     function change_time(t) {
-
-		target_t = now_t + t;
-
+			target_t = now_t + t;
     }
 
     function get_left_from_time(t) {

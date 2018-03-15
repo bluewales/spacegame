@@ -1,11 +1,17 @@
 class Barrel extends Furniture {
 
-  constructor(ship, raw) {
-    super(ship, raw);
+  constructor() {
+    super();
+  }
+  init(raw, objects) {
+    super.init(raw, objects);
 
     this.sprite = "barrel";
 
-		this.addChild(new createjs.Sprite(ship.sprites[this.sprite].sprite, this.sprite));
+		this.addChild(new createjs.Sprite(game.sprites[this.sprite].sprite, this.sprite));
+  }
+  start(raw, objects) {
+    super.start(raw, objects);
   }
 
   static generate_raw(pos) {

@@ -1,5 +1,3 @@
-"use strict";
-
 class Rooms {
   constructor(ship) {
     this.ship = ship;

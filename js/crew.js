@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Created by Luke on 7/18/2017.
  */
@@ -8,23 +7,29 @@ function p_to_s(p) {
 }
 
 class Crew extends createjs.Container {
-	constructor(ship, raw) {
-		super();
+	constructor() {
+    super();
+  }
+  init(raw, objects) {
+    this.type = raw.type;
+    this.sprite = "builder_crew";
 
+    this.addChild(new createjs.Sprite(game.sprites[this.sprite].sprite, this.sprite));
 
-    this.addChild(new createjs.Sprite(ship.sprites[raw.sprite].sprite, raw.sprite));
-
-    this.ship = ship;
-    this.raw = raw;
+    this.ship = objects[raw.ship];
     this.pos = raw.pos;
     this.sprite = raw.sprite;
 
     this.x = this.ship.position_transform(this.pos.x);
 		this.y = this.ship.position_transform(this.pos.y);
 
-    this.path_progress = 0;
-    this.path = false;
-    this.cooldown = 0;
+
+
+    this.cooldown = (raw.cooldown !== undefined) ? raw.cooldown : 0;
+    this.path_progress = (raw.path_progress !== undefined) ? raw.path_progress : 0;
+    this.path = raw.path;
+    this.current_job = (raw.current_job !== undefined) ? objects[raw.current_job] : undefined;
+
     this.speed = 1;
 
     this.name = raw.name;
@@ -32,13 +37,15 @@ class Crew extends createjs.Container {
 		// handle click
 		this.on('click', this.handle_click.bind(this));
 	}
+  start(raw, objects) {
+  }
   move_towards(p) {
     //console.log(p_to_s(this.pos) + " move toward " + p_to_s(p));
     this.path = get_path(this.pos, {x:p.x, y:p.y, z:p.z});
     if(p.ori) {
-      var other_p = {"x":p.x+(p.ori=="|"?1:0), "y":p.y+(p.ori=="-"?1:0), "z":p.z};
+      var other_p = {x:p.x+(p.ori=="|"?1:0), y:p.y+(p.ori=="-"?1:0), z:p.z};
       var other_path = get_path(this.pos, other_p);
-      if(this.path.length > this.other_path.length) {
+      if(this.path.length > other_path.length) {
         this.path = other_path;
       }
     }
@@ -53,7 +60,7 @@ class Crew extends createjs.Container {
     } else if(this.path) {
       var c = this.pos;
       var t = this.path[this.path_progress];
-      var distance = Math.abs(c.x-t.x) + Math.abs(c.y-t.y) + Math.abs(c.z-t.z);
+      var distance = walled_distance(c, t);
       var path_weight = passable(c, t);
       if(distance == 0) {
         this.path_progress += 1;
@@ -75,7 +82,7 @@ class Crew extends createjs.Container {
         this.current_job = false;
       }
     } else {
-      this.current_job = window.game.jobs.get_job(this);
+      this.current_job = this.ship.jobs.get_job(this);
     }
 
     var dx = this.ship.position_transform(this.pos.x) - this.x;
@@ -92,16 +99,26 @@ class Crew extends createjs.Container {
     }
   }
   clear_path() {
-    this.path = false;
+    this.path = undefined;
     this.path_progress = 0;
   }
 	handle_click(event) {
     console.log("crew clicked");
 	}
-  get_raw() {
-    this.raw.pos = {"x":this.pos.x, "y":this.pos.y, "z":this.pos.z};
+  get_raw(callback) {
+    this.raw = {};
+    this.raw.pos = {x:this.pos.x, y:this.pos.y, z:this.pos.z};
     this.raw.name = this.name;
-    this.raw.sprite = this.sprite;
-    return this.raw;
+    this.raw.ship = this.ship.id;
+    this.raw.type = this.type;
+    console.log(this.path);
+    if(this.path) this.raw.path = copy_posses(this.path);
+    if(this.current_job) this.raw.current_job = this.current_job.id;
+    this.raw.path_progress = this.path_progress;
+    this.raw.cooldown = this.cooldown;
+    callback(this, this.raw);
+  }
+  get layer() {
+    return "crew";
   }
 }

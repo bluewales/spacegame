@@ -50,8 +50,8 @@ class CardFrame extends createjs.Container {
     this.ex.on("pressmove", function(event) {event.stopPropagation();}.bind(this));
 
 
-    this.un_pinned = new createjs.Sprite(game.ship.sprites["un_pinned"].sprite, "un_pinned");
-    this.is_pinned = new createjs.Sprite(game.ship.sprites["pinned"].sprite, "pinned");
+    this.un_pinned = new createjs.Sprite(game.sprites["un_pinned"].sprite, "un_pinned");
+    this.is_pinned = new createjs.Sprite(game.sprites["pinned"].sprite, "pinned");
     this.un_pinned.x = this.is_pinned.x = this.width - this.icon_width;
     this.un_pinned.y = this.is_pinned.y = 0-this.header_width;
     this.un_pinned.on("click", function(){this.pinned=true;}.bind(this));

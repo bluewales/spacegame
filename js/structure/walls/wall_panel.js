@@ -1,9 +1,11 @@
-"use strict";
-
 class WallPanel extends Wall {
 
-  constructor(ship, raw) {
-    super(ship, raw);
+  constructor() {
+    super();
+  }
+
+  init(raw, objects) {
+    super.init(raw, objects);
 
 
     var g = this.ship.grid_width;
@@ -19,6 +21,9 @@ class WallPanel extends Wall {
     this.addChild(this.drawing);
 
     this.name = "wall";
+  }
+  start(raw, objects) {
+    super.start(raw, objects);
   }
   get passable() {
     return this.progress < 100;

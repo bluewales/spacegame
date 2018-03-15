@@ -16,6 +16,12 @@ class TopBar extends createjs.Container {
       {
         "name":"Controls",
         "card": new ControlsCard()
+      },{
+        "name":"Save",
+        "on_click": function(event) {
+          game.save();
+          event.currentTarget.active = false;
+        }
       }
     ];
 
@@ -25,11 +31,12 @@ class TopBar extends createjs.Container {
         "width": this.button_width,
         "height": this.button_height,
         "text": this.button_data[i].name,
-        "card": this.button_data[i].card
+        "card": this.button_data[i].card,
+        "on_click": this.button_data[i].on_click
       };
       var button = new Button(button_config);
       this.buttons.addChild(button);
-      button.active = true;
+      //button.active = true;
       this.button_data[i].button = button;
     }
     this.addChild(this.buttons);

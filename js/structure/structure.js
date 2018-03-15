@@ -1,8 +1,17 @@
 class Structure extends createjs.Container {
-  constructor(ship, raw) {
+  constructor() {
     super();
-    this.ship = ship;
-    this.raw = raw;
+  }
+
+  init(raw, objects) {
+
+    if(objects === undefined) {
+      this.ship = game.ship;
+    } else {
+      this.ship = objects[raw.ship];
+    }
+
+
 		this.type = raw.type;
     this.pos = raw.pos;
 
@@ -13,27 +22,14 @@ class Structure extends createjs.Container {
     this.x = this.ship.position_transform(this.pos.x);
     this.y = this.ship.position_transform(this.pos.y);
   }
+  start(raw, objects) {
+
+  }
   set progress(value) {
     this._progress = value;
-    this.alpha = value >= 100 ? 1 : 0.5 + value/200;
+    this.alpha = value >= 100 ? 1 : 0.4 + value/250;
   }
   get progress() {
     return this._progress;
-  }
-
-  static get_type_from_string(str) {
-    var types = {
-      "WallPanel": WallPanel,
-      "Door": Door,
-      "Hatch": Hatch,
-      "FloorPlate": FloorPlate,
-      "Crate": Crate,
-      "Barrel": Barrel
-    };
-    return types[str];
-  }
-  static createStructure(ship, raw) {
-    var type = Structure.get_type_from_string(raw.type);
-    return new type(ship, raw);
   }
 }
