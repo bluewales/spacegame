@@ -39,4 +39,7 @@ class WallPanel extends Wall {
       "progress": 0
     };
   }
+  static get materials() {
+    return ["Steel"];
+  }
 }

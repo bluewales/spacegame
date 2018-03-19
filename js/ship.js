@@ -58,16 +58,19 @@ class Ship extends createjs.Container {
 
     this.jobs = new Jobs();
 
+    /*
     this.jobs.create_job(new Patrol([
-      {"x":0,"y":0,"z":-1},
-      {"x":0,"y":0,"z":1},
-      {"x":-1,"y":-1,"z":0}
+      {"x":getRandomInt(-2, 3),"y":getRandomInt(-2, 3),"z":getRandomInt(-2, 3)},
+      {"x":getRandomInt(-2, 3),"y":getRandomInt(-2, 3),"z":getRandomInt(-2, 3)},
+      {"x":getRandomInt(-2, 3),"y":getRandomInt(-2, 3),"z":getRandomInt(-2, 3)}
     ]));
+    */
+
+    this.item_store = new ItemStore();
   }
 
   init(raw, objects) {
     this.type = raw.type;
-
   }
 
   start(raw, objects) {
@@ -152,6 +155,10 @@ class Ship extends createjs.Container {
 		if(place !== undefined) set_3d(place, pos, thing);
 		this.levels[pos.z].add(thing, layer);
   }
+  remove_thing(pos, place, thing, layer) {
+    this.levels[pos.z].remove(thing, layer);
+    if(place !== undefined) set_3d(place, pos, undefined);
+  }
   get_layer_from_string(str) {
     switch(str) {
       case "floor":
@@ -217,20 +224,10 @@ class Ship extends createjs.Container {
     this.graph.update_pos(pos);
   }
 
+
   add_crew_member(crew_member) {
     this.add_thing(crew_member.pos, this.crew, crew_member, this.crew_layer);
   }
-
-  add_item(item) {
-    var layer = this.get_layer_from_string(item.layer);
-    var place = this.get_place_from_string(item.layer);
-    this.add_thing(item.pos, place, item, layer);
-
-    console.log(item);
-
-    return item;
-  }
-
 	change_position_crew(crew_member, p) {
 		if(get_3d(this.crew, crew_member.pos) !== crew_member) {
 			console.log("ERROR!");
@@ -242,6 +239,25 @@ class Ship extends createjs.Container {
 			this.add_thing(p, this.crew, crew_member, this.crew_layer);
 		}
 	}
+
+
+  add_item(item) {
+    this.add_thing(item.pos, undefined, item, this.item_layer);
+    this.items[item.uid] = item;
+
+    item.container = this;
+
+    if(!item.claimed) {
+      this.item_store.add_item(item);
+    }
+    return item;
+  }
+  remove_item(item) {
+    console.log("remove_item");
+    this.levels[item.pos.z].remove(item, this.item_layer);
+    this.items[item.uid] = undefined;
+  }
+
 
 
 	draw_highlight(pos) {

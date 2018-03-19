@@ -49,6 +49,10 @@ class Door extends Wall {
     };
   }
 
+  static get materials() {
+    return ["Steel", "Steel"];
+  }
+
   get_door_art(ori, open) {
     if(!this.door_art) this.door_art = {};
     if(!this.door_art[open]) {

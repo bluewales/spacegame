@@ -117,7 +117,7 @@ class Game {
       "construction": {"source": "js/construction.js"},
       "controls_card": {"source": "js/ui/cards/controls_card.js"},
       "crate": {"source": "js/structure/furniture/crate.js"},
-      "crew": {"source": "js/crew.js"},
+      "crew": {"source": "js/mobs/crew.js"},
       "d3": {"source": "js/lib/d3.js"},
       "wall": {"source": "js/structure/walls/wall.js"},
       "door": {"source": "js/structure/walls/door.js"},
@@ -137,6 +137,7 @@ class Game {
       "item": {"source": "js/items/item.js"},
       "steel": {"source": "js/items/steel.js"},
       "serialization": {"source": "js/serialization.js"},
+      "item_store": {"source": "js/item_store.js"},
     };
 
 

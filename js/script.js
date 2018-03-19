@@ -81,3 +81,14 @@ function create_polygon(color, points, shape) {
 
 	return shape;
 }
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
+function getUID(seed) {
+	if(!seed) {
+		seed = "";
+	}
+	return seed + "-" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}

@@ -54,6 +54,24 @@ class Job {
   }
   // overwrite this one, it's supposed to be overwritten by the child class
   on_complete(){}
+
+
+  take_item_to(crew, item, dest) {
+    if(crew.carried_item !== item) {
+      if(walled_distance(crew.pos, item.pos) > 0) {
+        crew.move_towards(item.pos);
+      } else {
+        crew.grab(item);
+      }
+    } else {
+      if(walled_distance(crew.pos, dest) > 0) {
+        crew.move_towards(dest);
+      } else {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 class Patrol extends Job {

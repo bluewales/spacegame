@@ -14,6 +14,8 @@ class Crew extends createjs.Container {
     this.type = raw.type;
     this.sprite = "builder_crew";
 
+    this.uid = getUID(this.type);
+
     this.addChild(new createjs.Sprite(game.sprites[this.sprite].sprite, this.sprite));
 
     this.ship = objects[raw.ship];
@@ -29,6 +31,8 @@ class Crew extends createjs.Container {
     this.path_progress = (raw.path_progress !== undefined) ? raw.path_progress : 0;
     this.path = raw.path;
     this.current_job = (raw.current_job !== undefined) ? objects[raw.current_job] : undefined;
+
+    this.carried_item = (raw.carried_item !== undefined) ? objects[raw.carried_item] : undefined;
 
     this.speed = 1;
 
@@ -53,6 +57,32 @@ class Crew extends createjs.Container {
       this.clear_path();
       console.log("Path failed, we probably need to cancel this job. " + p_to_s(p));
     }
+  }
+  grab(item) {
+
+    console.log("Grab " + item.type);
+
+    if(walled_distance(this.pos, item.pos) !== 0) {
+      console.log("ERROR cannot grab item.  It's too far away.");
+      return;
+    }
+    if(this.carried_item !== undefined) {
+      console.log("ERROR cannot grab item.  I've already got one.  (I told them I've already got one).");
+      return;
+    }
+    this.carried_item = item;
+    item.container = this;
+    item.x = item.y = 0;
+    item.pos = this.pos;
+    this.addChild(item);
+  }
+  remove_item(item) {
+    if(item !== this.carried_item) {
+      console.log("ERROR cannot remove item.  I don't have it.");
+      return;
+    }
+    this.carried_item = undefined;
+    this.removeChild(item);
   }
   tick(event) {
     if(this.cooldown > 0) {
@@ -107,16 +137,23 @@ class Crew extends createjs.Container {
 	}
   get_raw(callback) {
     this.raw = {};
-    this.raw.pos = {x:this.pos.x, y:this.pos.y, z:this.pos.z};
+    this.raw.pos = copy_pos(this.pos);
     this.raw.name = this.name;
     this.raw.ship = this.ship.id;
     this.raw.type = this.type;
-    console.log(this.path);
     if(this.path) this.raw.path = copy_posses(this.path);
     if(this.current_job) this.raw.current_job = this.current_job.id;
+
+    if(this.carried_item) {
+      this.raw.carried_item = this.carried_item.id;
+      this.carried_item.get_raw(callback);
+    }
+
     this.raw.path_progress = this.path_progress;
     this.raw.cooldown = this.cooldown;
     callback(this, this.raw);
+
+    console.log(this);
   }
   get layer() {
     return "crew";

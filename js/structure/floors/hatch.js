@@ -57,6 +57,10 @@ class Hatch extends Floor {
   	};
   }
 
+  static get materials() {
+    return ["Steel","Steel"];
+  }
+
   get_hatch_art(open) {
     if(!this.hatch_art) this.hatch_art = {};
     if(!this.hatch_art[open]) {

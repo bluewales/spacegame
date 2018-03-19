@@ -21,4 +21,8 @@ class Crate extends Furniture {
       "progress": 0
     };
   }
+
+  static get materials() {
+    return ["Steel"];
+  }
 }
