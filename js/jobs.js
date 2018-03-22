@@ -43,6 +43,8 @@ class Job {
   init(raw, objects) {
     this.active = raw.active;
   }
+  start(raw, objects) {
+  }
   work(crew) {
     console.log("Default Job cannot be worked, is always done.")
     return true;

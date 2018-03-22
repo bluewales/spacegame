@@ -10,7 +10,8 @@ var type_lookup = {
   "Crew": Crew,
   "Steel": Steel,
   "Construct": Construct,
-  "Patrol": Patrol
+  "Patrol": Patrol,
+  "PutAway": PutAway
 };
 
 

@@ -100,7 +100,8 @@ class Crew extends createjs.Container {
       } else if(distance == 1 && path_weight > 0) {
           this.ship.change_position_crew(this, t);
           this.pos = t;
-          this.cooldown = 30 * path_weight;
+          if(this.carried_item) this.carried_item.pos = this.pos;
+          this.cooldown = 24 * path_weight;
           this.speed = 1 / path_weight;
       } else {
         console.log("Cancel path " + distance + " " + passable(c, t));
@@ -152,8 +153,6 @@ class Crew extends createjs.Container {
     this.raw.path_progress = this.path_progress;
     this.raw.cooldown = this.cooldown;
     callback(this, this.raw);
-
-    console.log(this);
   }
   get layer() {
     return "crew";

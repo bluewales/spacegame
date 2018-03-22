@@ -12,7 +12,7 @@ class ItemStore {
     if(!this.store[type]) this.store[type] = [];
     this.store[type].push(item);
     this.by_uid[item.uid] = item;
-    
+
     item.claimed = false;
   }
 

@@ -48,7 +48,6 @@ class Ship extends createjs.Container {
 			this.floors,
 			this.walls,
 			this.furniture,
-      this.items,
 			this.crew
 		];
 
@@ -128,6 +127,12 @@ class Ship extends createjs.Container {
     for(var i = 0; i < this.jobs.queue.length; i++) {
       this.raw.jobs.push(this.jobs.queue[i].id);
       this.jobs.queue[i].get_raw(callback);
+    }
+
+    this.raw.item = [];
+    for (var key in this.items) {
+      this.raw.item.push(this.items[key].id);
+      this.items[key].get_raw(callback);
     }
 
     callback(this, this.raw);
@@ -253,9 +258,9 @@ class Ship extends createjs.Container {
     return item;
   }
   remove_item(item) {
-    console.log("remove_item");
     this.levels[item.pos.z].remove(item, this.item_layer);
     this.items[item.uid] = undefined;
+    delete this.items[item.uid];
   }
 
 

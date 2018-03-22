@@ -1,6 +1,8 @@
 class Item extends createjs.Container {
   constructor() {
     super();
+
+    this.uid = getUID("Item");
   }
   init(raw, objects) {
 
@@ -17,7 +19,6 @@ class Item extends createjs.Container {
     }
 
 
-    this.uid = getUID(this.type);
 
     this.x = this.ship.position_transform(this.pos.x);
     this.y = this.ship.position_transform(this.pos.y);
@@ -26,7 +27,7 @@ class Item extends createjs.Container {
   }
 
   set container(c) {
-    if(this._container) {
+    if(this._container && c != this._container) {
       this._container.remove_item(this);
     }
     this._container = c;

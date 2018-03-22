@@ -61,6 +61,7 @@ class Construct extends Job {
     }
   }
   start(raw, objects) {
+    super.start(raw, objects);
   }
 
   work(crew) {

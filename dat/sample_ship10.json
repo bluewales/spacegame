@@ -776,7 +776,8 @@
 		},
 		"progress": 100,
 		"ship": 83,
-		"type": "Crate"
+		"type": "Crate",
+		"item": [88,89,90,91,92,93,94,95,96,97]
 	}, {
 		"pos": {
 			"x": 1,
@@ -800,6 +801,7 @@
 			"z": 0
 		},
 		"ship": 83,
+		"container": 83,
 		"type": "Steel"
 	}, {
 		"pos": {
@@ -808,6 +810,7 @@
 			"z": -1
 		},
 		"ship": 83,
+		"container": 83,
 		"type": "Steel"
 	}, {
 		"pos": {
@@ -816,14 +819,26 @@
 			"z": -1
 		},
 		"ship": 83,
+		"container": 83,
 		"type": "Steel"
-	}, {
-		"pos": {
-			"x": 0,
-			"y": 1,
-			"z": -1
-		},
-		"ship": 83,
-		"type": "Steel"
-	}]
+	},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 83,"type": "Steel"},
+
+
+
+
+
+
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"},
+	{"pos": {"x": 0,"y": 1,"z": -1},"ship": 83,"container": 81,"type": "Steel"}
+
+]
 }
